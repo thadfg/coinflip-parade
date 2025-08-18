@@ -1,13 +1,41 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net9.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+	
+	<!-- Native AOT settings -->
+    <PublishAot>true</PublishAot>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier> <!-- or linux-x64, etc. -->
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <EnableAotAnalyzer>true</EnableAotAnalyzer>
+    <PublishTrimmed>true</PublishTrimmed>
+    <TrimMode>link</TrimMode>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.6" />
+    <PackageReference Include="CsvHelper" Version="33.1.0" />
+    <PackageReference Include="Facet" Version="2.1.0" />
+    <PackageReference Include="Facet.Extensions.EFCore" Version="2.1.0" />
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.8" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Application\Interfaces\" />
+    <Folder Include="Application\Validation\" />
+    <Folder Include="Domain\Events\" />
+    <Folder Include="Infrastructure\Kafka\" />
+    <Folder Include="Tests\Facets\" />
+    <Folder Include="Tests\Services\" />
+  </ItemGroup>
+
+
+  <ItemGroup>   
+    <ProjectReference Include="C:\ComicApp\coinflip-parade\SharedLibrary\SharedLibrary\SharedLibrary.csproj" />
+  </ItemGroup>
+
+
+
 
 </Project>
