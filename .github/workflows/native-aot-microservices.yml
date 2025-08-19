@@ -54,12 +54,12 @@ jobs:
     - name: Install MSVC Build Tools
       run: choco install visualstudio2022buildtools --package-parameters "--add Microsoft.VisualStudio.Workload.VCTools --includeRecommended --passive --locale en-US"
     - name: Publish Native AOT
-      run: dotnet publish IngestionService/IngestionService.csproj -c Release -r win-x64
+      run: dotnet publish IngestionService/IngestionService/IngestionService.csproj -c Release -r win-x64
     - name: Upload Executable
       uses: actions/upload-artifact@v4
       with:
         name: IngestionServiceExe
-        path: IngestionService/bin/Release/net9.0/win-x64/publish/IngestionService.exe
+        path: IngestionService/IngestionService/bin/Release/net9.0/win-x64/publish/IngestionService.exe
 
   build-persistence:
     name: Build PersistenceService
