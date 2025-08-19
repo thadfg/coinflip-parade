@@ -1,4 +1,4 @@
-﻿namespace SharedLibrary.Extensions
+﻿namespace SharedLibrary.SharedLibrary.Extensions
 {
     public static class StringExtensions
     {
