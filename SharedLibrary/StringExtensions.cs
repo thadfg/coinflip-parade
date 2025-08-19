@@ -1,10 +1,13 @@
-﻿public static class StringExtensions
+﻿namespace SharedLibrary.Extensions
 {
-    public static string Normalize(this string input)
+    public static class StringExtensions
     {
-        if (string.IsNullOrWhiteSpace(input))
-            return string.Empty;
+        public static string Normalize(this string input)
+        {
+            if (string.IsNullOrWhiteSpace(input))
+                return string.Empty;
 
-        return Regex.Replace(input.Trim(), @"\s+", "_").ToLowerInvariant();
+            return Regex.Replace(input.Trim(), @"\s+", "_").ToLowerInvariant();
+        }
     }
 }
