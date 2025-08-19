@@ -7,74 +7,35 @@ on:
     branches: [ main ]
 
 jobs:
-  build-readinglist:
-    name: Build ReadingListService
+  build-services:
+    name: Build ${{ matrix.service }}
     runs-on: windows-latest
-    steps:
-    - uses: actions/checkout@v3
-    - uses: actions/setup-dotnet@v3
-      with:
-        dotnet-version: '9.0.x'
-    - name: Install MSVC Build Tools
-      run: choco install visualstudio2022buildtools --package-parameters "--add Microsoft.VisualStudio.Workload.VCTools --includeRecommended --passive --locale en-US"
-    - name: Publish Native AOT
-      run: dotnet publish ReadingListService/ReadingListService.csproj -c Release -r win-x64
-    - name: Upload Executable
-      uses: actions/upload-artifact@v3
-      with:
-        name: ReadingListServiceExe
-        path: ReadingListService/bin/Release/net9.0/win-x64/publish/ReadingListService.exe
 
-  build-valuation:
-    name: Build ValuationService
-    runs-on: windows-latest
-    steps:
-    - uses: actions/checkout@v3
-    - uses: actions/setup-dotnet@v3
-      with:
-        dotnet-version: '9.0.x'
-    - name: Install MSVC Build Tools
-      run: choco install visualstudio2022buildtools --package-parameters "--add Microsoft.VisualStudio.Workload.VCTools --includeRecommended --passive --locale en-US"
-    - name: Publish Native AOT
-      run: dotnet publish ValuationService/ValuationService.csproj -c Release -r win-x64
-    - name: Upload Executable
-      uses: actions/upload-artifact@v3
-      with:
-        name: ValuationServiceExe
-        path: ValuationService/bin/Release/net9.0/win-x64/publish/ValuationService.exe
+    strategy:
+      matrix:
+        service:
+          - ReadingListService
+          - ValuationService
+          - IngestionService
+          - PersistenceService
 
-  build-ingestion:
-    name: Build IngestionService
-    runs-on: windows-latest
     steps:
-    - uses: actions/checkout@v3
-    - uses: actions/setup-dotnet@v3
-      with:
-        dotnet-version: '9.0.x'
-    - name: Install MSVC Build Tools
-      run: choco install visualstudio2022buildtools --package-parameters "--add Microsoft.VisualStudio.Workload.VCTools --includeRecommended --passive --locale en-US"
-    - name: Publish Native AOT
-      run: dotnet publish IngestionService/IngestionService.csproj -c Release -r win-x64
-    - name: Upload Executable
-      uses: actions/upload-artifact@v3
-      with:
-        name: IngestionServiceExe
-        path: IngestionService/bin/Release/net9.0/win-x64/publish/IngestionService.exe
+    - name: Checkout code
+      uses: actions/checkout@v4
 
-  build-persistence:
-    name: Build PersistenceService
-    runs-on: windows-latest
-    steps:
-    - uses: actions/checkout@v3
-    - uses: actions/setup-dotnet@v3
+    - name: Setup .NET SDK
+      uses: actions/setup-dotnet@v4
       with:
         dotnet-version: '9.0.x'
+
     - name: Install MSVC Build Tools
       run: choco install visualstudio2022buildtools --package-parameters "--add Microsoft.VisualStudio.Workload.VCTools --includeRecommended --passive --locale en-US"
+
     - name: Publish Native AOT
-      run: dotnet publish PersistenceService/PersistenceService.csproj -c Release -r win-x64
+      run: dotnet publish ${{ matrix.service }}/${{ matrix.service }}/${{ matrix.service }}.csproj -c Release -r win-x64
+
     - name: Upload Executable
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
-        name: PersistenceServiceExe
-        path: PersistenceService/bin/Release/net9.0/win-x64/publish/PersistenceService.exe
+        name: ${{ matrix.service }}Exe
+        path: ${{ matrix.service }}/${{ matrix.service }}/bin/Release/net9.0/win-x64/publish/${{ matrix.service }}.exe
