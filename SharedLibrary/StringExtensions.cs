@@ -4,7 +4,7 @@ namespace SharedLibrary.Extensions;
 
     public static class StringExtensions
     {
-        public static string Normalize(this string input)
+        public static string Normalize(this string input, string separator = "_")
         {
             if (string.IsNullOrWhiteSpace(input))
                 return string.Empty;
