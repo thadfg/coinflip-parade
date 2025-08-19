@@ -18,6 +18,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Utilities", "Utilities", "{
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Constants", "Constants", "{6EF0DFC4-53B7-4FD7-BCBD-C5E2BE5B4815}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Extensions", "Extensions", "{BF80769C-CCA4-44B6-BC4B-6860A134347F}"
+	ProjectSection(SolutionItems) = preProject
+		StringExtensions.cs = StringExtensions.cs
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
