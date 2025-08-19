@@ -1,5 +1,7 @@
-﻿namespace SharedLibrary.SharedLibrary.Extensions
-{
+﻿using System.Text.RegularExpressions;
+
+namespace SharedLibrary.Extensions;
+
     public static class StringExtensions
     {
         public static string Normalize(this string input)
@@ -10,4 +12,4 @@
             return Regex.Replace(input.Trim(), @"\s+", "_").ToLowerInvariant();
         }
     }
-}
+
