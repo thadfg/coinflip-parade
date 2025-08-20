@@ -29,12 +29,8 @@ public class ComicCsvIngestor
     {
         var importId = Guid.NewGuid();
 
-        var metricTags = new TagList
-        {
-            { "import_id", importId.ToString() },
-            { "source_system", "CsvImportService" },
-            { "triggered_by", "UserUpload" }
-        };
+        var metricTags = TelemetryExtensions.BuildMetricTags(importId, "CsvImportService", "UserUpload");
+
 
 
 
