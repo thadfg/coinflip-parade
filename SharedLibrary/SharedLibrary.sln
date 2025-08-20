@@ -19,6 +19,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Extensions", "Extensions", "{BF80769C-CCA4-44B6-BC4B-6860A134347F}"
 	ProjectSection(SolutionItems) = preProject
 		StringExtensions.cs = StringExtensions.cs
+		TelemetryExtensions.cs = TelemetryExtensions.cs
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharedLibrary", "SharedLibrary.csproj", "{CF9FB5A2-D9AD-EE60-69E8-5E75CB7340CE}"
