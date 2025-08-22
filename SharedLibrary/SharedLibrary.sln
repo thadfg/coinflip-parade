@@ -15,6 +15,9 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Utilities", "Utilities", "{51BB659E-FD06-4AA8-8601-A1AA8E7E3542}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Constants", "Constants", "{6EF0DFC4-53B7-4FD7-BCBD-C5E2BE5B4815}"
+	ProjectSection(SolutionItems) = preProject
+		MeterNames.cs = MeterNames.cs
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Extensions", "Extensions", "{BF80769C-CCA4-44B6-BC4B-6860A134347F}"
 	ProjectSection(SolutionItems) = preProject
