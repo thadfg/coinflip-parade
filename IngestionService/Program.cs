@@ -7,6 +7,9 @@ using SharedLibrary.Constants;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Register health checks
+builder.Services.AddHealthChecks();
+
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
@@ -14,6 +17,9 @@ TelemetryConfiguration.ConfigureOpenTelemetry(builder.Services, new[] { MeterNam
 
 
 var app = builder.Build();
+
+// Map health check endpoint
+app.MapHealthChecks("/health");
 
 app.MapComicCsvIngestorEndpoints();
 
