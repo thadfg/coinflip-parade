@@ -45,6 +45,24 @@ public class ComicCsvIngestor
 
         foreach (var record in records)
         {
+            if (!record.IsValid(out var validationError))
+            {
+                var deadLetter = new DeadLetterEnvelope<ComicCsvRecord>
+                {
+                    ImportId = importId.ToString(),
+                    Timestamp = DateTime.UtcNow,
+                    Reason = $"Validation failed: {validationError}",
+                    FailedPayload = record
+                };
+
+                var key = $"dead|{importId}";
+                await _producer.ProduceAsync("comic-ingestion-dead-letter", key, deadLetter);
+                failureCount++;
+
+                FailureCounter.Add(1, metricTags);
+                continue;
+            }
+
             try
             {
                 var comicEvent = record.ToFacet<ComicCsvRecord, ComicCsvRecordDto>();
