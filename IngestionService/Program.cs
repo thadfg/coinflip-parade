@@ -1,4 +1,5 @@
 using IngestionService.Configuration;
+using IngestionService.Infrastructure.Kafka;
 using OpenTelemetry;
 using OpenTelemetry.Metrics;
 using SharedLibrary.Constants;
@@ -15,6 +16,9 @@ TelemetryConfiguration.ConfigureOpenTelemetry(builder.Services, new[] { MeterNam
 var app = builder.Build();
 
 app.UseOpenTelemetryPrometheusScrapingEndpoint("/custom-metrics"); // Default: /metrics
+
+builder.Services.AddKafka(builder.Configuration);
+
 
 
 // Configure the HTTP request pipeline.
