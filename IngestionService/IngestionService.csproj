@@ -4,39 +4,44 @@
     <TargetFramework>net9.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-	
-	<!-- Native AOT settings -->
-    <PublishAot>true</PublishAot>
-    <RuntimeIdentifier>win-x64</RuntimeIdentifier> <!-- or linux-x64, etc. -->
-    <InvariantGlobalization>true</InvariantGlobalization>
-    <EnableAotAnalyzer>true</EnableAotAnalyzer>
-    <PublishTrimmed>true</PublishTrimmed>
-    <TrimMode>link</TrimMode>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Confluent.Kafka" Version="2.11.1" />
+    
     <PackageReference Include="CsvHelper" Version="33.1.0" />
-    <PackageReference Include="Facet" Version="2.1.0" />
-    <PackageReference Include="Facet.Extensions.EFCore" Version="2.1.0" />
+    <PackageReference Include="Facet" Version="2.3.0" />
+    <PackageReference Include="Facet.Extensions.EFCore" Version="2.3.0" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.8" />
+    <PackageReference Include="Moq" Version="4.20.72" />
+    
+    
     <PackageReference Include="OpenTelemetry" Version="1.12.0" />
     <PackageReference Include="OpenTelemetry.Exporter.Prometheus" Version="1.3.0-rc.2" />
     <PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.12.0" />
     <PackageReference Include="OpenTelemetry.Instrumentation.Runtime" Version="1.12.0" />
+    <PackageReference Include="xunit" Version="2.9.3" />
+    
   </ItemGroup>
 
   <ItemGroup>
     <Folder Include="Application\Interfaces\" />
     <Folder Include="Application\Validation\" />
     <Folder Include="Domain\Events\" />
-    <Folder Include="Tests\Facets\" />
-    <Folder Include="Tests\Services\" />
+    <Folder Include="Properties\PublishProfiles\" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\SharedLibrary\SharedLibrary.csproj" />
   </ItemGroup>
+
+  <PropertyGroup>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
+  </PropertyGroup>
 
 
 
