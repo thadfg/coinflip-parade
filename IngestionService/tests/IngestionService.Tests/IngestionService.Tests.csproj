@@ -21,13 +21,15 @@
     </PackageReference>
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\SharedLibrary\SharedLibrary.csproj" />
+    <ProjectReference Include="..\..\src\IngestionService\IngestionService.csproj" />
+  </ItemGroup>
+
   <!--<ItemGroup>
     <Using Include="Xunit" />
   </ItemGroup>-->
 
-  <ItemGroup>
-    <ProjectReference Include="..\IngestionService.csproj" />
-    <ProjectReference Include="..\..\SharedLibrary\SharedLibrary.csproj" />
-  </ItemGroup>
+ 
 
 </Project>

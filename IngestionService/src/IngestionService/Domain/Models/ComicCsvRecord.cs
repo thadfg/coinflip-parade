@@ -3,14 +3,23 @@ using System.Globalization;
 
 namespace IngestionService.Domain.Models;
 
-public record ComicCsvRecord(
-    [Name("Publisher Name")] string PublisherName,
-    [Name("Series Name")] string SeriesName,
-    [Name("Full Title")] string FullTitle,
-    [Name("Release Date")] string? ReleaseDate,
-    [Name("In Collection")] string? InCollection
-)
+public record ComicCsvRecord
 {
+    [Name("Publisher Name")]
+    public string PublisherName { get; init; }
+
+    [Name("Series Name")]
+    public string SeriesName { get; init; }
+
+    [Name("Full Title")]
+    public string FullTitle { get; init; }
+
+    [Name("Release Date")]
+    public string? ReleaseDate { get; init; }
+
+    [Name("In Collection")]
+    public string? InCollection { get; init; }
+
     public bool IsValid(out string? error)
     {
         if (string.IsNullOrWhiteSpace(PublisherName))
@@ -42,5 +51,3 @@ public record ComicCsvRecord(
         return true;
     }
 }
-
-
