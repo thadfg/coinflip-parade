@@ -26,10 +26,5 @@
     <ProjectReference Include="..\..\src\IngestionService\IngestionService.csproj" />
   </ItemGroup>
 
-  <!--<ItemGroup>
-    <Using Include="Xunit" />
-  </ItemGroup>-->
-
- 
 
 </Project>
