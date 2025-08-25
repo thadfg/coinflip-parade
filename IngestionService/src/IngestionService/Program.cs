@@ -15,6 +15,7 @@ builder.Services.AddHealthChecks();
 builder.Services.AddOpenApi();
 TelemetryConfiguration.ConfigureOpenTelemetry(builder.Services, new[] { MeterNames.ComicIngestion });
 
+builder.Services.AddKafka(builder.Configuration);
 
 var app = builder.Build();
 
@@ -25,7 +26,7 @@ app.MapComicCsvIngestorEndpoints();
 
 app.UseOpenTelemetryPrometheusScrapingEndpoint("/custom-metrics"); // Default: /metrics
 
-builder.Services.AddKafka(builder.Configuration);
+
 
 
 
