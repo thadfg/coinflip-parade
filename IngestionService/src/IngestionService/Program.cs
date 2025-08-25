@@ -17,6 +17,9 @@ TelemetryConfiguration.ConfigureOpenTelemetry(builder.Services, new[] { MeterNam
 
 builder.Services.AddKafka(builder.Configuration);
 
+// Register telemetry
+ builder.Services.AddCustomTelemetry(new[] { MeterNames.ComicIngestion });
+
 var app = builder.Build();
 
 // Map health check endpoint
