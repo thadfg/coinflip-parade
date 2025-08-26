@@ -1,19 +1,22 @@
 using IngestionService.Application.Services;
+using IngestionService.Web.Features.ComicCsv;
+using Microsoft.AspNetCore.Mvc;
+
 
 public static class ComicCsvIngestorEndpoints
 {
     public static IEndpointRouteBuilder MapComicCsvIngestorEndpoints(this IEndpointRouteBuilder endpoints)
     {
-        endpoints.MapPost("/api/comics/ingest-csv", async (IFormFile file, ComicCsvIngestor ingestor) =>
+        endpoints.MapPost("/api/comics/ingest-csv", async ([FromForm] ComicCsvUploadRequest request, ComicCsvIngestor ingestor) =>
         {
-            if (file == null || file.Length == 0)
+            if (request.File == null || request.File.Length == 0)
                 return Results.BadRequest("No file uploaded.");
 
             var tempFile = Path.GetTempFileName();
 
             using (var stream = File.Create(tempFile))
             {
-                await file.CopyToAsync(stream);
+                await request.File.CopyToAsync(stream);
             }
 
             try
@@ -30,7 +33,7 @@ public static class ComicCsvIngestorEndpoints
                 File.Delete(tempFile);
             }
         })
-        .Accepts<IFormFile>("multipart/form-data")
+        .Accepts<ComicCsvUploadRequest>("multipart/form-data")
         .Produces(200)
         .Produces(400)
         .Produces(500);
