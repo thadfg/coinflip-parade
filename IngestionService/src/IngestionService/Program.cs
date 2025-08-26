@@ -1,3 +1,4 @@
+using IngestionService.Application.Services;
 using IngestionService.Configuration;
 using IngestionService.Infrastructure.Kafka;
 using OpenTelemetry;
@@ -17,8 +18,11 @@ TelemetryConfiguration.ConfigureOpenTelemetry(builder.Services, new[] { MeterNam
 
 builder.Services.AddKafka(builder.Configuration);
 
+builder.Services.AddScoped<ComicCsvIngestor>();
+
+
 // Register telemetry
- builder.Services.AddCustomTelemetry(new[] { MeterNames.ComicIngestion });
+builder.Services.AddCustomTelemetry(new[] { MeterNames.ComicIngestion });
 
 var app = builder.Build();
 
