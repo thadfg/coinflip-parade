@@ -2,7 +2,7 @@ using IngestionService.Application.Services;
 using IngestionService.Web.Features.ComicCsv;
 using Microsoft.AspNetCore.Mvc;
 
-
+namespace IngestionService.Web.Features.ComicCsv;
 public static class ComicCsvIngestorEndpoints
 {
     public static IEndpointRouteBuilder MapComicCsvIngestorEndpoints(this IEndpointRouteBuilder endpoints)
@@ -36,7 +36,8 @@ public static class ComicCsvIngestorEndpoints
         .Accepts<ComicCsvUploadRequest>("multipart/form-data")
         .Produces(200)
         .Produces(400)
-        .Produces(500);
+        .Produces(500)
+        .DisableAntiforgery(); // ?? disables antiforgery for this endpoin;
 
         return endpoints;
     }
