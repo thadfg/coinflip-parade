@@ -7,17 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Confluent.Kafka" Version="2.11.1" />
-    
+    <PackageReference Include="Confluent.Kafka" Version="2.11.1" />    
     <PackageReference Include="CsvHelper" Version="33.1.0" />
     <PackageReference Include="Facet" Version="2.3.0" />
     <PackageReference Include="Facet.Extensions.EFCore" Version="2.3.0" />
-    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.8" />
-    
-    
-    <PackageReference Include="OpenTelemetry" Version="1.12.0" />
-    
-    
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.8" />        
+    <PackageReference Include="OpenTelemetry" Version="1.12.0" />        
     <PackageReference Include="OpenTelemetry.Exporter.Prometheus.AspNetCore" Version="1.8.0-rc.1" />
     <PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.12.0" />    
     <PackageReference Include="OpenTelemetry.Instrumentation.Runtime" Version="1.12.0" />    
@@ -30,6 +25,7 @@
     <Folder Include="Application\Interfaces\" />
     <Folder Include="Application\Validation\" />
     <Folder Include="Domain\Events\" />
+    <Folder Include="Infrastructure\Settings\" />
     <Folder Include="Properties\PublishProfiles\" />
   </ItemGroup>
   
@@ -42,8 +38,17 @@
     <GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     <DockerfileContext>..\..</DockerfileContext>
+    <UserSecretsId>0abe400c-df30-45f2-acbd-5afada173cd3</UserSecretsId>
   </PropertyGroup>
 
+  <ItemGroup>
+    <None Update="appsettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="appsettings.Development.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
 
 
 

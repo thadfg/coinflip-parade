@@ -10,7 +10,7 @@ public static class ComicCsvIngestorEndpoints
         endpoints.MapPost("/api/comics/ingest-csv", async ([FromForm] ComicCsvUploadRequest request, ComicCsvIngestor ingestor) =>
         {
             if (request.File == null || request.File.Length == 0)
-                return Results.BadRequest("No file uploaded.");
+                return Results.BadRequest("No CSV file uploaded.");
 
             var tempFile = Path.GetTempFileName();
 
@@ -37,7 +37,7 @@ public static class ComicCsvIngestorEndpoints
         .Produces(200)
         .Produces(400)
         .Produces(500)
-        .DisableAntiforgery(); // ?? disables antiforgery for this endpoin;
+        .DisableAntiforgery(); // ?? disables antiforgery for this endpoint;
 
         return endpoints;
     }

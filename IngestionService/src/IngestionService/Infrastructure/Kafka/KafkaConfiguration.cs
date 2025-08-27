@@ -1,21 +1,30 @@
-﻿using Microsoft.Extensions.Options;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using SharedLibrary.Kafka;
-
 
 namespace IngestionService.Infrastructure.Kafka;
 
 public static class KafkaConfiguration
 {
-    public static void AddKafka(this IServiceCollection services, IConfiguration config)
+    public static IServiceCollection AddKafka(this IServiceCollection services, IConfiguration configuration)
     {
-        // Register KafkaSettings using the options pattern
-        services.Configure<KafkaSettings>(config.GetSection("Kafka"));
+        // Bind and validate KafkaSettings
+        services.AddOptions<KafkaSettings>()
+            .Bind(configuration.GetSection("Kafka"))
+            .ValidateDataAnnotations()
+            .Validate(settings => !string.IsNullOrWhiteSpace(settings.BootstrapServers),
+                "Kafka BootstrapServers must be configured.");
 
-        // Register KafkaProducer using the resolved settings
+        // Register KafkaProducer
         services.AddSingleton<IKafkaProducer>(sp =>
         {
-            var settings = sp.GetRequiredService<IOptions<KafkaSettings>>().Value;
-            return new KafkaProducer(settings);
-        });        
+            var options = sp.GetRequiredService<IOptions<KafkaSettings>>();
+            var logger = sp.GetRequiredService<ILogger<KafkaProducer>>();
+            return new KafkaProducer(options, logger);
+        });
+
+        return services;
     }
 }

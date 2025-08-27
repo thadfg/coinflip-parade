@@ -1,19 +1,26 @@
 ﻿using Confluent.Kafka;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using SharedLibrary.Kafka;
 using System.Text.Json;
 
 namespace IngestionService.Infrastructure.Kafka
 {
     public class KafkaProducer : IKafkaProducer
-    {
+    {        
         private readonly IProducer<string, string> _producer;
+        private readonly ILogger<KafkaProducer> _logger;
 
-        public KafkaProducer(KafkaSettings settings)
+        public KafkaProducer(IOptions<KafkaSettings> options, ILogger<KafkaProducer> logger)
         {
+            _logger = logger;
+            logger.LogInformation("Kafka BootstrapServers: {BootstrapServers}", options.Value.BootstrapServers);
+
+
             var config = new ProducerConfig
             {
-                BootstrapServers = settings.BootstrapServers,
-                ClientId = settings.ClientId,
+                BootstrapServers = options.Value.BootstrapServers,
+                ClientId = options.Value.ClientId,
                 Acks = Acks.All,
                 EnableIdempotence = true,
                 MessageSendMaxRetries = 3,
@@ -21,6 +28,7 @@ namespace IngestionService.Infrastructure.Kafka
             };
 
             _producer = new ProducerBuilder<string, string>(config).Build();
+            
         }
 
         public async Task ProduceAsync<T>(string topic, string key, T message)
@@ -35,11 +43,13 @@ namespace IngestionService.Infrastructure.Kafka
                     Value = payload
                 });
 
-                Console.WriteLine($"[Kafka] Delivered to {result.TopicPartitionOffset}");
+                _logger.LogInformation("Kafka message delivered to {TopicPartitionOffset}", result.TopicPartitionOffset); 
+                //Console.WriteLine($"[Kafka] Delivered to {result.TopicPartitionOffset}");
             }
             catch (ProduceException<string, string> ex)
             {
-                Console.Error.WriteLine($"[Kafka] Delivery failed: {ex.Error.Reason}");
+                _logger.LogError(ex, "Kafka delivery failed for topic {Topic}: {Reason}", topic, ex.Error.Reason); 
+                //Console.Error.WriteLine($"[Kafka] Delivery failed: {ex.Error.Reason}");
                 throw;
             }
         }
