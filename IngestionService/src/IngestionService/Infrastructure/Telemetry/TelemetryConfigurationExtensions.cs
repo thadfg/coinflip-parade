@@ -3,7 +3,7 @@ using OpenTelemetry.Resources;
 
 public static class TelemetryConfigurationExtensions
 {
-    public static void AddCustomTelemetry(this IServiceCollection services, string[] meterNames)
+    public static void AddCustomTelemetry(this IServiceCollection services, string[] meterNames, bool enableRuntimeInstrumentation = true)
     {
         services.AddOpenTelemetry()
             .WithMetrics(metrics =>
@@ -15,11 +15,16 @@ public static class TelemetryConfigurationExtensions
                     metrics.AddMeter(meter);
                 }
 
-                metrics.AddRuntimeInstrumentation();
+                if (enableRuntimeInstrumentation)
+                {
+                    metrics.AddRuntimeInstrumentation();
+                }
+
                 metrics.AddPrometheusExporter(options =>
                 {
                     options.ScrapeResponseCacheDurationMilliseconds = 0;
                 });
             });
     }
+
 }

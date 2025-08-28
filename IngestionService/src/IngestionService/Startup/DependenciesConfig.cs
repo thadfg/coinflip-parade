@@ -1,6 +1,5 @@
 ﻿using IngestionService.Application.Services;
 using IngestionService.Infrastructure.Kafka;
-using IngestionService.Configuration;
 using SharedLibrary.Constants;
 
 namespace IngestionService.Startup;
@@ -14,11 +13,10 @@ public static class DependenciesConfig
         // Infrastructure Services
         builder.Services.AddHealthChecks();        
         builder.Services.AddKafka(builder.Configuration);
-        builder.Services.AddCustomTelemetry(new[] { MeterNames.ComicIngestion });
+        // Disable runtime instrumentation to avoid OpenMetrics spec violations in Prometheus
+        builder.Services.AddCustomTelemetry(new[] { MeterNames.ComicIngestion }, enableRuntimeInstrumentation: false);
         builder.Services.AddOpenApiServices();
-        
-
-        TelemetryConfiguration.ConfigureOpenTelemetry(builder.Services, new[] { MeterNames.ComicIngestion });
+        builder.WebHost.ConfigureCustomKestrel();        
 
         // Other dependencies can be registered here as needed
     }

@@ -1,10 +1,4 @@
-using IngestionService.Application.Services;
-using IngestionService.Configuration;
-using IngestionService.Infrastructure.Kafka;
 using IngestionService.Startup;
-using OpenTelemetry;
-using OpenTelemetry.Metrics;
-using SharedLibrary.Constants;
 using IngestionService.Web.Features.ComicCsv;
 
 
