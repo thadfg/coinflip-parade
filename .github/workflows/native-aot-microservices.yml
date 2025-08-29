@@ -32,7 +32,8 @@ jobs:
       run: choco install visualstudio2022buildtools --package-parameters "--add Microsoft.VisualStudio.Workload.VCTools --includeRecommended --passive --locale en-US"
 
     - name: Publish Native AOT
-      run: dotnet publish ${{ matrix.service }}/${{ matrix.service }}.csproj -c Release -r win-x64
+      run: dotnet publish ${{ matrix.service }}/src/${{ matrix.service }}/${{ matrix.service }}.csproj -c Release -r win-x64
+
 
     - name: Upload Executable
       uses: actions/upload-artifact@v4
