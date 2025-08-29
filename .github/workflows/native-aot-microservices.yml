@@ -34,7 +34,6 @@ jobs:
     #- name: Publish Native AOT
     #  run: dotnet publish ${{ matrix.service }}/src/${{ matrix.service }}/${{ matrix.service }}.csproj -c Release -r win-x64
 
-
     - name: Upload Executable
       uses: actions/upload-artifact@v4
       with:
