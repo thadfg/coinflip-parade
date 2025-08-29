@@ -4,9 +4,9 @@ using IngestionService.Application.Facets;
 using IngestionService.Domain.Models;
 using SharedLibrary.Extensions;
 using SharedLibrary.Kafka;
-using System.Diagnostics;
 using System.Diagnostics.Metrics;
 using System.Globalization;
+using SharedLibrary.Constants;
 
 
 namespace IngestionService.Application.Services;
@@ -14,7 +14,7 @@ namespace IngestionService.Application.Services;
 public class ComicCsvIngestor
 {
     private readonly IKafkaProducer _producer;
-    private static readonly Meter Meter = new("ComicIngestionMetrics");
+    private static readonly Meter Meter = new(MeterNames.ComicIngestion);
     private static readonly Counter<int> SuccessCounter = Meter.CreateCounter<int>("ingestion_success_count");
     private static readonly Counter<int> FailureCounter = Meter.CreateCounter<int>("ingestion_failure_count");
     private static readonly Histogram<double> DurationHistogram = Meter.CreateHistogram<double>("ingestion_duration_seconds");
@@ -29,7 +29,7 @@ public class ComicCsvIngestor
     {
         var importId = Guid.NewGuid();
 
-        var metricTags = TelemetryExtensions.BuildMetricTags(importId, "CsvImportService", "UserUpload");
+        var metricTags = TelemetryExtensions.BuildMetricTags(importId, "ComicCsvIngestorService", "UserUpload");
 
 
 
@@ -45,6 +45,24 @@ public class ComicCsvIngestor
 
         foreach (var record in records)
         {
+            if (!record.IsValid(out var validationError))
+            {
+                var deadLetter = new DeadLetterEnvelope<ComicCsvRecord>
+                {
+                    ImportId = importId.ToString(),
+                    Timestamp = DateTime.UtcNow,
+                    Reason = $"Validation failed: {validationError}",
+                    FailedPayload = record
+                };
+
+                var key = $"dead|{importId}";
+                await _producer.ProduceAsync("comic-ingestion-dead-letter", key, deadLetter);
+                failureCount++;
+
+                FailureCounter.Add(1, metricTags);
+                continue;
+            }
+
             try
             {
                 var comicEvent = record.ToFacet<ComicCsvRecord, ComicCsvRecordDto>();

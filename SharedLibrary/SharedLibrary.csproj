@@ -4,6 +4,26 @@
     <TargetFramework>net9.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+
+    <RepositoryType>git</RepositoryType>
+    <PackageProjectUrl>https://github.com/thadfg/SharedLibrary</PackageProjectUrl>
+
+    <!-- NuGet package metadata -->
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageId>SharedLibrary</PackageId>
+    <Version>1.0.1</Version>
+    <Authors>Brad</Authors>
+    <Company>BradTech</Company>
+    <Description>Reusable components for Kafka, telemetry, and metrics pipelines</Description>
+    <PackageTags>Kafka;Telemetry;Metrics;SharedLibrary</PackageTags>
+    <RepositoryUrl>https://github.com/thadfg/coinflip-parade</RepositoryUrl>
+    <!-- optional -->
   </PropertyGroup>
+  
+  <ItemGroup>
+    <Compile Include="KafkaProducers.cs" />
+    <Compile Include="TelemetryExtensions.cs" />
+    <Compile Include="Mathematics.cs" />
+  </ItemGroup>
 
 </Project>
