@@ -9,4 +9,8 @@ scrape_configs:
       insecure_skip_verify: true
     static_configs:
       - targets: ['host.docker.internal:7086']
-      
+    metric_relabel_configs:
+      - source_labels: [__name__]
+        regex: dotnet_gc_heap_total_allocated_bytes_total
+        target_label: __name__
+        replacement: dotnet_gc_heap_total_allocated_bytes_total_bytes
