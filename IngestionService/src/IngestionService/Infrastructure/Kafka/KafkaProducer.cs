@@ -43,13 +43,11 @@ namespace IngestionService.Infrastructure.Kafka
                     Value = payload
                 });
 
-                _logger.LogInformation("Kafka message delivered to {TopicPartitionOffset}", result.TopicPartitionOffset); 
-                //Console.WriteLine($"[Kafka] Delivered to {result.TopicPartitionOffset}");
+                _logger.LogInformation("Kafka message delivered to {TopicPartitionOffset}", result.TopicPartitionOffset);                 
             }
             catch (ProduceException<string, string> ex)
             {
-                _logger.LogError(ex, "Kafka delivery failed for topic {Topic}: {Reason}", topic, ex.Error.Reason); 
-                //Console.Error.WriteLine($"[Kafka] Delivery failed: {ex.Error.Reason}");
+                _logger.LogError(ex, "Kafka delivery failed for topic {Topic}: {Reason}", topic, ex.Error.Reason);                 
                 throw;
             }
         }

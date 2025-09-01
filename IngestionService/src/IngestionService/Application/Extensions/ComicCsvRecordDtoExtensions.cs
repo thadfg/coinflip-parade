@@ -1,8 +1,6 @@
 using IngestionService.Application.Facets;
 using IngestionService.Application.Models;
-using OpenTelemetry.Metrics;
 using SharedLibrary.Constants;
-using System;
 using System.Diagnostics.Metrics;
 
 
@@ -40,8 +38,7 @@ namespace IngestionService.Application.Extensions
 
         private static DateTime EmitInvalidDateMetric()
         {
-            InvalidDateMetricFailureCounter.Add(1, new KeyValuePair<string, object?>("Service", "ComicCsvIngestorService"), new KeyValuePair<string, object?>("Source", "UserUpload"));
-            //Metrics.Increment("csv.ingestion.invalid_release_date");
+            InvalidDateMetricFailureCounter.Add(1, new KeyValuePair<string, object?>("Service", "ComicCsvIngestorService"), new KeyValuePair<string, object?>("Source", "UserUpload"));            
             return DateTime.MinValue;
         }
     }
