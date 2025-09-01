@@ -14,7 +14,7 @@ public static class DependenciesConfig
         builder.Services.AddHealthChecks();        
         builder.Services.AddKafka(builder.Configuration);
         // Disable runtime instrumentation to avoid OpenMetrics spec violations in Prometheus
-        builder.Services.AddCustomTelemetry(new[] { MeterNames.ComicIngestion }, enableRuntimeInstrumentation: true);
+        builder.Services.AddCustomTelemetry(new[] { MeterNames.ComicIngestion }, enableRuntimeInstrumentation: false);
         builder.Services.AddOpenApiServices();
         builder.WebHost.ConfigureCustomKestrel();        
 
