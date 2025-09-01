@@ -90,3 +90,4 @@ Migrations/
 /IngestionService/output.txt
 /IngestionService/errors.txt
 /SharedLibrary/NuGet.config
+/IngestionService/ContainerErrors.txt
