@@ -34,7 +34,6 @@ RUN dotnet restore "IngestionService.csproj" --configfile /src/NuGet.config
 
 # Clean, build, and publish
 RUN dotnet clean "IngestionService.csproj"
-RUN dotnet build "IngestionService.csproj" -c Release --no-restore -o /app/build
 RUN dotnet publish "IngestionService.csproj" -c Release --no-restore -o /app/publish
 
 # Final runtime image
