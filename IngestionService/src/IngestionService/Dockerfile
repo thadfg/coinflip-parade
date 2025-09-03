@@ -1,10 +1,18 @@
 # Base image for runtime
-FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
+FROM mcr.microsoft.com/dotnet/aspnet:9.0-preview AS base
 WORKDIR /app
 EXPOSE 80
 
+# Add healthcheck to validate metrics endpoint
+HEALTHCHECK --interval=10s --timeout=3s --start-period=5s --retries=3 \
+  CMD curl --fail https://localhost:7086/custom-metrics || exit 1
+
 # Build image
-FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:9.0-preview AS build
+
+# Accept optional NuGet config file
+ARG NUGET_CONFIG=IngestionService/NuGet.local.config
+COPY ${NUGET_CONFIG} ./NuGet.config
 
 # Set working directory to root of source tree
 WORKDIR /src
@@ -12,16 +20,21 @@ WORKDIR /src
 # Copy entire solution context
 COPY . .
 
+# Copy NuGet config if present
+COPY IngestionService/NuGet.local.config ./NuGet.config
+
 # Optional: Inspect structure during build
 RUN find /src
 
 # Navigate to actual project folder
 WORKDIR /src/IngestionService/src/IngestionService
 
-# Restore, build, and publish
-RUN dotnet restore "IngestionService.csproj"
-RUN dotnet build "IngestionService.csproj" -c Release -o /app/build
-RUN dotnet publish "IngestionService.csproj" -c Release -o /app/publish
+# Restore using injected config
+RUN dotnet restore "IngestionService.csproj" --configfile /src/NuGet.config
+
+# Clean, build, and publish
+RUN dotnet clean "IngestionService.csproj"
+RUN dotnet publish "IngestionService.csproj" -c Release --no-restore -o /app/publish
 
 # Final runtime image
 FROM base AS final

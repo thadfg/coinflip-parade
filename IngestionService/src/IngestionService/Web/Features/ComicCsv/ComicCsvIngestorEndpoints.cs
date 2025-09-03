@@ -1,5 +1,4 @@
 using IngestionService.Application.Services;
-using IngestionService.Web.Features.ComicCsv;
 using Microsoft.AspNetCore.Mvc;
 
 namespace IngestionService.Web.Features.ComicCsv;

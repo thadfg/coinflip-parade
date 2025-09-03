@@ -42,12 +42,7 @@ jobs:
       shell: pwsh
       run: |
         $proj = "${{ matrix.service }}/src/${{ matrix.service }}/${{ matrix.service }}.csproj"
-        $config = "${{ matrix.service }}/nuget.config"
-        if (Test-Path $config) {
-          dotnet restore $proj --configfile $config
-        } else {
-          dotnet restore $proj
-        }
+        dotnet restore $proj
 
     - name: Publish Native AOT
       run: dotnet publish ${{ matrix.service }}/src/${{ matrix.service }}/${{ matrix.service }}.csproj -c Release -r win-x64

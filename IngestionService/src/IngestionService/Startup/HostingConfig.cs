@@ -1,34 +1,80 @@
 ﻿using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.Configuration;
+using System;
+using System.IO;
+using System.Net;
+using System.Net.NetworkInformation;
+using System.Net.Sockets;
 using System.Security.Cryptography.X509Certificates;
 
-namespace IngestionService.Startup
+public static class HostingConfig
 {
-    public static class HostingConfig
+    public static void ConfigureCustomKestrel(WebHostBuilderContext context, KestrelServerOptions options)
     {
-        public static void ConfigureCustomKestrel(this IWebHostBuilder webHostBuilder)
+        var config = context.Configuration;
+
+        var httpsPort = config.GetValue<int>("Kestrel:Endpoints:Https:Port", 7443/*7086*/);
+        var certPath = config["Kestrel:Endpoints:Https:Certificate:Path"];
+        var certPassword = config["Kestrel:Endpoints:Https:Certificate:Password"]
+                           ?? Environment.GetEnvironmentVariable("Kestrel__Endpoints__Https__Certificate__Password");
+
+        EnsurePortAvailable(httpsPort, "HTTPS");
+
+        if (string.IsNullOrWhiteSpace(certPath))
+            throw new InvalidOperationException("Certificate path is not configured.");
+
+        if (!File.Exists(certPath))
+            throw new FileNotFoundException($"Certificate file not found at path: {certPath}");
+
+        if (string.IsNullOrWhiteSpace(certPassword))
+            throw new InvalidOperationException("Certificate password is missing.");
+
+        var certBytes = File.ReadAllBytes(certPath);
+        var certificate = X509CertificateLoader.LoadPkcs12(certBytes, certPassword);
+
+        if (certificate.NotAfter < DateTime.UtcNow)
+            throw new InvalidOperationException($"Certificate has expired on {certificate.NotAfter:u}");
+
+        options.ListenAnyIP(httpsPort, listenOptions =>
         {
-            webHostBuilder.ConfigureKestrel((context, options) =>
-            {
-                var config = context.Configuration.GetSection("Kestrel:Endpoints:Https:Certificate");
-                var certPath = config.GetValue<string>("Path");
-                var certPassword = config.GetValue<string>("Password");
+            listenOptions.UseHttps(certificate);
+        });
+    }
 
-                if (string.IsNullOrWhiteSpace(certPath) || string.IsNullOrWhiteSpace(certPassword))
-                {
-                    throw new InvalidOperationException("Certificate path or password is missing in configuration.");
-                }
+    private static void EnsurePortAvailable(int port, string label)
+    {
+        if (!IsPortAvailable(port))
+        {
+            DumpActiveListeners();
+            throw new IOException($"[Startup] {label} port {port} is already in use. Aborting startup.");
+        }
+    }
 
+    private static bool IsPortAvailable(int port)
+    {
+        try
+        {
+            using var listener = new TcpListener(IPAddress.Any, port);
+            listener.Start();
+            listener.Stop();
+            return true;
+        }
+        catch (SocketException)
+        {
+            return false;
+        }
+    }
 
-                var cert = new X509Certificate2(certPath, certPassword, X509KeyStorageFlags.EphemeralKeySet);
+    private static void DumpActiveListeners()
+    {
+        var ipProps = IPGlobalProperties.GetIPGlobalProperties();
+        var listeners = ipProps.GetActiveTcpListeners();
 
-                options.ListenAnyIP(7086, listenOptions =>
-                {
-                    listenOptions.UseHttps(cert);
-                });
-
-                options.ListenAnyIP(5229); // HTTP fallback
-            });
+        Console.WriteLine("[Startup] Active TCP listeners:");
+        foreach (var ep in listeners)
+        {
+            Console.WriteLine($"  - {ep.Address}:{ep.Port}");
         }
     }
 }

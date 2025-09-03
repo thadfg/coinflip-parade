@@ -85,8 +85,9 @@ Migrations/
 
 # Optional: ignore CSVs if you don’t want to commit sample data
 *.csv
-/IngestionService/NuGet.config
+/IngestionService/NuGet.local.config
 /SharedLibrary/output.txt
 /IngestionService/output.txt
 /IngestionService/errors.txt
 /SharedLibrary/NuGet.config
+/IngestionService/ContainerErrors.txt
