@@ -11,6 +11,9 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Events", "Events", "{EF3EA189-3979-4522-80E4-AC3F97D707D6}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Models", "Models", "{B4359294-66AF-4849-A36A-B273E157FF80}"
+	ProjectSection(SolutionItems) = preProject
+		ComicCsvRecord.cs = ComicCsvRecord.cs
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Utilities", "Utilities", "{51BB659E-FD06-4AA8-8601-A1AA8E7E3542}"
 EndProject
@@ -26,6 +29,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Extensions", "Extensions", 
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharedLibrary", "SharedLibrary.csproj", "{CF9FB5A2-D9AD-EE60-69E8-5E75CB7340CE}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Facet", "Facet", "{27B1F943-5E0D-42D6-A60B-2EDE1A409F07}"
+	ProjectSection(SolutionItems) = preProject
+		ComicCsvRecordDto.cs = ComicCsvRecordDto.cs
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
