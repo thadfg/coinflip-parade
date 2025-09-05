@@ -25,5 +25,11 @@
     <Compile Include="TelemetryExtensions.cs" />
     <Compile Include="Mathematics.cs" />
   </ItemGroup>
+  
+  <ItemGroup>
+    <PackageReference Include="CsvHelper" Version="33.1.0" />
+    <PackageReference Include="Facet" Version="2.5.0" />
+    <PackageReference Include="Facet.Extensions.EFCore" Version="2.5.0" />
+  </ItemGroup>
 
 </Project>
