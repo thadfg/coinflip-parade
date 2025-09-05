@@ -11,7 +11,7 @@
     <!-- NuGet package metadata -->
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageId>SharedLibrary</PackageId>
-    <Version>1.0.3</Version>
+    <Version>1.0.6</Version>
     <Authors>Brad</Authors>
     <Company>BradTech</Company>
     <Description>Reusable components for Kafka, telemetry, and metrics pipelines</Description>
@@ -19,8 +19,7 @@
     <RepositoryUrl>https://github.com/thadfg/coinflip-parade</RepositoryUrl>
     <!-- optional -->
   </PropertyGroup>
-  
-  
+
   <ItemGroup>
     <PackageReference Include="CsvHelper" Version="33.1.0" />
     <PackageReference Include="Facet" Version="2.5.0" />

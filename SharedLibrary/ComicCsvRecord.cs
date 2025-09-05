@@ -1,51 +1,55 @@
 ﻿using CsvHelper.Configuration.Attributes;
 using System.Globalization;
 
-public record ComicCsvRecord
+namespace SharedLibrary.Models
 {
-    [Name("Publisher Name")]
-    public string PublisherName { get; init; }
-
-    [Name("Series Name")]
-    public string SeriesName { get; init; }
-
-    [Name("Full Title")]
-    public string FullTitle { get; init; }
-
-    [Name("Release Date")]
-    public string? ReleaseDate { get; init; }
-
-    [Name("In Collection")]
-    public string? InCollection { get; init; }
-
-    public bool IsValid(out string? error)
+    public record ComicCsvRecord
     {
-        if (string.IsNullOrWhiteSpace(PublisherName))
+        [Name("Publisher Name")]
+        public string PublisherName { get; init; }
+
+        [Name("Series Name")]
+        public string SeriesName { get; init; }
+
+        [Name("Full Title")]
+        public string FullTitle { get; init; }
+
+        [Name("Release Date")]
+        public string? ReleaseDate { get; init; }
+
+        [Name("In Collection")]
+        public string? InCollection { get; init; }
+
+        public bool IsValid(out string? error)
         {
-            error = "PublisherName is required.";
-            return false;
+            if (string.IsNullOrWhiteSpace(PublisherName))
+            {
+                error = "PublisherName is required.";
+                return false;
+            }
+            if (string.IsNullOrWhiteSpace(SeriesName))
+            {
+                error = "SeriesName is required.";
+                return false;
+            }
+            if (string.IsNullOrWhiteSpace(FullTitle))
+            {
+                error = "FullTitle is required.";
+                return false;
+            }
+            if (string.IsNullOrWhiteSpace(ReleaseDate))
+            {
+                error = "ReleaseDate is required.";
+                return false;
+            }
+            if (!DateTime.TryParseExact(ReleaseDate, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out _))
+            {
+                error = "ReleaseDate must be in YYYY-MM-DD format.";
+                return false;
+            }
+            error = null;
+            return true;
         }
-        if (string.IsNullOrWhiteSpace(SeriesName))
-        {
-            error = "SeriesName is required.";
-            return false;
-        }
-        if (string.IsNullOrWhiteSpace(FullTitle))
-        {
-            error = "FullTitle is required.";
-            return false;
-        }
-        if (string.IsNullOrWhiteSpace(ReleaseDate))
-        {
-            error = "ReleaseDate is required.";
-            return false;
-        }
-        if (!DateTime.TryParseExact(ReleaseDate, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out _))
-        {
-            error = "ReleaseDate must be in YYYY-MM-DD format.";
-            return false;
-        }
-        error = null;
-        return true;
     }
+
 }

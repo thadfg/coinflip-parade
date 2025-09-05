@@ -1,10 +1,10 @@
-using System.Globalization;
-using IngestionService.Application.Facets;
 using IngestionService.Application.Services;
 using IngestionService.Domain.Models;
 using Moq;
 using SharedLibrary.Kafka;
 using Xunit;
+using SharedLibrary.Models;
+using SharedLibrary.Facet;
 
 public class ComicCsvIngestorTests
 {
