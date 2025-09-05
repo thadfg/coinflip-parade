@@ -11,7 +11,7 @@
     <!-- NuGet package metadata -->
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageId>SharedLibrary</PackageId>
-    <Version>1.0.2</Version>
+    <Version>1.0.3</Version>
     <Authors>Brad</Authors>
     <Company>BradTech</Company>
     <Description>Reusable components for Kafka, telemetry, and metrics pipelines</Description>
@@ -20,11 +20,6 @@
     <!-- optional -->
   </PropertyGroup>
   
-  <ItemGroup>
-    <Compile Include="KafkaProducers.cs" />
-    <Compile Include="TelemetryExtensions.cs" />
-    <Compile Include="Mathematics.cs" />
-  </ItemGroup>
   
   <ItemGroup>
     <PackageReference Include="CsvHelper" Version="33.1.0" />
