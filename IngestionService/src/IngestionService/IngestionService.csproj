@@ -23,8 +23,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Application\Extensions\" />
     <Folder Include="Application\Interfaces\" />
     <Folder Include="Application\Validation\" />
+    <Folder Include="Domain\Dto\" />
     <Folder Include="Domain\Events\" />
     <Folder Include="Infrastructure\Settings\" />
     <Folder Include="Properties\PublishProfiles\" />
