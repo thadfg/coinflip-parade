@@ -1,8 +1,14 @@
 ﻿using Facet;
+using SharedLibrary.Models;
 
-[Facet(typeof(ComicCsvRecord))]
-public partial class ComicCsvRecordDto
+namespace SharedLibrary.Facet
 {
-    public decimal? Value { get; set; }
-    public string? CoverArtPath { get; set; }
+    [Facet(typeof(ComicCsvRecord))]
+    public partial class ComicCsvRecordDto
+    {
+        public decimal? Value { get; set; }
+        public string? CoverArtPath { get; set; }
+    }
 }
+
+
