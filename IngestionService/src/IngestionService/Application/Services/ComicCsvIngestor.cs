@@ -1,12 +1,13 @@
 ﻿using CsvHelper;
 using Facet.Extensions;
-using IngestionService.Application.Facets;
 using IngestionService.Domain.Models;
 using SharedLibrary.Extensions;
 using SharedLibrary.Kafka;
 using System.Diagnostics.Metrics;
 using System.Globalization;
 using SharedLibrary.Constants;
+using SharedLibrary.Models;
+using SharedLibrary.Facet;
 
 
 namespace IngestionService.Application.Services;
