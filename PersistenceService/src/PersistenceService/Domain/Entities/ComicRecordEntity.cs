@@ -35,7 +35,7 @@ public class ComicRecordEntity
     [Column("value")]
     public decimal? Value { get; set; }
 
-    [Column("coverartpath")]public string CoverArtPath { get; set; }
+    [Column("coverartpath")]public string? CoverArtPath { get; set; }
 
     [Required]
     [Column("importedat")]
