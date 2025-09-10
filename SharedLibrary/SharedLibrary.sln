@@ -13,6 +13,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Models", "Models", "{B4359294-66AF-4849-A36A-B273E157FF80}"
 	ProjectSection(SolutionItems) = preProject
 		ComicCsvRecord.cs = ComicCsvRecord.cs
+		ComicRecordDto.cs = ComicRecordDto.cs
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Utilities", "Utilities", "{51BB659E-FD06-4AA8-8601-A1AA8E7E3542}"
