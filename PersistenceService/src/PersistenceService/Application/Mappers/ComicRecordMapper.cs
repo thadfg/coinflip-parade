@@ -1,16 +1,20 @@
 ﻿using PersistenceService.Domain.Entities;
+using SharedLibrary.Facet;
 using SharedLibrary.Models;
 
 namespace PersistenceService.Application.Mappers;
 
 public static class ComicRecordMapper
 {
-    public static ComicRecordEntity ToEntity(KafkaEnvelope<ComicRecordDto> envelope)
+    public static ComicRecordEntity ToEntity(KafkaEnvelope<ComicCsvRecordDto> envelope)
     {
         if (envelope?.Payload == null)
             throw new ArgumentNullException(nameof(envelope.Payload), "Payload cannot be null");
 
         var dto = envelope.Payload;
+
+        if (!DateTime.TryParse(dto.ReleaseDate, out var parsedReleaseDate))
+            throw new FormatException($"Invalid ReleaseDate format: '{dto.ReleaseDate}'");
 
         return new ComicRecordEntity
         {
@@ -18,10 +22,10 @@ public static class ComicRecordMapper
             PublisherName = dto.PublisherName,
             SeriesName = dto.SeriesName,
             FullTitle = dto.FullTitle,
-            ReleaseDate = dto.ReleaseDate,
+            ReleaseDate = parsedReleaseDate,
             InCollection = dto.InCollection,
-            Value = dto.Value,
-            CoverArtPath = dto.CoverArtPath,
+            Value = dto.Value,  // if Null that means the value has not been pulled yet not yet appraised.
+            CoverArtPath = dto.CoverArtPath ?? string.Empty,
             ImportedAt = envelope.Timestamp
         };
     }

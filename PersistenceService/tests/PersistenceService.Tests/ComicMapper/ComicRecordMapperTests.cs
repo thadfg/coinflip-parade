@@ -1,4 +1,5 @@
 ﻿using PersistenceService.Application.Mappers;
+using SharedLibrary.Facet;
 using SharedLibrary.Models;
 
 public class ComicRecordMapperTests
@@ -8,16 +9,16 @@ public class ComicRecordMapperTests
     {
         var timestamp = DateTime.UtcNow;
 
-        var envelope = new KafkaEnvelope<ComicRecordDto>
+        var envelope = new KafkaEnvelope<ComicCsvRecordDto>
         {
             ImportId = "import-001",
             Timestamp = timestamp,
-            Payload = new ComicRecordDto
+            Payload = new ComicCsvRecordDto
             {
                 PublisherName = "Marvel",
                 SeriesName = "X-Men",
                 FullTitle = "X-Men #1",
-                ReleaseDate = new DateTime(1991, 10, 1),
+                ReleaseDate = "1991-10-01",
                 InCollection = "Yes",
                 Value = 9.99m,
                 CoverArtPath = "/covers/xmen1.jpg"
@@ -46,7 +47,7 @@ public class ComicRecordMapperTests
     [Fact]
     public void ToEntity_NullPayload_ThrowsArgumentNullException()
     {
-        var envelope = new KafkaEnvelope<ComicRecordDto>
+        var envelope = new KafkaEnvelope<ComicCsvRecordDto>
         {
             ImportId = "import-002",
             Timestamp = DateTime.UtcNow,
@@ -59,16 +60,16 @@ public class ComicRecordMapperTests
     [Fact]
     public void ToEntity_MissingRequiredFields_MapsWithDefaultsOrThrows()
     {
-        var envelope = new KafkaEnvelope<ComicRecordDto>
+        var envelope = new KafkaEnvelope<ComicCsvRecordDto>
         {
             ImportId = "import-003",
             Timestamp = DateTime.UtcNow,
-            Payload = new ComicRecordDto
+            Payload = new ComicCsvRecordDto
             {
                 PublisherName = "", // Invalid
                 SeriesName = null,  // Invalid
                 FullTitle = "Untitled",
-                ReleaseDate = DateTime.MinValue,
+                ReleaseDate = "0001-01-01",
                 InCollection = null,
                 Value = null,
                 CoverArtPath = ""
