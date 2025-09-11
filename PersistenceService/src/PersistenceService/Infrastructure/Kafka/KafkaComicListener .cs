@@ -2,6 +2,7 @@
 using System.Text.Json;
 using Confluent.Kafka;
 using PersistenceService.Application.Mappers;
+using SharedLibrary.Facet;
 
 public class KafkaComicListener : BackgroundService
 {
@@ -33,7 +34,7 @@ public class KafkaComicListener : BackgroundService
                 var result = consumer.Consume(stoppingToken);
                 var message = result.Message.Value;
 
-                var envelope = JsonSerializer.Deserialize<KafkaEnvelope<ComicRecordDto>>(message);
+                var envelope = JsonSerializer.Deserialize<KafkaEnvelope<ComicCsvRecordDto>>(message);
 
                 if (envelope != null)
                 {
