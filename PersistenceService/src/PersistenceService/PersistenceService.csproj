@@ -15,6 +15,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Confluent.Kafka" Version="2.11.1" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.6" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.8" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.8">
@@ -22,11 +23,10 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.4" />
-    <PackageReference Include="SharedLibrary" Version="1.0.7" />
+    <PackageReference Include="SharedLibrary" Version="1.0.8" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Infrastructure\Kafka\" />
     <Folder Include="Config\" />
     <Folder Include="Extensions\" />
   </ItemGroup>
