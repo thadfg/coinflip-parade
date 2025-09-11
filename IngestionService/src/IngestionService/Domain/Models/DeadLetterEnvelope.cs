@@ -1,4 +1,4 @@
-﻿namespace IngestionService.Domain.Models;
+﻿/*namespace IngestionService.Domain.Models;
 
 public class DeadLetterEnvelope<T>
 {
@@ -6,5 +6,5 @@ public class DeadLetterEnvelope<T>
     public DateTime Timestamp { get; set; }
     public string Reason { get; set; }
     public T FailedPayload { get; set; }
-}
+}*/
 
