@@ -11,8 +11,7 @@ public class KafkaComicListener : BackgroundService
     private readonly ILogger<KafkaComicListener> _logger;
     private readonly IConfiguration _config;
     private IConsumer<Ignore, string>? _consumer;
-    private readonly IEventRepository _eventRepository;
-    private readonly int _batchSize;
+    private readonly IEventRepository _eventRepository;    
     private readonly List<EventEntity> _buffer = new(); // ✅ Field-level buffer
 
 
@@ -21,8 +20,7 @@ public class KafkaComicListener : BackgroundService
     {
         _logger = logger;
         _config = config;
-        _eventRepository = eventRepository;
-        _batchSize = int.TryParse(_config["Kafka:BatchSize"], out var size) ? size : 10;
+        _eventRepository = eventRepository;        
         _consumer = consumer;
     }
 
@@ -52,8 +50,7 @@ public class KafkaComicListener : BackgroundService
     }
 
     private async Task ConsumeLoopAsync(CancellationToken stoppingToken)
-    {
-        //var buffer = new List<EventEntity>();
+    {        
         var batchSize = int.TryParse(_config["Kafka:BatchSize"], out var size) ? size : 10;
 
         try

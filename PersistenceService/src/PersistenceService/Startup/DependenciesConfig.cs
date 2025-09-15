@@ -1,6 +1,7 @@
-﻿using PersistenceService.Infrastructure;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using PersistenceService.Application.Interfaces;
+using PersistenceService.Infrastructure;
 using PersistenceService.Infrastructure.Repositories;
 
 
@@ -23,6 +24,10 @@ public static class DependenciesConfig
         // Add DbContext with PostgreSQL provider
         builder.Services.AddDbContext<EventDbContext>(options =>
             options.UseNpgsql(config.GetConnectionString("EventDb")));
+
+        builder.Services.AddDbContext<ComicCollectionDbContext>(options =>
+            options.UseNpgsql(config.GetConnectionString("EventDb")));
+
 
         // Add other dependencies as needed
         builder.Services.AddScoped<IEventRepository, EventRepository>();
