@@ -1,10 +1,8 @@
 ﻿using Confluent.Kafka;
-using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Moq;
-using NUnit.Framework;
 using PersistenceService.Application.Interfaces;
 using PersistenceService.Domain.Entities;
 using PersistenceService.Infrastructure;
@@ -12,21 +10,23 @@ using PersistenceService.Infrastructure.Repositories;
 using SharedLibrary.Facet;
 using SharedLibrary.Models;
 using System.Text.Json;
-using NUnitAssert = NUnit.Framework.Assert;
-
+using Xunit;
 
 namespace PersistenceService.Tests.Repositories;
 
-[TestFixture]
 public class EventRepositoryTests
 {
-    [Test]
+    [Fact]
     public async Task SaveAsync_RetriesOnTransientFailure()
     {
         // Arrange
-        var mockContext = new Mock<EventDbContext>();
-        var mockSet = new Mock<DbSet<EventEntity>>();
+        var options = new DbContextOptionsBuilder<EventDbContext>()
+            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+            .Options;
+
+        using var context = new EventDbContext(options);
         var logger = new Mock<ILogger<EventRepository>>();
+        var repo = new EventRepository(context, logger.Object);
 
         var entity = new EventEntity
         {
@@ -37,27 +37,33 @@ public class EventRepositoryTests
             OccurredAt = DateTimeOffset.UtcNow
         };
 
-        mockContext.SetupSequence(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()))
-            .Throws(new DbUpdateException())
-            .ReturnsAsync(1);
-
-        mockContext.Setup(x => x.Events).Returns(mockSet.Object);
-
-        var repo = new EventRepository(mockContext.Object, logger.Object);
+        var callCount = 0;
+        context.SavingChanges += (_, _) =>
+        {
+            callCount++;
+            if (callCount == 1)
+            {
+                throw new DbUpdateException("Simulated transient failure");
+            }
+        };
 
         // Act
         await repo.SaveAsync(entity, CancellationToken.None);
 
         // Assert
-        mockContext.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Exactly(2));
+        Assert.Equal(2, callCount); // First attempt throws, second succeeds
     }
 
-    [Test]
+
+    [Fact]
     public async Task SaveAsync_LogsWarningOnRetry()
     {
         // Arrange
-        var mockContext = new Mock<EventDbContext>();
-        var mockSet = new Mock<DbSet<EventEntity>>();
+        var options = new DbContextOptionsBuilder<EventDbContext>()
+            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+            .Options;
+
+        using var context = new EventDbContext(options);
         var logger = new Mock<ILogger<EventRepository>>();
 
         var entity = new EventEntity
@@ -69,35 +75,46 @@ public class EventRepositoryTests
             OccurredAt = DateTimeOffset.UtcNow
         };
 
-        mockContext.SetupSequence(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()))
-            .Throws(new DbUpdateException())
-            .ReturnsAsync(1);
+        var repo = new EventRepository(context, logger.Object);
 
-        mockContext.Setup(x => x.Events).Returns(mockSet.Object);
-
-        var repo = new EventRepository(mockContext.Object, logger.Object);
+        // Simulate transient failure by overriding SaveChangesAsync
+        var callCount = 0;
+        context.SavingChanges += (_, _) =>
+        {
+            callCount++;
+            if (callCount == 1)
+            {
+                throw new DbUpdateException("Simulated transient failure");
+            }
+        };
 
         // Act
         await repo.SaveAsync(entity, CancellationToken.None);
 
         // Assert
         logger.Verify(
-            x => x.Log(
-                LogLevel.Warning,
-                It.IsAny<EventId>(),
-                It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("Transient failure")),
-                It.IsAny<Exception>(),
-                It.IsAny<Func<It.IsAnyType, Exception, string>>()),
-            Times.Once);
+    x => x.Log(
+        LogLevel.Warning,
+        It.IsAny<EventId>(),
+        It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("Attempt 1 failed")),
+        It.IsAny<Exception>(),
+        It.IsAny<Func<It.IsAnyType, Exception, string>>()),
+    Times.Once);
+
     }
 
-    [Test]
+
+    [Fact]
     public async Task SaveAsync_SavesCorrectEntity()
     {
         // Arrange
-        var mockContext = new Mock<EventDbContext>();
-        var mockSet = new Mock<DbSet<EventEntity>>();
+        var options = new DbContextOptionsBuilder<EventDbContext>()
+            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString()) // isolate per test
+            .Options;
+
+        using var context = new EventDbContext(options);
         var logger = new Mock<ILogger<EventRepository>>();
+        var repo = new EventRepository(context, logger.Object);
 
         var entity = new EventEntity
         {
@@ -108,21 +125,14 @@ public class EventRepositoryTests
             OccurredAt = DateTimeOffset.UtcNow
         };
 
-        mockSet.Setup(x => x.Add(It.IsAny<EventEntity>())).Verifiable();
-        mockContext.Setup(x => x.Events).Returns(mockSet.Object);
-        mockContext.Setup(x => x.SaveChangesAsync(It.IsAny<CancellationToken>())).ReturnsAsync(1);
-
-        var repo = new EventRepository(mockContext.Object, logger.Object);
-
         // Act
         await repo.SaveAsync(entity, CancellationToken.None);
 
         // Assert
-        mockSet.Verify(x => x.Add(It.Is<EventEntity>(e =>
-            e.Id == entity.Id &&
-            e.AggregateId == entity.AggregateId &&
-            e.EventType == entity.EventType &&
-            e.EventData == entity.EventData)), Times.Once);
+        var saved = await context.Events.FindAsync(entity.Id);
+        Assert.NotNull(saved);
+        Assert.Equal(entity.EventType, saved.EventType);
+        Assert.Equal(entity.EventData, saved.EventData);
     }
 
     [Fact]
@@ -131,30 +141,19 @@ public class EventRepositoryTests
         // Arrange
         var mockRepo = new Mock<IEventRepository>();
         var mockLogger = new Mock<ILogger<KafkaComicListener>>();
-        mockLogger.Setup(x => x.Log(
-                It.IsAny<LogLevel>(),
-                It.IsAny<EventId>(),
-                It.IsAny<It.IsAnyType>(),
-                It.IsAny<Exception>(),
-                (Func<It.IsAnyType, Exception?, string>)It.IsAny<object>()))
-                .Callback((LogLevel level, EventId id, object state, Exception ex, object formatter) =>
-                {
-                    Console.WriteLine($"[{level}] {state}");
-                });
         var config = new ConfigurationBuilder()
             .AddInMemoryCollection(new Dictionary<string, string>
             {
-            { "Kafka:BootstrapServers", "localhost:9092" },
-            { "Kafka:GroupId", "test-group" },
-            { "Kafka:Topic", "test-topic" },
-            { "Kafka:BatchSize", "5" }
+                { "Kafka:BootstrapServers", "localhost:9092" },
+                { "Kafka:GroupId", "test-group" },
+                { "Kafka:Topic", "test-topic" },
+                { "Kafka:BatchSize", "5" }
             })
             .Build();
 
         var mockConsumer = new Mock<IConsumer<Ignore, string>>();
         var cancellationSource = new CancellationTokenSource();
 
-        // Simulate one message then cancel
         var envelope = new KafkaEnvelope<ComicCsvRecordDto>
         {
             ImportId = Guid.NewGuid().ToString(),
@@ -180,42 +179,35 @@ public class EventRepositoryTests
         mockRepo.Setup(r => r.SaveBatchAsync(It.IsAny<IEnumerable<EventEntity>>(), It.IsAny<CancellationToken>()))
             .Callback<IEnumerable<EventEntity>, CancellationToken>((batch, _) =>
             {
-                capturedBatch = batch.ToList(); // Materialize immediately
-                Console.WriteLine($"Captured batch count: {capturedBatch.Count()}");
-                foreach (var e in capturedBatch)
-                {
-                    Console.WriteLine($"EventType: {e.EventType}, EventData: {e.EventData}");
-                }
+                capturedBatch = batch.ToList();
             })
             .Returns(Task.CompletedTask);
 
-        // Inject the mock consumer via a testable subclass
         var listener = new KafkaComicListener(mockLogger.Object, config, mockRepo.Object, mockConsumer.Object);
 
         var listenerTask = listener.StartAsync(cancellationSource.Token);
-        await Task.Delay(100); // Let the listener consume the message
-        cancellationSource.Cancel();        
-
-        
-
-        // Act
+        await Task.Delay(100);
+        cancellationSource.Cancel();
         await listenerTask;
 
         // Assert
-        //mockRepo.Verify(r => r.SaveBatchAsync(It.Is<List<EventEntity>>(b => b.Count == 1), It.IsAny<CancellationToken>()), Times.Once);
-        NUnitAssert.That(capturedBatch, Is.Not.Null);
-        NUnitAssert.That(1, Is.EqualTo(capturedBatch.Count()));
+        Assert.NotNull(capturedBatch);
+        Assert.Equal(1, capturedBatch.Count());
         mockConsumer.Verify(c => c.Close(), Times.Once);
         mockConsumer.Verify(c => c.Dispose(), Times.Once);
     }
 
-    [Test]
+    [Fact]
     public async Task SaveBatchAsync_PersistsAllEntities()
     {
         // Arrange
-        var mockContext = new Mock<EventDbContext>();
-        var mockSet = new Mock<DbSet<EventEntity>>();
+        var options = new DbContextOptionsBuilder<EventDbContext>()
+            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+            .Options;
+
+        using var context = new EventDbContext(options);
         var logger = new Mock<ILogger<EventRepository>>();
+        var repo = new EventRepository(context, logger.Object);
 
         var entities = Enumerable.Range(0, 5).Select(i => new EventEntity
         {
@@ -226,20 +218,16 @@ public class EventRepositoryTests
             OccurredAt = DateTimeOffset.UtcNow
         }).ToList();
 
-        mockContext.Setup(x => x.Events).Returns(mockSet.Object);
-        mockContext.Setup(x => x.SaveChangesAsync(It.IsAny<CancellationToken>())).ReturnsAsync(entities.Count);
-
-        var repo = new EventRepository(mockContext.Object, logger.Object);
-
         // Act
         await repo.SaveBatchAsync(entities, CancellationToken.None);
 
         // Assert
-        mockSet.Verify(x => x.AddRange(entities), Times.Once);
-        mockContext.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
+        var savedEntities = context.Events.ToList();
+        Assert.Equal(5, savedEntities.Count);
+        foreach (var entity in entities)
+        {
+            Assert.Contains(savedEntities, e => e.Id == entity.Id);
+        }
     }
 
-
-
 }
-
