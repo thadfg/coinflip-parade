@@ -10,11 +10,24 @@ public class ComicCollectionDbContext : DbContext
         : base(options) { }
 
     public DbSet<ComicRecordEntity> ComicRecords => Set<ComicRecordEntity>();
+    public DbSet<ProcessedEvent> ProcessedEvents { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<ComicRecordEntity>()
             .HasKey(c => c.Id);
+
+        modelBuilder.Entity<ProcessedEvent>().HasKey(p => p.EventId);
+
+        modelBuilder.Entity<ProcessedEvent>()
+            .HasIndex(p => p.EventId)
+            .IsUnique();
+
+        modelBuilder.Entity<ProcessedEvent>()
+            .Property(p => p.ProcessedAtUtc)
+            .IsRequired();
+
+        
 
         modelBuilder.Entity<ComicRecordEntity>()
             .HasIndex(c => c.ReleaseDate);

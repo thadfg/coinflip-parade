@@ -31,5 +31,6 @@ public static class DependenciesConfig
 
         // Add other dependencies as needed
         builder.Services.AddScoped<IEventRepository, EventRepository>();
+        builder.Services.AddScoped<IComicCollectionRepository, ComicCollectionRepository>();
     }
 }

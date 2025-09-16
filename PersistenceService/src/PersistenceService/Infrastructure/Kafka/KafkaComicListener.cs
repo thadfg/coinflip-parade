@@ -11,17 +11,26 @@ public class KafkaComicListener : BackgroundService
     private readonly ILogger<KafkaComicListener> _logger;
     private readonly IConfiguration _config;
     private IConsumer<Ignore, string>? _consumer;
-    private readonly IEventRepository _eventRepository;    
-    private readonly List<EventEntity> _buffer = new(); // ✅ Field-level buffer
+    private readonly IEventRepository _eventRepository;
+    private readonly IComicCollectionRepository _comicCollectionRepository;
+    private readonly List<EventEntity> _eventBuffer = new(); // ✅ Field-level buffer
+    private readonly List<(ComicRecordEntity Comic, Guid EventId)> _comicRecordBuffer = new();
+    // ✅ Field-level buffer
 
 
-    public KafkaComicListener(ILogger<KafkaComicListener> logger, IConfiguration config, IEventRepository eventRepository,
+
+    public KafkaComicListener(
+        ILogger<KafkaComicListener> logger, 
+        IConfiguration config, 
+        IEventRepository eventRepository,
+        IComicCollectionRepository comicCollectionRepository,
         IConsumer<Ignore, string>? consumer = null)
     {
         _logger = logger;
         _config = config;
-        _eventRepository = eventRepository;        
-        _consumer = consumer;
+        _eventRepository = eventRepository;
+        _comicCollectionRepository = comicCollectionRepository; 
+        _consumer = consumer;        
     }
 
     protected override Task ExecuteAsync(CancellationToken stoppingToken)
@@ -35,7 +44,7 @@ public class KafkaComicListener : BackgroundService
         return ConsumeLoopAsync(stoppingToken);
     }
 
-    protected virtual IConsumer<Ignore, string> CreateConsumer()
+    protected virtual IConsumer<Ignore, string> CreateConsumer() //Overiden for testing purposes. IConsumer belongs to Kafka Library.
     {
         var consumerConfig = new ConsumerConfig
         {
@@ -76,14 +85,23 @@ public class KafkaComicListener : BackgroundService
 
                         _logger.LogInformation("Mapped comic: {Title}", comic.FullTitle);
 
-                        _buffer.Add(eventEntity);
-                        // TODO: Persist comic
+                        _eventBuffer.Add(eventEntity);
+                        _comicRecordBuffer.Add((comic, Guid.Parse(envelope.ImportId)));
 
-                        if (_buffer.Count >= batchSize)
+                        // ✅ Upsert comic to state table
+                        if (_comicRecordBuffer.Count >= batchSize)
                         {
-                            await _eventRepository.SaveBatchAsync(_buffer, stoppingToken);
-                            _logger.LogInformation("Persisted batch of {Count} events", _buffer.Count);
-                            _buffer.Clear();
+                            await _comicCollectionRepository.UpsertBatchAsync(_comicRecordBuffer, stoppingToken);
+                            _logger.LogInformation("Persisted batch of {Count} comics", _comicRecordBuffer.Count);
+                            _comicRecordBuffer.Clear();
+                        }
+                        
+
+                        if (_eventBuffer.Count >= batchSize)
+                        {
+                            await _eventRepository.SaveBatchAsync(_eventBuffer, stoppingToken);
+                            _logger.LogInformation("Persisted batch of {Count} events", _eventBuffer.Count);
+                            _eventBuffer.Clear();
                         }
                     }
                 }
@@ -103,12 +121,20 @@ public class KafkaComicListener : BackgroundService
         }
         finally
         {
-            if (_buffer.Count > 0)
+            if (_eventBuffer.Count > 0)
             {
-                _logger.LogInformation("Final buffer count before flush: {Count}", _buffer.Count);
-                await _eventRepository.SaveBatchAsync(_buffer, stoppingToken);
-                _logger.LogInformation("Persisted final batch of {Count} events", _buffer.Count);
-                _buffer.Clear();
+                _logger.LogInformation("Final buffer count before flush: {Count}", _eventBuffer.Count);
+                await _eventRepository.SaveBatchAsync(_eventBuffer, stoppingToken);
+                _logger.LogInformation("Persisted final batch of {Count} events", _eventBuffer.Count);
+                _eventBuffer.Clear();
+            }
+
+            if (_comicRecordBuffer.Count > 0)
+            {
+                _logger.LogInformation("Final comic buffer count before flush: {Count}", _comicRecordBuffer.Count);
+                await _comicCollectionRepository.UpsertBatchAsync(_comicRecordBuffer, stoppingToken);
+                _logger.LogInformation("Persisted final batch of {Count} comics", _comicRecordBuffer.Count);
+                _comicRecordBuffer.Clear();
             }
 
             _consumer?.Close(); // Commit offsets and leave group
