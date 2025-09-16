@@ -40,4 +40,8 @@ public class ComicRecordEntity
     [Required]
     [Column("importedat")]
     public DateTime ImportedAt { get; set; } = DateTime.UtcNow;
+
+    [Column("lastupdatedutc")]
+    public DateTime? LastUpdatedUtc { get; set; }
+
 }

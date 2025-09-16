@@ -26,6 +26,7 @@ namespace PersistenceService.Tests.KafkaListener
           
             // Arrange
             var mockRepo = new Mock<IEventRepository>();
+            var mockComicRepo = new Mock<IComicCollectionRepository>();
 
             var mockLogger = new Mock<ILogger<KafkaComicListener>>();
             mockLogger.Setup(x => x.Log(
@@ -91,7 +92,7 @@ namespace PersistenceService.Tests.KafkaListener
 
 
             // Inject the mock consumer via a testable subclass
-            var listener = new MockKafkaComicListener(mockLogger.Object, config, mockRepo.Object, mockConsumer.Object);
+            var listener = new MockKafkaComicListener(mockLogger.Object, config, mockRepo.Object, mockComicRepo.Object, mockConsumer.Object);
 
             // Act
             await listener.StartAsync(cancellationSource.Token);

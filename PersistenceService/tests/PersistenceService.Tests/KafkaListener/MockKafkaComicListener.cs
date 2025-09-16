@@ -14,8 +14,9 @@ public class MockKafkaComicListener : KafkaComicListener
         ILogger<KafkaComicListener> logger,
         IConfiguration config,
         IEventRepository eventRepository,
+        IComicCollectionRepository comicCollectionRepository,
         IConsumer<Ignore, string> mockConsumer)
-        : base(logger, config, eventRepository)
+        : base(logger, config, eventRepository, comicCollectionRepository)
     {
         _mockConsumer = mockConsumer;
     }

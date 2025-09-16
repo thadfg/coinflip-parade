@@ -152,6 +152,7 @@ public class EventRepositoryTests
             .Build();
 
         var mockConsumer = new Mock<IConsumer<Ignore, string>>();
+        var mockComicRepo = new Mock<IComicCollectionRepository>();
         var cancellationSource = new CancellationTokenSource();
 
         var envelope = new KafkaEnvelope<ComicCsvRecordDto>
@@ -183,7 +184,15 @@ public class EventRepositoryTests
             })
             .Returns(Task.CompletedTask);
 
-        var listener = new KafkaComicListener(mockLogger.Object, config, mockRepo.Object, mockConsumer.Object);
+        //var listener = new KafkaComicListener(mockLogger.Object, config, mockRepo.Object, mockConsumer.Object);
+        var listener = new KafkaComicListener(
+    mockLogger.Object,
+    config,
+    mockRepo.Object,                  // IEventRepository
+    mockComicRepo.Object,            // IComicCollectionRepository 👈 this was missing
+    mockConsumer.Object              // IConsumer<Ignore, string>
+);
+
 
         var listenerTask = listener.StartAsync(cancellationSource.Token);
         await Task.Delay(100);
