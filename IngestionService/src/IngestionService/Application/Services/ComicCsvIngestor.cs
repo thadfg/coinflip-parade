@@ -53,7 +53,8 @@ public class ComicCsvIngestor
                     ImportId = importId.ToString(),
                     Timestamp = DateTime.UtcNow,
                     Reason = $"Validation failed: {validationError}",
-                    FailedPayload = record
+                    FailedPayload = record,
+                    EventType = "Ingestion"
                 };
 
                 var key = $"dead|{importId}";
@@ -91,7 +92,8 @@ public class ComicCsvIngestor
                     ImportId = importId.ToString(),
                     Timestamp = DateTime.UtcNow,
                     Reason = ex.Message,
-                    FailedPayload = record
+                    FailedPayload = record,
+                    EventType = "Ingestion"
                 };
 
                 var key = $"dead|{importId}";
