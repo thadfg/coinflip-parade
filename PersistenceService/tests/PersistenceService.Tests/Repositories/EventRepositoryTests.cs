@@ -6,6 +6,7 @@ using Moq;
 using PersistenceService.Application.Interfaces;
 using PersistenceService.Domain.Entities;
 using PersistenceService.Infrastructure;
+using PersistenceService.Infrastructure.Kafka;
 using PersistenceService.Infrastructure.Repositories;
 using SharedLibrary.Facet;
 using SharedLibrary.Models;
@@ -184,14 +185,19 @@ public class EventRepositoryTests
             })
             .Returns(Task.CompletedTask);
 
-        //var listener = new KafkaComicListener(mockLogger.Object, config, mockRepo.Object, mockConsumer.Object);
+        var kafkaLogHelper = new KafkaLogHelper(
+            mockLogger.Object,
+            config,
+            null,
+            null
+        );
         var listener = new KafkaComicListener(
-    mockLogger.Object,
-    config,
-    mockRepo.Object,                  // IEventRepository
-    mockComicRepo.Object,            // IComicCollectionRepository 👈 this was missing
-    mockConsumer.Object              // IConsumer<Ignore, string>
-);
+            mockLogger.Object,
+            config,
+            mockRepo.Object,
+            mockComicRepo.Object,
+            kafkaLogHelper
+        );
 
 
         var listenerTask = listener.StartAsync(cancellationSource.Token);

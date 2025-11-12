@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using PersistenceService.Application.Interfaces;
 using PersistenceService.Domain.Entities;
+using PersistenceService.Infrastructure.Kafka;
 using SharedLibrary.Facet;
 using SharedLibrary.Models;
 using System;
@@ -27,7 +28,8 @@ namespace PersistenceService.Tests.KafkaListener
             // Arrange
             var mockRepo = new Mock<IEventRepository>();
             var mockComicRepo = new Mock<IComicCollectionRepository>();
-
+            //var mockKafkaLogHelper = new Mock<IKafkaLogHelper>(); // Add KafkaLogHelper mock or instance
+            var mockKafkaLogHelper = new MockKafkaLogHelper();
             var mockLogger = new Mock<ILogger<KafkaComicListener>>();
             mockLogger.Setup(x => x.Log(
                 It.IsAny<LogLevel>(),
@@ -91,8 +93,18 @@ namespace PersistenceService.Tests.KafkaListener
                 });
 
 
+            // Add KafkaLogHelper mock or instance
+            //var mockKafkaLogHelper = new Mock<IKafkaLogHelper>();
+
             // Inject the mock consumer via a testable subclass
-            var listener = new MockKafkaComicListener(mockLogger.Object, config, mockRepo.Object, mockComicRepo.Object, mockConsumer.Object);
+            var listener = new MockKafkaComicListener(
+                mockLogger.Object,
+                config,
+                mockRepo.Object,
+                mockComicRepo.Object,
+                mockKafkaLogHelper.Object, // <-- Add this argument
+                mockConsumer.Object
+            );
 
             // Act
             await listener.StartAsync(cancellationSource.Token);
@@ -100,15 +112,7 @@ namespace PersistenceService.Tests.KafkaListener
             mockRepo.Verify(); // Confirms the setup was hit
 
 
-            // Assert
-            //mockRepo.Verify(r => r.SaveBatchAsync(It.Is<List<EventEntity>>(b => b.Count == 1), It.IsAny<CancellationToken>()), Times.Once);
-            //mockRepo.Verify(r => r.SaveBatchAsync(It.IsAny<List<EventEntity>>(), It.IsAny<CancellationToken>()), Times.Once);
-
-            //List<EventEntity>? capturedBatch = null;
-
-            /*mockRepo.Setup(r => r.SaveBatchAsync(It.IsAny<List<EventEntity>>(), It.IsAny<CancellationToken>()))
-                .Callback<List<EventEntity>, CancellationToken>((batch, _) => capturedBatch = batch);*/
-
+            // Assert            
             Assert.NotNull(capturedBatch);
             Assert.Single(capturedBatch); // ✅ This confirms the count
 
