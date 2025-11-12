@@ -2,6 +2,8 @@
 using PersistenceService.Application.Interfaces;
 using PersistenceService.Application.Mappers;
 using PersistenceService.Domain.Entities;
+using PersistenceService.Infrastructure.Kafka;
+using PersistenceService.Infrastructure.Logging;
 using SharedLibrary.Facet;
 using SharedLibrary.Models;
 using System.Text.Json;
@@ -15,7 +17,8 @@ public class KafkaComicListener : BackgroundService
     private readonly IComicCollectionRepository _comicCollectionRepository;
     private readonly List<EventEntity> _eventBuffer = new(); // ✅ Field-level buffer
     private readonly List<(ComicRecordEntity Comic, Guid EventId)> _comicRecordBuffer = new();
-    // ✅ Field-level buffer
+    private readonly IKafkaLogHelper _kafkaLogHelper;
+    
 
 
 
@@ -24,13 +27,18 @@ public class KafkaComicListener : BackgroundService
         IConfiguration config, 
         IEventRepository eventRepository,
         IComicCollectionRepository comicCollectionRepository,
-        IConsumer<Ignore, string>? consumer = null)
+        IKafkaLogHelper kafkaLogHelper,
+        IConsumer<Ignore, string>? consumer = null
+        )
+        
     {
         _logger = logger;
         _config = config;
         _eventRepository = eventRepository;
         _comicCollectionRepository = comicCollectionRepository; 
-        _consumer = consumer;        
+        _consumer = consumer;
+        _kafkaLogHelper = kafkaLogHelper;
+        
     }
 
     protected override Task ExecuteAsync(CancellationToken stoppingToken)
@@ -108,16 +116,19 @@ public class KafkaComicListener : BackgroundService
                 catch (ConsumeException ex)
                 {
                     _logger.LogError(ex, "Kafka consume error");
+                    await _kafkaLogHelper.LogToKafkaAsync("Error", "Kafka consume error", ex);
                 }
                 catch (JsonException ex)
                 {
                     _logger.LogWarning(ex, "Malformed JSON payload");
+                    await _kafkaLogHelper.LogToKafkaAsync("Warning", "Malformed JSON payload", ex);
                 }
             }
         }
         catch (OperationCanceledException)
         {
-            _logger.LogInformation("Kafka consumer cancellation requested");
+            _logger.LogInformation("Kafka consumer cancellation requested"); 
+            await _kafkaLogHelper.LogToKafkaAsync("Information", "Kafka consumer cancellation requested");
         }
         finally
         {
@@ -140,6 +151,7 @@ public class KafkaComicListener : BackgroundService
             _consumer?.Close(); // Commit offsets and leave group
             _consumer?.Dispose();
             _logger.LogInformation("Kafka consumer shut down gracefully");
+            await _kafkaLogHelper.LogToKafkaAsync("Information", "Kafka consumer shut down gracefully");
         }
     }
 
