@@ -11,9 +11,9 @@
     <!-- NuGet package metadata -->
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageId>SharedLibrary</PackageId>
-    <Version>1.0.9</Version>
+    <Version>1.1.0</Version>
     <Authors>Brad</Authors>
-    <Company>BradTech</Company>
+    <Company>PandaTech</Company>
     <Description>Reusable components for Kafka, telemetry, and metrics pipelines</Description>
     <PackageTags>Kafka;Telemetry;Metrics;SharedLibrary</PackageTags>
     <RepositoryUrl>https://github.com/thadfg/coinflip-parade</RepositoryUrl>
