@@ -26,4 +26,9 @@
     <PackageReference Include="Facet.Extensions.EFCore" Version="2.5.0" />
   </ItemGroup>
 
+  <!-- Assembly metadata -->
+  <AssemblyVersion>1.1.0.0</AssemblyVersion>
+  <FileVersion>1.1.0.0</FileVersion>
+  <InformationalVersion>1.1.0</InformationalVersion>
+
 </Project>
