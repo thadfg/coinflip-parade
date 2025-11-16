@@ -3,6 +3,10 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using SharedLibrary.Kafka;
 using System.Text.Json;
+using System.Text;
+using System.Diagnostics;
+using OpenTelemetry.Context.Propagation;
+using OpenTelemetry;
 
 namespace IngestionService.Infrastructure.Kafka
 {
@@ -31,23 +35,45 @@ namespace IngestionService.Infrastructure.Kafka
             
         }
 
-        public async Task ProduceAsync<T>(string topic, string key, T message)
+        // Added optional correlationId parameter; if null a new GUID will be generated.
+        public async Task ProduceAsync<T>(string topic, string key, T message, string? correlationId = null)
         {
             var payload = JsonSerializer.Serialize(message);
+            var corrId = correlationId ?? Guid.NewGuid().ToString();
 
             try
             {
-                var result = await _producer.ProduceAsync(topic, new Message<string, string>
+                var msg = new Message<string, string>
                 {
                     Key = key,
-                    Value = payload
-                });
+                    Value = payload,
+                    Headers = new Headers()
+                };
 
-                _logger.LogInformation("Kafka message delivered to {TopicPartitionOffset}", result.TopicPartitionOffset);                 
+                // Add stable per-message correlation id
+                msg.Headers.Add("correlation-id", Encoding.UTF8.GetBytes(corrId));
+
+                // Use OpenTelemetry propagator to inject trace context + baggage into headers automatically.
+                // The setter maps carrier,key,value => add to Confluent.Kafka.Headers
+                if (Propagators.DefaultTextMapPropagator != null)
+                {
+                    var propagationContext = Activity.Current != null
+                        ? new PropagationContext(Activity.Current.Context, Baggage.Current)
+                        : new PropagationContext(default, default);
+
+                    void Setter(Headers headers, string name, string value)
+                        => headers.Add(name, Encoding.UTF8.GetBytes(value ?? string.Empty));
+
+                    Propagators.DefaultTextMapPropagator.Inject(propagationContext, msg.Headers, (h, name, value) => Setter(h, name, value));
+                }
+
+                var result = await _producer.ProduceAsync(topic, msg);
+
+                _logger.LogInformation("Kafka message delivered to {TopicPartitionOffset} (corr:{CorrelationId})", result.TopicPartitionOffset, corrId);
             }
             catch (ProduceException<string, string> ex)
             {
-                _logger.LogError(ex, "Kafka delivery failed for topic {Topic}: {Reason}", topic, ex.Error.Reason);                 
+                _logger.LogError(ex, "Kafka delivery failed for topic {Topic}: {Reason}", topic, ex.Error.Reason);
                 throw;
             }
         }

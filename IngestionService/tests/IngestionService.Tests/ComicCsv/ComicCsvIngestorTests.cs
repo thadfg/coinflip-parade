@@ -28,7 +28,8 @@ public class ComicCsvIngestorTests
         mockProducer.Verify(p => p.ProduceAsync(
             "comic-imported",
             It.IsAny<string>(),
-            It.IsAny<KafkaEnvelope<ComicCsvRecordDto>>()),
+            It.IsAny<KafkaEnvelope<ComicCsvRecordDto>>(),
+            null),
             Times.Once);
 
         // Cleanup
@@ -55,7 +56,8 @@ public class ComicCsvIngestorTests
         mockProducer.Verify(p => p.ProduceAsync(
             "comic-ingestion-dead-letter",
             It.IsAny<string>(),
-            It.IsAny<DeadLetterEnvelope<ComicCsvRecord>>()),
+            It.IsAny<DeadLetterEnvelope<ComicCsvRecord>>(),
+            null),
             Times.AtLeastOnce);
 
         // Cleanup
