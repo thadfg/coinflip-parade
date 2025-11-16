@@ -29,7 +29,7 @@ public class ComicCsvIngestorTests
             "comic-imported",
             It.IsAny<string>(),
             It.IsAny<KafkaEnvelope<ComicCsvRecordDto>>(),
-            null),
+            It.IsAny<string>()),
             Times.Once);
 
         // Cleanup
@@ -57,7 +57,7 @@ public class ComicCsvIngestorTests
             "comic-ingestion-dead-letter",
             It.IsAny<string>(),
             It.IsAny<DeadLetterEnvelope<ComicCsvRecord>>(),
-            null),
+            It.IsAny<string>()),
             Times.AtLeastOnce);
 
         // Cleanup
