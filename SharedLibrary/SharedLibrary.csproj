@@ -11,19 +11,24 @@
     <!-- NuGet package metadata -->
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageId>SharedLibrary</PackageId>
-    <Version>1.1.0</Version>
+    <Version>1.1.1</Version>
     <Authors>Brad</Authors>
     <Company>PandaTech</Company>
     <Description>Reusable components for Kafka, telemetry, and metrics pipelines</Description>
     <PackageTags>Kafka;Telemetry;Metrics;SharedLibrary</PackageTags>
     <RepositoryUrl>https://github.com/thadfg/coinflip-parade</RepositoryUrl>
     <!-- optional -->
+
+    <!-- Assembly metadata -->
+    <AssemblyVersion>1.1.1.0</AssemblyVersion>
+    <FileVersion>1.1.1.0</FileVersion>
+    <InformationalVersion>1.1.0</InformationalVersion>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="CsvHelper" Version="33.1.0" />
     <PackageReference Include="Facet" Version="2.5.0" />
     <PackageReference Include="Facet.Extensions.EFCore" Version="2.5.0" />
-  </ItemGroup>
+  </ItemGroup>  
 
 </Project>

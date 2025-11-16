@@ -8,7 +8,7 @@ using System.Globalization;
 using SharedLibrary.Constants;
 using SharedLibrary.Models;
 using SharedLibrary.Facet;
-
+using System.Diagnostics;
 
 namespace IngestionService.Application.Services;
 
@@ -20,6 +20,8 @@ public class ComicCsvIngestor
     private static readonly Counter<int> FailureCounter = Meter.CreateCounter<int>("ingestion_failure_count");
     private static readonly Histogram<double> DurationHistogram = Meter.CreateHistogram<double>("ingestion_duration_seconds");
 
+    // ActivitySource used to create producer spans for tracing
+    private static readonly ActivitySource ActivitySource = new("IngestionService.ComicCsvIngestor");
 
     public ComicCsvIngestor(IKafkaProducer producer)
     {
@@ -32,9 +34,6 @@ public class ComicCsvIngestor
 
         var metricTags = TelemetryExtensions.BuildMetricTags(importId, "ComicCsvIngestorService", "UserUpload");
 
-
-
-
         using var reader = new StreamReader(csvPath);
         using var csv = new CsvReader(reader, CultureInfo.InvariantCulture);
 
@@ -46,6 +45,9 @@ public class ComicCsvIngestor
 
         foreach (var record in records)
         {
+            // per-record correlation id
+            var correlationId = Guid.NewGuid().ToString();
+
             if (!record.IsValid(out var validationError))
             {
                 var deadLetter = new DeadLetterEnvelope<ComicCsvRecord>
@@ -57,10 +59,17 @@ public class ComicCsvIngestor
                     EventType = "Ingestion"
                 };
 
-                var key = $"dead|{importId}";
-                await _producer.ProduceAsync("comic-ingestion-dead-letter", key, deadLetter);
-                failureCount++;
+                var key = $"dead|{importId}|{correlationId}";
 
+                // start activity so traceparent is available to the producer
+                using (var activity = ActivitySource.StartActivity("Ingest.Record.DeadLetter", ActivityKind.Producer))
+                {
+                    activity?.SetTag("import.id", importId.ToString());
+                    activity?.AddBaggage("correlation-id", correlationId);
+                    await _producer.ProduceAsync("comic-ingestion-dead-letter", key, deadLetter, correlationId);
+                }
+
+                failureCount++;
                 FailureCounter.Add(1, metricTags);
                 continue;
             }
@@ -71,7 +80,7 @@ public class ComicCsvIngestor
 
                 var publisherKey = record.PublisherName.Normalize("-");
                 var seriesKey = record.SeriesName.Normalize("-");
-                var key = $"{publisherKey}|{seriesKey}|{importId}";
+                var key = $"{publisherKey}|{seriesKey}|{importId}|{correlationId}";
 
                 var envelope = new KafkaEnvelope<ComicCsvRecordDto>
                 {
@@ -80,9 +89,16 @@ public class ComicCsvIngestor
                     Payload = comicEvent
                 };
 
-                await _producer.ProduceAsync("comic-imported", key, envelope);
-                successCount++;
+                using (var activity = ActivitySource.StartActivity("Ingest.Record.Produce", ActivityKind.Producer))
+                {
+                    activity?.SetTag("import.id", importId.ToString());
+                    activity?.SetTag("publisher", publisherKey);
+                    activity?.AddBaggage("correlation-id", correlationId);
 
+                    await _producer.ProduceAsync("comic-imported", key, envelope, correlationId);
+                }
+
+                successCount++;
                 SuccessCounter.Add(1, metricTags);
             }
             catch (Exception ex)
@@ -96,13 +112,20 @@ public class ComicCsvIngestor
                     EventType = "Ingestion"
                 };
 
-                var key = $"dead|{importId}";
-                await _producer.ProduceAsync("comic-ingestion-dead-letter", key, deadLetter);
-                failureCount++;
+                var key = $"dead|{importId}|{correlationId}";
 
+                using (var activity = ActivitySource.StartActivity("Ingest.Record.DeadLetterOnError", ActivityKind.Producer))
+                {
+                    activity?.SetTag("import.id", importId.ToString());
+                    activity?.AddBaggage("correlation-id", correlationId);
+                    await _producer.ProduceAsync("comic-ingestion-dead-letter", key, deadLetter, correlationId);
+                }
+
+                failureCount++;
                 FailureCounter.Add(1, metricTags);
             }            
         }
+
         var metrics = new BatchIngestionMetrics
         {
             ImportId = importId.ToString(),
@@ -121,7 +144,5 @@ public class ComicCsvIngestor
         var durationSeconds = (completed - started).TotalSeconds;
 
         DurationHistogram.Record(durationSeconds, metricTags);
-
-
     }
 }
