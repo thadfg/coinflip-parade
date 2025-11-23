@@ -1,5 +1,5 @@
 # Base image for runtime
-FROM mcr.microsoft.com/dotnet/aspnet:9.0-preview AS base
+FROM mcr.microsoft.com/dotnet/sdk:9.0 AS base
 WORKDIR /app
 EXPOSE 80
 
@@ -8,7 +8,7 @@ HEALTHCHECK --interval=10s --timeout=3s --start-period=5s --retries=3 \
   CMD curl --fail https://localhost:7086/custom-metrics || exit 1
 
 # Build image
-FROM mcr.microsoft.com/dotnet/sdk:9.0-preview AS build
+FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 
 # Accept optional NuGet config file
 ARG NUGET_CONFIG=IngestionService/NuGet.local.config

@@ -41,13 +41,13 @@ namespace PersistenceService.Infrastructure.Kafka
 {
     public class KafkaLogHelper : IKafkaLogHelper
     {
-        private readonly ILogger _logger;
+        private readonly ILogger<KafkaLogHelper> _logger;
         private readonly IConfiguration _config;
         private readonly IProducer<Null, string>? _kafkaProducer;
         private readonly IKafkaLogSink? _kafkaLogSink;
 
         public KafkaLogHelper(
-            ILogger logger,
+            ILogger<KafkaLogHelper> logger,
             IConfiguration config,
             IProducer<Null, string>? kafkaProducer = null,
             IKafkaLogSink? kafkaLogSink = null)
