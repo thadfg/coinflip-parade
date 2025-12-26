@@ -1,6 +1,10 @@
 ﻿using IngestionService.Application.Services;
 using IngestionService.Infrastructure.Kafka;
+using IngestionService.Infrastructure.Logging;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using SharedLibrary.Constants;
+
+
 
 namespace IngestionService.Startup;
 
@@ -10,24 +14,27 @@ public static class DependenciesConfig
     {
         var env = builder.Environment.EnvironmentName;
         var config = builder.Configuration;
+        var kafkaConfig = new Confluent.Kafka.ProducerConfig();
+        config.GetSection("Kafka").Bind(kafkaConfig);
 
         // Log active environment
-        Console.WriteLine($"[Startup] Environment: {env}");
-
-        // Log configured ports
-        var httpPort = config.GetValue<int?>("Kestrel:HttpPort") ?? 5283;
-        var httpsPort = config.GetValue<int?>("Kestrel:HttpsPort") ?? 7086;
-        Console.WriteLine($"[Startup] Configured ports: HTTP {httpPort}, HTTPS {httpsPort}");
+        Console.WriteLine($"[Startup] Environment: {env}");        
 
         // Application Services
         builder.Services.AddScoped<ComicCsvIngestor>();
 
         // Infrastructure Services
-        builder.Services.AddHealthChecks();
+        builder.Services.AddHealthChecks()
+            .AddCheck("self", () => HealthCheckResult.Healthy(), tags: new[] { "live" });
+            //.AddKafka(kafkaConfig, tags: new[] { "ready" });
+
 
         // Kafka setup
         Console.WriteLine($"[Startup] Registering Kafka for {env}");
         builder.Services.AddKafka(config);
+
+        // Register Kafka-based logger provider (will send Error+ logs to Kafka)
+       builder.Services.AddSingleton<ILoggerProvider, KafkaLoggerProvider>();
 
         // Telemetry
         builder.Services.AddCustomTelemetry(
@@ -37,31 +44,11 @@ public static class DependenciesConfig
 
         // OpenAPI
         builder.Services.AddOpenApiServices();
-
-        // HTTPS cert validation
-        ValidateHttpsCert(config);
+      
 
         // Kestrel config
         builder.WebHost.ConfigureKestrel(HostingConfig.ConfigureCustomKestrel);
 
-        // Other dependencies can be registered here as needed
     }
 
-    private static void ValidateHttpsCert(IConfiguration config)
-    {
-        var certSection = config.GetSection("Kestrel:Endpoints:Https:Certificate");
-        var certPath = certSection.GetValue<string>("Path");
-        var certPassword = config["Kestrel:Endpoints:Https:Certificate:Password"]
-                           ?? Environment.GetEnvironmentVariable("Kestrel__Endpoints__Https__Certificate__Password");
-
-        if (string.IsNullOrWhiteSpace(certPath) || !File.Exists(certPath))
-        {
-            Console.WriteLine($"[Startup] WARNING: HTTPS certificate not found at path: {certPath}");
-        }
-
-        if (string.IsNullOrWhiteSpace(certPassword))
-        {
-            Console.WriteLine("[Startup] WARNING: HTTPS certificate password is missing");
-        }
-    }
 }
