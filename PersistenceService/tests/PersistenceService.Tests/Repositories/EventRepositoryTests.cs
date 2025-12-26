@@ -185,18 +185,20 @@ public class EventRepositoryTests
             })
             .Returns(Task.CompletedTask);
 
-        var kafkaLogHelper = new KafkaLogHelper(
-            mockLogger.Object,
-            config,
-            null,
-            null
-        );
+        // Add this mock before using it as a parameter
+        var mockKafkaLogHelper = new Mock<IKafkaLogHelper>();
+        // Ensure the mock returns completed tasks for any logging calls to avoid hangs
+        mockKafkaLogHelper.Setup(m => m.LogToKafkaAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<Exception?>(), It.IsAny<string?>()))
+            .Returns(Task.CompletedTask);
+
+        // Construct the listener with the mocked consumer so it doesn't try to connect to a real Kafka broker
         var listener = new KafkaComicListener(
             mockLogger.Object,
             config,
             mockRepo.Object,
             mockComicRepo.Object,
-            kafkaLogHelper
+            mockKafkaLogHelper.Object,
+            mockConsumer.Object // pass the mocked consumer
         );
 
 
