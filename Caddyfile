@@ -1,6 +1,18 @@
 https://localhost {
     tls /certs/dev.crt /certs/dev.key
+
+    # Default route → Ingestion service
     reverse_proxy ingestion:5283
+
+    # Ingestion metrics
+    handle_path /ingestion/metrics* {
+        reverse_proxy ingestion:5283
+    }
+
+    # Persistence metrics
+    handle_path /persistence/metrics* {
+        reverse_proxy persistenceservice:5067
+    }
 }
 
 http://localhost {
