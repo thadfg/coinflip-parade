@@ -2,6 +2,7 @@
 bin/
 obj/
 out/
+**/publish/
 *.dll
 *.exe
 *.pdb
@@ -36,12 +37,22 @@ out/
 packages/
 project.lock.json
 project.fragment.lock.json
+**/NuGet.local.config
+
 
 # ASP.NET Core
 appsettings.*.json
 appsettings.Development.json
 appsettings.Local.json
 secrets.json
+
+# Certificates (never commit certs or private keys)
+certs/
+**/certs/
+*.pfx
+*.pem
+*.crt
+*.key
 
 # Docker
 **/Dockerfile.*
@@ -91,3 +102,4 @@ Migrations/
 /IngestionService/errors.txt
 /SharedLibrary/NuGet.config
 /IngestionService/ContainerErrors.txt
+/NuGet.local.config

@@ -6,12 +6,12 @@
     <ImplicitUsings>enable</ImplicitUsings>
 	
 	<!-- Native AOT settings -->
-    <PublishAot>true</PublishAot>
-    <RuntimeIdentifier>win-x64</RuntimeIdentifier> <!-- or linux-x64, etc. -->
+    <!--<PublishAot>true</PublishAot>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier> --><!-- or linux-x64, etc. --><!--
     <InvariantGlobalization>true</InvariantGlobalization>
     <EnableAotAnalyzer>true</EnableAotAnalyzer>
     <PublishTrimmed>true</PublishTrimmed>
-    <TrimMode>link</TrimMode>
+    <TrimMode>link</TrimMode>-->
   </PropertyGroup>
 
   <ItemGroup>
