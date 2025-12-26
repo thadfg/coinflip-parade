@@ -10,7 +10,7 @@ public static class OpenApiConfig
 
     public static void UseOpenApi(this WebApplication app)
     {
-        if (app.Environment.IsDevelopment())
+        if (app.Environment.IsDevelopment() || app.Environment.IsEnvironment("Container"))
         {
             app.MapOpenApi();
             app.MapScalarApiReference(options =>
