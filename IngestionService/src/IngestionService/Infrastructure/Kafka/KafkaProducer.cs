@@ -33,21 +33,7 @@ namespace IngestionService.Infrastructure.Kafka
             };
 
             _producer = new ProducerBuilder<string, string>(config).Build();
-
-            // Add retry/backoff for initial connection
-            /*var retryPolicy = Policy
-                .Handle<KafkaException>()
-                .WaitAndRetry(
-                    retryCount: 5,
-                    attempt => TimeSpan.FromSeconds(Math.Pow(2, attempt)), // exponential backoff
-                    (ex, ts, attempt, ctx) =>
-                    {
-                        _logger.LogWarning(ex, "Retrying Kafka producer build (attempt {Attempt}) after {Delay}", attempt, ts); //optional Polly context (not used here)
-                    });
-
-            _producer = retryPolicy.Execute(() => 
-                new ProducerBuilder<string, string>(config).Build()
-                );*/
+            
             logger.LogInformation("Kafka producer successfully constructed");
 
         }

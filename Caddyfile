@@ -1,20 +1,40 @@
-https://localhost {
+{
+    # Global options
+    auto_https off
+    admin off
+}
+
+:8443 {
     tls /certs/dev.crt /certs/dev.key
 
-    # Default route → Ingestion service
-    reverse_proxy ingestion:5283
-
-    # Ingestion metrics
-    handle_path /ingestion/metrics* {
+    # ============================
+    # IngestionService Metrics
+    # ============================
+    @metrics path_regexp metrics ^/ingestion/metrics(?:/.*)?$
+    handle @metrics {
+        uri replace /ingestion/metrics /custom-metrics
         reverse_proxy ingestion:5283
     }
 
-    # Persistence metrics
-    handle_path /persistence/metrics* {
-        reverse_proxy persistenceservice:5067
+    @health path /health
+    handle @health {
+        reverse_proxy ingestion:5283
     }
-}
 
-http://localhost {
-    redir https://localhost{uri}
+    @ready path /ready
+    handle @ready {
+        reverse_proxy ingestion:5283
+    }
+
+    @live path /live
+    handle @live {
+        reverse_proxy ingestion:5283
+    }
+
+    # ============================
+    # Default handler
+    # ============================
+    handle {
+        respond "Not Found" 404
+    }
 }

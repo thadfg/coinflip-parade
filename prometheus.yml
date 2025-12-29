@@ -11,23 +11,10 @@ scrape_configs:
     scheme: https
     tls_config:
       ca_file: /etc/prometheus/dev.crt
-      insecure_skip_verify: false
+      insecure_skip_verify: true
     static_configs:
-      - targets: ['caddy:443']
+      - targets: ['caddy:8443']
         labels:
           service: ingestion
           component: ingestionservice
-          environment: local
-
-  - job_name: 'persistence'
-    metrics_path: '/persistence/metrics'
-    scheme: https
-    tls_config:
-      ca_file: /etc/prometheus/dev.crt
-      insecure_skip_verify: false
-    static_configs:
-      - targets: ['caddy:443']
-        labels:
-          service: persistence
-          component: persistenceservice
           environment: local

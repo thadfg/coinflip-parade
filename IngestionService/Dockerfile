@@ -2,8 +2,12 @@ FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS base
 WORKDIR /app
 EXPOSE 5283
 
+# Install wget for healthcheck 
+RUN apt-get update && apt-get install -y wget
+
+# Use wget instead of curl for the healthcheck
 HEALTHCHECK --interval=10s --timeout=3s --start-period=5s --retries=3 \
-  CMD curl --fail http://localhost:5283/custom-metrics || exit 1
+  CMD wget -qO- http://localhost:5283/custom-metrics || exit 1
 
 
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build

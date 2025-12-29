@@ -5,26 +5,8 @@ public static class TelemetryConfigurationExtensions
 {
     public static void AddCustomTelemetry(this IServiceCollection services, string[] meterNames, bool enableRuntimeInstrumentation = true)
     {
-        services.AddOpenTelemetry()
-            .WithMetrics(metrics =>
-            {
-                metrics.SetResourceBuilder(ResourceBuilder.CreateDefault().AddService("IngestionService"));
-
-                foreach (var meter in meterNames)
-                {
-                    metrics.AddMeter(meter);
-                }
-
-                if (enableRuntimeInstrumentation)
-                {
-                    metrics.AddRuntimeInstrumentation();
-                }
-
-                metrics.AddPrometheusExporter(options =>
-                {
-                    options.ScrapeResponseCacheDurationMilliseconds = 0;
-                });
-            });
+        // No OpenTelemetry Metrics here anymore.
+        // You can keep this method if you want to register your own custom meters later,
+        // but for now it does nothing.
     }
-
 }

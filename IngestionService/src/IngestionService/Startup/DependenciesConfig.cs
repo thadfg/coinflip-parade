@@ -2,6 +2,8 @@
 using IngestionService.Infrastructure.Kafka;
 using IngestionService.Infrastructure.Logging;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using OpenTelemetry.Metrics;
+using OpenTelemetry.Resources;
 using SharedLibrary.Constants;
 
 
@@ -25,8 +27,7 @@ public static class DependenciesConfig
 
         // Infrastructure Services
         builder.Services.AddHealthChecks()
-            .AddCheck("self", () => HealthCheckResult.Healthy(), tags: new[] { "live" });
-            //.AddKafka(kafkaConfig, tags: new[] { "ready" });
+            .AddCheck("self", () => HealthCheckResult.Healthy(), tags: new[] { "live" });            
 
 
         // Kafka setup
@@ -42,12 +43,15 @@ public static class DependenciesConfig
             enableRuntimeInstrumentation: false
         );
 
+        // OpenTelemetry Metrics
+        builder.Services.AddCustomTelemetry(
+            new[] { MeterNames.ComicIngestion }, 
+            enableRuntimeInstrumentation: false
+            );
+
         // OpenAPI
         builder.Services.AddOpenApiServices();
       
-
-        // Kestrel config
-        builder.WebHost.ConfigureKestrel(HostingConfig.ConfigureCustomKestrel);
 
     }
 
