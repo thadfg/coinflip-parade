@@ -4,14 +4,6 @@
     <TargetFramework>net9.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-	
-	<!-- Native AOT settings -->
-    <!--<PublishAot>true</PublishAot>
-    <RuntimeIdentifier>win-x64</RuntimeIdentifier> --><!-- or linux-x64, etc. --><!--
-    <InvariantGlobalization>true</InvariantGlobalization>
-    <EnableAotAnalyzer>true</EnableAotAnalyzer>
-    <PublishTrimmed>true</PublishTrimmed>
-    <TrimMode>link</TrimMode>-->
   </PropertyGroup>
 
   <ItemGroup>
@@ -20,15 +12,9 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.8" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.8">
       <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.4" />
     <PackageReference Include="SharedLibrary" Version="1.1.1" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Config\" />
-    <Folder Include="Extensions\" />
   </ItemGroup>
 
 </Project>

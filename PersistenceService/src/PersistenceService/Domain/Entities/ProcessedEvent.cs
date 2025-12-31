@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace PersistenceService.Domain.Entities;
@@ -7,7 +8,7 @@ namespace PersistenceService.Domain.Entities;
 public class ProcessedEvent
 {
     [Key]
-    public Guid EventId { get; set; }
+    public System.Guid EventId { get; set; }
 
     public DateTime ProcessedAtUtc { get; set; }
 }

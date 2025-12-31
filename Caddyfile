@@ -40,6 +40,19 @@
     }
 
     # ============================
+    # API Endpoints (CSV ingest, etc.)
+    # ============================
+    @api path /api/*
+    handle @api {
+        reverse_proxy ingestion:5283
+
+        # ---- CORS HEADERS ----
+        header Access-Control-Allow-Origin "*"
+        header Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
+        header Access-Control-Allow-Headers "*"
+    }
+
+    # ============================
     # Friendly redirect to Scalar UI
     # ============================
     @openapi_redirect path /ingestion/openapi

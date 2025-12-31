@@ -1,4 +1,7 @@
-﻿namespace PersistenceService.Infrastructure.Kafka
+﻿using System;
+using System.Threading.Tasks;
+
+namespace PersistenceService.Infrastructure.Kafka
 {
     public interface IKafkaLogHelper
     {

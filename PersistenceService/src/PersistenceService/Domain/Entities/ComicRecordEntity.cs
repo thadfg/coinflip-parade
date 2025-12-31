@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System;
+using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -11,7 +12,7 @@ public class ComicRecordEntity
 {
     [Key]
     [Column("id")]
-    public Guid Id { get; set; }
+    public System.Guid Id { get; set; }
 
     [Required]
     [Column("publishername")]
