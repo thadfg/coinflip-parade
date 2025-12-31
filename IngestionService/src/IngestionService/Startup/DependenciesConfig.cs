@@ -51,7 +51,14 @@ public static class DependenciesConfig
 
         // OpenAPI
         builder.Services.AddOpenApiServices();
-      
+
+        //Http Logging
+        builder.Services.AddHttpLogging(logging =>
+        {
+            logging.LoggingFields = Microsoft.AspNetCore.HttpLogging.HttpLoggingFields.All;
+        });
+
+
 
     }
 

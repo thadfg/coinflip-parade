@@ -32,6 +32,9 @@ try
     // OpenAPI
     app.UseOpenApi();
 
+    // Http logging middleware
+    app.UseHttpsRedirection();
+
     app.Run();
 }
 catch (Exception ex)
