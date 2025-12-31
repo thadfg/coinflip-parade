@@ -1,6 +1,7 @@
 ﻿using PersistenceService.Domain.Entities;
 using SharedLibrary.Facet;
 using SharedLibrary.Models;
+using System;
 
 namespace PersistenceService.Application.Mappers;
 

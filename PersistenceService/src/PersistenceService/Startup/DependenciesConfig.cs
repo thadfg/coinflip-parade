@@ -8,6 +8,7 @@ using PersistenceService.Infrastructure.Repositories;
 using Confluent.Kafka;
 using PersistenceService.Infrastructure.Kafka;
 using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Builder;
 
 namespace PersistenceService.Startup;
 

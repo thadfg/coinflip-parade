@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace PersistenceService.Domain.Entities;
@@ -8,7 +9,7 @@ public class EventEntity
 {
     [Key]
     [Column("id")]
-    public Guid Id { get; set; }
+    public System.Guid Id { get; set; }
 
     [Column("aggregate_id")]
     public Guid AggregateId { get; set; }

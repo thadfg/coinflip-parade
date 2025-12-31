@@ -1,8 +1,96 @@
-https://localhost {
-    tls /certs/dev.crt /certs/dev.key
-    reverse_proxy ingestion:5283
+{
+    auto_https off
+    admin off
 }
 
-http://localhost {
-    redir https://localhost{uri}
+:8443 {
+    tls /certs/dev.crt /certs/dev.key
+
+    # ============================
+    # IngestionService Metrics
+    # ============================
+    @metrics path_regexp metrics ^/ingestion/metrics(?:/.*)?$
+    handle @metrics {
+        uri replace /ingestion/metrics /custom-metrics
+        reverse_proxy ingestion:5283
+    }
+
+    # ============================
+    # Scalar JS assets
+    # ============================
+    @scalar_assets path_regexp scalar_assets ^/scalar/(?:scalar\.js|scalar\.aspnetcore\.js)$
+    handle @scalar_assets {
+        reverse_proxy ingestion:5283
+    }
+
+    # ============================
+    # Scalar UI
+    # ============================
+    @scalar_ui path /scalar/v1*
+    handle @scalar_ui {
+        reverse_proxy ingestion:5283
+    }
+
+    # ============================
+    # OpenAPI spec for Scalar
+    # ============================
+    @scalar_spec path /openapi/v1.json
+    handle @scalar_spec {
+        reverse_proxy ingestion:5283
+    }
+
+    # ============================
+    # API Endpoints (CSV ingest, etc.)
+    # ============================
+    @api path /api/*
+    handle @api {
+        reverse_proxy ingestion:5283
+
+        # ---- CORS HEADERS ----
+        header Access-Control-Allow-Origin "*"
+        header Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
+        header Access-Control-Allow-Headers "*"
+    }
+
+    # ============================
+    # Friendly redirect to Scalar UI
+    # ============================
+    @openapi_redirect path /ingestion/openapi
+    handle @openapi_redirect {
+        redir /scalar/v1 permanent
+    }
+
+    # ============================
+    # Raw OpenAPI JSON
+    # ============================
+    @openapi_json path /ingestion/openapi.json
+    handle @openapi_json {
+        uri replace /ingestion/openapi.json /openapi/v1.json
+        reverse_proxy ingestion:5283
+    }
+
+    # ============================
+    # Health endpoints
+    # ============================
+    @health path /health
+    handle @health {
+        reverse_proxy ingestion:5283
+    }
+
+    @ready path /ready
+    handle @ready {
+        reverse_proxy ingestion:5283
+    }
+
+    @live path /live
+    handle @live {
+        reverse_proxy ingestion:5283
+    }
+
+    # ============================
+    # Default fallback
+    # ============================
+    handle {
+        respond "Not Found" 404
+    }
 }

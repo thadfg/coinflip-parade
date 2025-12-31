@@ -23,7 +23,7 @@ public class MockKafkaComicListener : KafkaComicListener
         _mockConsumer = mockConsumer;
     }
 
-    protected override IConsumer<Ignore, string> CreateConsumer()
+    protected virtual IConsumer<Ignore, string> CreateConsumer()
     {
         return _mockConsumer;
     }

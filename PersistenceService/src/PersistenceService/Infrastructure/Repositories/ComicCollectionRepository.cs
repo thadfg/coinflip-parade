@@ -1,6 +1,12 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using PersistenceService.Application.Interfaces;
 using PersistenceService.Domain.Entities;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace PersistenceService.Infrastructure.Repositories;
 
@@ -17,7 +23,7 @@ public class ComicCollectionRepository : IComicCollectionRepository
         _logger = logger;
     }
 
-    public async Task UpsertBatchAsync(IEnumerable<(ComicRecordEntity Comic, Guid EventId)> batch, CancellationToken cancellationToken)
+    public async Task UpsertBatchAsync(IEnumerable<(ComicRecordEntity Comic, System.Guid EventId)> batch, CancellationToken cancellationToken)
     {
         var items = batch.ToList();
 
