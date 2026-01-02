@@ -30,8 +30,7 @@ public class KafkaComicListener : BackgroundService
     private readonly TimeSpan _consumeTimeout;
     private readonly int _consumeInitializeDelay;
     protected CancellationTokenSource? _internalCts;
-    private readonly int batchSize;
-    private readonly int delayFlush;
+    private readonly int batchSize;    
 
 
 
@@ -63,8 +62,7 @@ public class KafkaComicListener : BackgroundService
         _consumeInitializeDelay = _config.GetValue<int>("KafkaListener:ConsumeInitializeDelay", 1000);
 
          batchSize = _config.GetValue<int>("KafkaListener:BatchSize",  10);
-
-        delayFlush = _config.GetValue<int>("KafkaListener:DelayFlush", 1);
+        
 
     }
 
@@ -130,7 +128,7 @@ public class KafkaComicListener : BackgroundService
                         continue;
                     }
 
-                    // 1️⃣ Consume (blocking, cancellation-aware)
+                    // 1️ Consume (blocking, cancellation-aware)
                     var result = _consumer.Consume(stoppingToken);
 
                     if (result == null || result.IsPartitionEOF)
@@ -142,7 +140,7 @@ public class KafkaComicListener : BackgroundService
                         continue;
                     }
 
-                    // 2️⃣ Deserialize
+                    // 2️ Deserialize
                     KafkaEnvelope<ComicCsvRecordDto>? envelope;
                     try
                     {
@@ -160,7 +158,7 @@ public class KafkaComicListener : BackgroundService
                         continue;
                     }
 
-                    // 3️⃣ Map to domain entities
+                    // 3️ Map to domain entities
                     var comic = ComicRecordMapper.ToEntity(envelope);
                     var eventEntity = EventEntityMapper.FromPayload(
                         envelope.Payload,
@@ -172,7 +170,7 @@ public class KafkaComicListener : BackgroundService
                     _comicRecordBuffer.Add((comic, eventEntity.Id));
                     _eventBuffer.Add(eventEntity);
 
-                    // 4️⃣ Batch flush based on size
+                    // 4️ Batch flush based on size
                     if (_comicRecordBuffer.Count >= batchSize)
                     {
                         using var scope = _serviceProvider.CreateScope();
@@ -189,11 +187,9 @@ public class KafkaComicListener : BackgroundService
                         _eventBuffer.Clear();
                     }
 
-                    // 5️⃣ Time-based flush (only once per loop)
+                    // 5️ Time-based flush (only once per loop)
                     await FlushIfNeededAsync(stoppingToken);
 
-                    // Allow time to pass so timed flush can trigger
-                    await Task.Delay(delayFlush, stoppingToken);
                 }
                 catch (ConsumeException ex)
                 {
@@ -211,7 +207,7 @@ public class KafkaComicListener : BackgroundService
         }
         finally
         {
-            // 6️⃣ Final flush on shutdown
+            // 6️ Final flush on shutdown
             if (_eventBuffer.Count > 0)
             {
                 using var scope = _serviceProvider.CreateScope();
