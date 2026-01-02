@@ -1,15 +1,18 @@
 using Microsoft.AspNetCore.Builder;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using PersistenceService.Startup;
+using PersistenceService.Infrastructure;
+using PersistenceService.Infrastructure.Database;
 using PersistenceService.Infrastructure.Kafka;
+using PersistenceService.Startup;
+using Prometheus;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Register all DI dependencies (DbContexts, Repositories, Kafka, Logging)
 builder.AddDependencies();
 
-// Add controllers
 builder.Services.AddControllers();
 
 // Add health checks
@@ -24,6 +27,10 @@ builder.Services.AddHostedService<KafkaComicListener>();
 
 var app = builder.Build();
 
+// Run DB readiness / migrations before Kafka listener starts
+DbInitializer.Initialize(app.Services);
+
+
 // Development-only OpenAPI UI
 if (app.Environment.IsDevelopment())
 {
@@ -32,6 +39,11 @@ if (app.Environment.IsDevelopment())
 
 // Map health endpoint
 app.MapHealthChecks("/health");
+
+app.MapHealthEndpoints();
+
+app.UseMetricServer("/metrics");
+
 
 // Map controllers
 app.MapControllers();

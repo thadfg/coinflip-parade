@@ -42,7 +42,8 @@ public class IntegrationTestEndToEndFlow
 
         // Assert
         var persistedComic = await comicDb.ComicRecords.FindAsync(comic.Id);
-        var processedEvent = await comicDb.ProcessedEvents.FindAsync(Guid.Parse(envelope.ImportId));
+        var processedEvent = await comicDb.ProcessedEvents
+            .SingleOrDefaultAsync(p => p.EventId == Guid.Parse(envelope.ImportId));
         var persistedEvent = await eventDb.Events.FindAsync(eventEntity.Id);
 
         Assert.NotNull(persistedComic);

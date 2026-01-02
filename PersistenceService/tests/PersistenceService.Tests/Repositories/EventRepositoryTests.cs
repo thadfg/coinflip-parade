@@ -1,13 +1,16 @@
 ﻿using Confluent.Kafka;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Moq;
 using PersistenceService.Application.Interfaces;
 using PersistenceService.Domain.Entities;
 using PersistenceService.Infrastructure;
+using PersistenceService.Infrastructure.Database;
 using PersistenceService.Infrastructure.Kafka;
 using PersistenceService.Infrastructure.Repositories;
+using PersistenceService.Tests.KafkaListener;
 using SharedLibrary.Facet;
 using SharedLibrary.Models;
 using System.Text.Json;
@@ -20,9 +23,8 @@ public class EventRepositoryTests
     [Fact]
     public async Task SaveAsync_RetriesOnTransientFailure()
     {
-        // Arrange
         var options = new DbContextOptionsBuilder<EventDbContext>()
-            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
         using var context = new EventDbContext(options);
@@ -43,25 +45,19 @@ public class EventRepositoryTests
         {
             callCount++;
             if (callCount == 1)
-            {
                 throw new DbUpdateException("Simulated transient failure");
-            }
         };
 
-        // Act
         await repo.SaveAsync(entity, CancellationToken.None);
 
-        // Assert
-        Assert.Equal(2, callCount); // First attempt throws, second succeeds
+        Assert.Equal(2, callCount);
     }
-
 
     [Fact]
     public async Task SaveAsync_LogsWarningOnRetry()
     {
-        // Arrange
         var options = new DbContextOptionsBuilder<EventDbContext>()
-            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
         using var context = new EventDbContext(options);
@@ -78,39 +74,31 @@ public class EventRepositoryTests
 
         var repo = new EventRepository(context, logger.Object);
 
-        // Simulate transient failure by overriding SaveChangesAsync
         var callCount = 0;
         context.SavingChanges += (_, _) =>
         {
             callCount++;
             if (callCount == 1)
-            {
                 throw new DbUpdateException("Simulated transient failure");
-            }
         };
 
-        // Act
         await repo.SaveAsync(entity, CancellationToken.None);
 
-        // Assert
         logger.Verify(
-    x => x.Log(
-        LogLevel.Warning,
-        It.IsAny<EventId>(),
-        It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("Attempt 1 failed")),
-        It.IsAny<Exception>(),
-        It.IsAny<Func<It.IsAnyType, Exception, string>>()),
-    Times.Once);
-
+            x => x.Log(
+                LogLevel.Warning,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("Attempt 1 failed")),
+                It.IsAny<Exception>(),
+                It.IsAny<Func<It.IsAnyType, Exception, string>>()),
+            Times.Once);
     }
-
 
     [Fact]
     public async Task SaveAsync_SavesCorrectEntity()
     {
-        // Arrange
         var options = new DbContextOptionsBuilder<EventDbContext>()
-            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString()) // isolate per test
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
         using var context = new EventDbContext(options);
@@ -126,40 +114,51 @@ public class EventRepositoryTests
             OccurredAt = DateTimeOffset.UtcNow
         };
 
-        // Act
         await repo.SaveAsync(entity, CancellationToken.None);
 
-        // Assert
         var saved = await context.Events.FindAsync(entity.Id);
         Assert.NotNull(saved);
         Assert.Equal(entity.EventType, saved.EventType);
         Assert.Equal(entity.EventData, saved.EventData);
     }
 
+
     [Fact]
     public async Task Listener_FlushesFinalBatch_OnShutdown()
     {
         // Arrange
-        var mockRepo = new Mock<IEventRepository>();
+        var mockEventRepo = new Mock<IEventRepository>();
+        var mockComicRepo = new Mock<IComicCollectionRepository>();
+        var mockKafkaLogHelper = new Mock<IKafkaLogHelper>();
         var mockLogger = new Mock<ILogger<KafkaComicListener>>();
+        var mockDbReadyChecker = new Mock<IDatabaseReadyChecker>();
+
+        mockDbReadyChecker
+            .Setup(x => x.IsReadyAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+
         var config = new ConfigurationBuilder()
             .AddInMemoryCollection(new Dictionary<string, string>
             {
-                { "Kafka:BootstrapServers", "localhost:9092" },
-                { "Kafka:GroupId", "test-group" },
-                { "Kafka:Topic", "test-topic" },
-                { "Kafka:BatchSize", "5" }
+                    { "Kafka:BootstrapServers", "localhost:9092" },
+                    { "Kafka:GroupId", "test-group" },
+                    { "Kafka:Topic", "test-topic" },
+                    { "Kafka:BatchSize", "5" },
+                    { "KafkaListener:FlushIntervalSeconds", "5" },
+                    { "KafkaListener:ConsumeTimeoutMs", "10" }
             })
             .Build();
 
-        var mockConsumer = new Mock<IConsumer<Ignore, string>>();
-        var mockComicRepo = new Mock<IComicCollectionRepository>();
-        var cancellationSource = new CancellationTokenSource();
-
+        // Create a valid envelope
         var envelope = new KafkaEnvelope<ComicCsvRecordDto>
         {
             ImportId = Guid.NewGuid().ToString(),
-            Payload = new ComicCsvRecordDto { SeriesName = "X-Men", FullTitle = "1", ReleaseDate = "2024-12-16" }
+            Payload = new ComicCsvRecordDto
+            {
+                SeriesName = "X-Men",
+                FullTitle = "1",
+                ReleaseDate = "2024-12-16"
+            }
         };
 
         var message = new ConsumeResult<Ignore, string>
@@ -169,47 +168,49 @@ public class EventRepositoryTests
                 Value = JsonSerializer.Serialize(envelope)
             }
         };
+        
+        var mockConsumer = new Mock<IConsumer<Ignore, string>>();
 
-        mockConsumer.SetupSequence(c => c.Consume(It.IsAny<CancellationToken>()))
-            .Returns(message)
-            .Throws(new OperationCanceledException());
+        mockConsumer
+            .SetupSequence(c => c.Consume(It.IsAny<CancellationToken>()))
+            .Returns(message) // first call returns a valid message
+            .Throws(new OperationCanceledException()); // second call ends the loop
+
 
         mockConsumer.Setup(c => c.Close());
         mockConsumer.Setup(c => c.Dispose());
 
-        IEnumerable<EventEntity>? capturedBatch = null;
-        mockRepo.Setup(r => r.SaveBatchAsync(It.IsAny<IEnumerable<EventEntity>>(), It.IsAny<CancellationToken>()))
+        IEnumerable<EventEntity>? capturedEvents = null;
+
+        mockEventRepo
+            .Setup(r => r.SaveBatchAsync(It.IsAny<IEnumerable<EventEntity>>(), It.IsAny<CancellationToken>()))
             .Callback<IEnumerable<EventEntity>, CancellationToken>((batch, _) =>
             {
-                capturedBatch = batch.ToList();
+                capturedEvents = batch.ToList();
             })
             .Returns(Task.CompletedTask);
 
-        // Add this mock before using it as a parameter
-        var mockKafkaLogHelper = new Mock<IKafkaLogHelper>();
-        // Ensure the mock returns completed tasks for any logging calls to avoid hangs
-        mockKafkaLogHelper.Setup(m => m.LogToKafkaAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<Exception?>(), It.IsAny<string?>()))
-            .Returns(Task.CompletedTask);
+        var services = new ServiceCollection();
+        services.AddSingleton(mockEventRepo.Object);
+        services.AddSingleton(mockComicRepo.Object);
+        var provider = services.BuildServiceProvider();
 
-        // Construct the listener with the mocked consumer so it doesn't try to connect to a real Kafka broker
-        var listener = new KafkaComicListener(
+        var listener = new MockKafkaComicListener(
             mockLogger.Object,
             config,
-            mockRepo.Object,
-            mockComicRepo.Object,
             mockKafkaLogHelper.Object,
-            mockConsumer.Object // pass the mocked consumer
+            mockDbReadyChecker.Object,
+            provider,
+            mockConsumer.Object
         );
 
-
-        var listenerTask = listener.StartAsync(cancellationSource.Token);
-        await Task.Delay(100);
-        cancellationSource.Cancel();
-        await listenerTask;
+        // Act
+        await listener.RunConsumeLoopAsync(CancellationToken.None);
 
         // Assert
-        Assert.NotNull(capturedBatch);
-        Assert.Equal(1, capturedBatch.Count());
+        Assert.NotNull(capturedEvents);
+        Assert.Single(capturedEvents);
+
         mockConsumer.Verify(c => c.Close(), Times.Once);
         mockConsumer.Verify(c => c.Dispose(), Times.Once);
     }
@@ -217,9 +218,8 @@ public class EventRepositoryTests
     [Fact]
     public async Task SaveBatchAsync_PersistsAllEntities()
     {
-        // Arrange
         var options = new DbContextOptionsBuilder<EventDbContext>()
-            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
 
         using var context = new EventDbContext(options);
@@ -235,16 +235,11 @@ public class EventRepositoryTests
             OccurredAt = DateTimeOffset.UtcNow
         }).ToList();
 
-        // Act
         await repo.SaveBatchAsync(entities, CancellationToken.None);
 
-        // Assert
         var savedEntities = context.Events.ToList();
         Assert.Equal(5, savedEntities.Count);
         foreach (var entity in entities)
-        {
             Assert.Contains(savedEntities, e => e.Id == entity.Id);
-        }
     }
-
 }
