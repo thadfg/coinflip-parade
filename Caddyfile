@@ -26,6 +26,14 @@
     }
 
     # ============================
+    # Metrics (NEW DIRECT ROUTE)
+    # ============================
+    @custom_metrics path /custom-metrics
+    handle @custom_metrics {
+        reverse_proxy ingestion:5283
+    }
+
+    # ============================
     # Metrics
     # ============================
     @metrics path_regexp metrics ^/ingestion/metrics(?:/.*)?$
