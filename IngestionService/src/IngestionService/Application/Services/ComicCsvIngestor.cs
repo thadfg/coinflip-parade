@@ -2,21 +2,18 @@
 using Facet.Extensions;
 using IngestionService.Domain.Models;
 using Prometheus;
-using SharedLibrary.Constants;
 using SharedLibrary.Extensions;
 using SharedLibrary.Facet;
 using SharedLibrary.Kafka;
 using SharedLibrary.Models;
 using System.Diagnostics;
-using System.Diagnostics.Metrics;
 using System.Globalization;
 
 namespace IngestionService.Application.Services;
 
 public class ComicCsvIngestor
 {
-    private readonly IKafkaProducer _producer;
-    //private static readonly Meter Meter = new(MeterNames.ComicIngestion);
+    private readonly IKafkaProducer _producer;    
     private static readonly Counter IngestionSuccess =
         Metrics.CreateCounter(
             "ingestion_success_total",
