@@ -42,7 +42,7 @@ app.MapHealthChecks("/health");
 
 app.MapHealthEndpoints();
 
-app.UseMetricServer("/metrics");
+app.UseMetricServer("/custom-metrics");
 
 
 // Map controllers

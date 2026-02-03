@@ -6,8 +6,11 @@ rule_files:
   - "alerting_rules.yml"
 
 scrape_configs:
+  # ============================
+  # IngestionService
+  # ============================
   - job_name: 'ingestion'
-    metrics_path: '/custom-metrics'
+    metrics_path: '/ingestion/custom-metrics'
     scheme: https
     tls_config:
       ca_file: /etc/prometheus/dev.crt
@@ -17,4 +20,20 @@ scrape_configs:
         labels:
           service: ingestion
           component: ingestionservice
+          environment: local
+
+  # ============================
+  # PersistenceService
+  # ============================
+  - job_name: 'persistence'
+    metrics_path: '/persistence/custom-metrics'
+    scheme: https
+    tls_config:
+      ca_file: /etc/prometheus/dev.crt
+      insecure_skip_verify: true
+    static_configs:
+      - targets: ['caddy:8443']
+        labels:
+          service: persistence
+          component: persistenceservice
           environment: local
