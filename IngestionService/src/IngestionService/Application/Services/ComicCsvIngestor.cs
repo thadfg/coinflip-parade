@@ -1,24 +1,48 @@
 ﻿using CsvHelper;
 using Facet.Extensions;
 using IngestionService.Domain.Models;
+using Prometheus;
 using SharedLibrary.Extensions;
-using SharedLibrary.Kafka;
-using System.Diagnostics.Metrics;
-using System.Globalization;
-using SharedLibrary.Constants;
-using SharedLibrary.Models;
 using SharedLibrary.Facet;
+using SharedLibrary.Kafka;
+using SharedLibrary.Models;
 using System.Diagnostics;
+using System.Globalization;
 
 namespace IngestionService.Application.Services;
 
 public class ComicCsvIngestor
 {
-    private readonly IKafkaProducer _producer;
-    private static readonly Meter Meter = new(MeterNames.ComicIngestion);
-    private static readonly Counter<int> SuccessCounter = Meter.CreateCounter<int>("ingestion_success_count");
-    private static readonly Counter<int> FailureCounter = Meter.CreateCounter<int>("ingestion_failure_count");
-    private static readonly Histogram<double> DurationHistogram = Meter.CreateHistogram<double>("ingestion_duration_seconds");
+    private readonly IKafkaProducer _producer;    
+    private static readonly Counter IngestionSuccess =
+        Metrics.CreateCounter(
+            "ingestion_success_total",
+            "Successful ingestion records",
+            new CounterConfiguration
+            {
+                LabelNames = new[] { "import_id", "service", "trigger" }
+            });
+
+    private static readonly Counter IngestionFailure =
+        Metrics.CreateCounter(
+            "ingestion_failure_total",
+            "Failed ingestion records",
+            new CounterConfiguration
+            {
+                LabelNames = new[] { "import_id", "service", "trigger" }
+            });
+
+    private static readonly Histogram IngestionDuration =
+        Metrics.CreateHistogram(
+            "ingestion_duration_seconds",
+            "Ingestion duration in seconds",
+            new HistogramConfiguration
+            {
+                LabelNames = new[] { "import_id", "service", "trigger" },
+                Buckets = Histogram.ExponentialBuckets(0.01, 2, 10)
+            });
+
+
 
     // ActivitySource used to create producer spans for tracing
     private static readonly ActivitySource ActivitySource = new("IngestionService.ComicCsvIngestor");
@@ -32,7 +56,10 @@ public class ComicCsvIngestor
     {
         var importId = Guid.NewGuid();
 
-        var metricTags = TelemetryExtensions.BuildMetricTags(importId, "ComicCsvIngestorService", "UserUpload");
+        var importIdStr = importId.ToString();
+        var service = "ComicCsvIngestorService";
+        var trigger = "UserUpload";        
+
 
         using var reader = new StreamReader(csvPath);
         using var csv = new CsvReader(reader, CultureInfo.InvariantCulture);
@@ -70,7 +97,8 @@ public class ComicCsvIngestor
                 }
 
                 failureCount++;
-                FailureCounter.Add(1, metricTags);
+                IngestionFailure.WithLabels(importIdStr, service, trigger).Inc();
+
                 continue;
             }
 
@@ -99,7 +127,7 @@ public class ComicCsvIngestor
                 }
 
                 successCount++;
-                SuccessCounter.Add(1, metricTags);
+                IngestionSuccess.WithLabels(importIdStr, service, trigger).Inc();
             }
             catch (Exception ex)
             {
@@ -122,8 +150,9 @@ public class ComicCsvIngestor
                 }
 
                 failureCount++;
-                FailureCounter.Add(1, metricTags);
-            }            
+                IngestionFailure.WithLabels(importIdStr, service, trigger).Inc();
+
+            }
         }
 
         var metrics = new BatchIngestionMetrics
@@ -143,6 +172,9 @@ public class ComicCsvIngestor
         var completed = DateTimeOffset.UtcNow;
         var durationSeconds = (completed - started).TotalSeconds;
 
-        DurationHistogram.Record(durationSeconds, metricTags);
+        IngestionDuration
+            .WithLabels(importId.ToString(), "ComicCsvIngestorService", "UserUpload")
+            .Observe(durationSeconds);
+
     }
 }

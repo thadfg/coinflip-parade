@@ -5,6 +5,7 @@ using PersistenceService.Application.Mappers;
 using PersistenceService.Domain.Entities;
 using PersistenceService.Infrastructure.Database;
 using PersistenceService.Infrastructure.Kafka;
+using Prometheus;
 using SharedLibrary.Facet;
 using SharedLibrary.Models;
 using System.Text.Json;
@@ -30,7 +31,17 @@ public class KafkaComicListener : BackgroundService
     private readonly TimeSpan _consumeTimeout;
     private readonly int _consumeInitializeDelay;
     protected CancellationTokenSource? _internalCts;
-    private readonly int batchSize;    
+    private readonly int batchSize;
+
+    private static readonly Gauge KafkaConsumerLag =
+    Metrics.CreateGauge(
+        "kafka_consumer_lag",
+        "Kafka consumer lag for persistence service",
+        new GaugeConfiguration
+        {
+            LabelNames = new[] { "topic", "partition", "service" }
+        });
+
 
 
 
@@ -133,6 +144,22 @@ public class KafkaComicListener : BackgroundService
 
                     if (result == null || result.IsPartitionEOF)
                         continue;
+
+                    // --- LAG CALCULATION BLOCK ---
+                    var topicPartition = result.TopicPartition; 
+                    // Query the broker for the latest offsets
+                    var watermark = _consumer.QueryWatermarkOffsets(topicPartition, TimeSpan.FromSeconds(1)); 
+                    
+                    long endOffset = watermark.High; 
+
+                    long currentOffset = result.Offset.Value; 
+                    
+                    long lag = endOffset - currentOffset; 
+                    // Emit the metric
+                    KafkaConsumerLag 
+                        .WithLabels(result.Topic, result.Partition.ToString(), "persistence") 
+                        .Set(lag); 
+                    // --- END BLOCK ---
 
                     if (result.Message?.Value == null)
                     {
