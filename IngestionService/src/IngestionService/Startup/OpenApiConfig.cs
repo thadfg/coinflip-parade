@@ -19,6 +19,10 @@ public static class OpenApiConfig
                 options.Theme = ScalarTheme.Saturn;
                 options.Layout = ScalarLayout.Modern;
                 options.HideClientButton = true;
+                options.Servers = new List<ScalarServer>
+                {
+                    new ScalarServer("https://localhost:8443")
+                };
             });
         }
     }
