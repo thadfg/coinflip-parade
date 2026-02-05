@@ -14,7 +14,7 @@
       "datasource": "Prometheus",
       "targets": [
         {
-          "expr": "sum(incoming_comics_total{service=\"ingestion\"})"
+          "expr": "sum(ingestion_success_total{service=\"ingestion\"})"
         }
       ],
       "gridPos": { "x": 0, "y": 0, "w": 6, "h": 4 }
@@ -58,7 +58,7 @@
       "datasource": "Prometheus",
       "targets": [
         {
-          "expr": "histogram_quantile(0.95, sum(rate(batch_duration_ms_bucket{service=\"ingestion\"}[5m])) by (le))"
+          "expr": "histogram_quantile(0.95, sum(rate(ingestion_duration_seconds_bucket{service=\"ingestion\"}[5m])) by (le))"
         }
       ],
       "gridPos": { "x": 0, "y": 16, "w": 12, "h": 6 }
