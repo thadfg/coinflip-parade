@@ -2,11 +2,7 @@
 using IngestionService.Infrastructure.Kafka;
 using IngestionService.Infrastructure.Logging;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
-using OpenTelemetry.Metrics;
-using OpenTelemetry.Resources;
 using SharedLibrary.Constants;
-
-
 
 namespace IngestionService.Startup;
 
@@ -20,46 +16,35 @@ public static class DependenciesConfig
         config.GetSection("Kafka").Bind(kafkaConfig);
 
         // Log active environment
-        Console.WriteLine($"[Startup] Environment: {env}");        
+        Console.WriteLine($"[Startup] Environment: {env}");
 
         // Application Services
         builder.Services.AddScoped<ComicCsvIngestor>();
 
         // Infrastructure Services
         builder.Services.AddHealthChecks()
-            .AddCheck("self", () => HealthCheckResult.Healthy(), tags: new[] { "live" });            
-
+            .AddCheck("self", () => HealthCheckResult.Healthy(), tags: new[] { "live" });
 
         // Kafka setup
         Console.WriteLine($"[Startup] Registering Kafka for {env}");
         builder.Services.AddKafka(config);
 
         // Register Kafka-based logger provider (will send Error+ logs to Kafka)
-       builder.Services.AddSingleton<ILoggerProvider, KafkaLoggerProvider>();
+        builder.Services.AddSingleton<ILoggerProvider, KafkaLoggerProvider>();
 
-        // Telemetry
+        // Telemetry (Metrics + Prometheus exporter)
         builder.Services.AddCustomTelemetry(
             new[] { MeterNames.ComicIngestion },
             enableRuntimeInstrumentation: false
         );
 
-        // OpenTelemetry Metrics
-        builder.Services.AddCustomTelemetry(
-            new[] { MeterNames.ComicIngestion }, 
-            enableRuntimeInstrumentation: false
-            );
-
         // OpenAPI
         builder.Services.AddOpenApiServices();
 
-        //Http Logging
+        // Http Logging
         builder.Services.AddHttpLogging(logging =>
         {
             logging.LoggingFields = Microsoft.AspNetCore.HttpLogging.HttpLoggingFields.All;
         });
-
-
-
     }
-
 }

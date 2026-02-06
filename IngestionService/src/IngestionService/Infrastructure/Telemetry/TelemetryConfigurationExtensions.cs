@@ -1,12 +1,24 @@
-﻿using OpenTelemetry.Metrics;
+﻿using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.DependencyInjection;
+using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 
 public static class TelemetryConfigurationExtensions
 {
     public static void AddCustomTelemetry(this IServiceCollection services, string[] meterNames, bool enableRuntimeInstrumentation = true)
     {
-        // No OpenTelemetry Metrics here anymore.
-        // You can keep this method if you want to register your own custom meters later,
-        // but for now it does nothing.
+        services.AddOpenTelemetry()
+            .ConfigureResource(r => r.AddService(serviceName: "IngestionService"))
+            .WithMetrics(metrics =>
+            {
+                metrics
+                    .AddAspNetCoreInstrumentation()
+                    .AddMeter(meterNames)
+                    .AddPrometheusExporter();
+
+                // NOTE: enableRuntimeInstrumentation is intentionally not wired up here unless
+                // you add the corresponding runtime instrumentation package.
+                _ = enableRuntimeInstrumentation;
+            });
     }
 }
