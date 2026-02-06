@@ -14,7 +14,7 @@
       "datasource": "Prometheus",
       "targets": [
         {
-          "expr": "sum(incoming_comics_total{service=\"ingestion\"})"
+          "expr": "sum(ingestion_success_total)"
         }
       ],
       "gridPos": { "x": 0, "y": 0, "w": 6, "h": 4 }
