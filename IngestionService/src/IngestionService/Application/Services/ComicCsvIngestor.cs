@@ -36,20 +36,23 @@ public class ComicCsvIngestor
 
     private static readonly DateTimeOffset ServiceStart = DateTimeOffset.UtcNow;
 
+    // Expose read-only start time without exposing the field itself
+    public static DateTimeOffset ServiceStartTime => ServiceStart;
+
     private static readonly ObservableGauge<double> ServiceUptime =
         Meter.CreateObservableGauge("service_uptime_seconds", () =>
         {
             var now = DateTimeOffset.UtcNow;
             return (now - ServiceStart).TotalSeconds;
-        });
+        }, null, description: "Service uptime in seconds");
 
     private static readonly ObservableGauge<double> LastSuccessTimestamp =
     Meter.CreateObservableGauge("last_success_timestamp", () =>
     {
         return _lastSuccessTimestamp;
     });
-
-    private static double _lastSuccessTimestamp = 0;
+    
+    private static double _lastSuccessTimestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
 
 
 
@@ -199,6 +202,7 @@ public class ComicCsvIngestor
         await _producer.ProduceAsync("comic-ingestion-metrics", importId.ToString(), metrics);
 
         _lastSuccessTimestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+        Console.WriteLine($"[Metrics] Updated LastSuccessTimestamp to: {_lastSuccessTimestamp}");
 
 
         var completed = DateTimeOffset.UtcNow;

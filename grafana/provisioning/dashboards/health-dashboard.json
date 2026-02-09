@@ -48,12 +48,17 @@
     },
     {
       "type": "stat",
-      "title": "Ingestion - Uptime (seconds)",
+      "title": "Ingestion - Uptime",
       "datasource": "Prometheus",
       "targets": [
         { "expr": "service_uptime_seconds" }
       ],
-      "gridPos": { "x": 8, "y": 0, "w": 4, "h": 4 }
+      "gridPos": { "x": 8, "y": 0, "w": 4, "h": 4 },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s" 
+        }
+      }
     },
     {
       "type": "stat",
@@ -88,9 +93,14 @@
       "datasource": "Prometheus",
       "targets": [
         {
-          "expr": "histogram_quantile(0.95, sum(rate(batch_duration_ms_bucket{service=\"ingestion\"}[5m])) by (le))"
+          "expr": "histogram_quantile(0.95, sum(rate(ingestion_duration_seconds_bucket{otel_scope_name=\"ComicIngestion\"}[5m])) by (le))"
         }
       ],
+      "fieldConfig":{
+        "defaults":{
+          "unit": "s"
+        }
+      },
       "gridPos": { "x": 0, "y": 10, "w": 16, "h": 6 }
     },
     {
@@ -120,7 +130,8 @@
             "mode": "absolute",
             "steps": [
               { "color": "green", "value": 0 },
-              { "color": "red", "value": 80 }
+              { "color": "yellow", "value": 300 },
+              { "color": "red", "value": 3600 }
             ]
           }
         },
@@ -136,7 +147,7 @@
           "fields": "",
           "values": false
         },
-        "textMode": "auto",
+        "textMode": "value",
         "wideLayout": true
       }
     },

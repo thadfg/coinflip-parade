@@ -76,7 +76,7 @@
     },
     {
       "type": "stat",
-      "title": "Ingestion - Uptime",
+      "title": "Ingestion - Uptime (s)",
       "datasource": "Prometheus",
       "targets": [
         {

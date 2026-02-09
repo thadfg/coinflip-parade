@@ -55,6 +55,18 @@ public static class ComicCsvIngestorEndpoints
         .Produces(400)
         .Produces(500)
         .DisableAntiforgery();
+        
+        // Ping/Health endpoint here
+        endpoints.MapGet("/api/comics/ping", () => 
+        {
+            // Touching the ingestor here forces the static metrics to register
+            // if they haven't already.
+            return Results.Ok(new { 
+                Status = "Online",
+                UptimeSeconds = (DateTimeOffset.UtcNow - ComicCsvIngestor.ServiceStartTime).TotalSeconds,
+                Time = DateTimeOffset.UtcNow 
+            });
+        });
 
         return endpoints;
     }

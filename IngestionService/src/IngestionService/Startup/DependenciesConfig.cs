@@ -32,7 +32,12 @@ public static class DependenciesConfig
         // Register Kafka-based logger provider (will send Error+ logs to Kafka)
         builder.Services.AddSingleton<ILoggerProvider, KafkaLoggerProvider>();
 
-        // Telemetry (Metrics + Prometheus exporter)
+        // Force the metrics class to initialize so the Gauges register immediately
+        // Replace 'ComicCsvIngestor' with whatever class holds your Meter
+        System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(ComicCsvIngestor).TypeHandle);
+
+        // Register the meter name 
+        // Telemetry 
         builder.Services.AddCustomTelemetry(
             new[] { MeterNames.ComicIngestion },
             enableRuntimeInstrumentation: false
