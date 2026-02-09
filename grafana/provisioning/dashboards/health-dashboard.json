@@ -7,15 +7,17 @@
   "schemaVersion": 39,
   "version": 1,
   "refresh": "10s",
+  "time": {
+    "from": "now-6h",
+    "to": "now"
+  },
   "panels": [
     {
       "type": "stat",
       "title": "Ingestion - Service Status",
       "datasource": "Prometheus",
       "targets": [
-        {
-          "expr": "up{service=\"ingestion\"}"
-        }
+        { "expr": "up{service=\"ingestion\"}" }
       ],
       "gridPos": { "x": 0, "y": 0, "w": 4, "h": 4 },
       "colorMode": "value",
@@ -32,9 +34,7 @@
       "title": "Persistence - Service Status",
       "datasource": "Prometheus",
       "targets": [
-        {
-          "expr": "up{service=\"persistence\"}"
-        }
+        { "expr": "up{service=\"persistence\"}" }
       ],
       "gridPos": { "x": 4, "y": 0, "w": 4, "h": 4 },
       "colorMode": "value",
@@ -51,9 +51,7 @@
       "title": "Ingestion - Uptime (seconds)",
       "datasource": "Prometheus",
       "targets": [
-        {
-          "expr": "time() - process_start_time_seconds{service=\"ingestion\"}"
-        }
+        { "expr": "service_uptime_seconds" }
       ],
       "gridPos": { "x": 8, "y": 0, "w": 4, "h": 4 }
     },
@@ -62,9 +60,7 @@
       "title": "Persistence - Uptime (seconds)",
       "datasource": "Prometheus",
       "targets": [
-        {
-          "expr": "time() - process_start_time_seconds{service=\"persistence\"}"
-        }
+        { "expr": "time() - process_start_time_seconds{service=\"persistence\"}" }
       ],
       "gridPos": { "x": 12, "y": 0, "w": 4, "h": 4 }
     },
@@ -73,9 +69,7 @@
       "title": "Ingestion - Error Rate",
       "datasource": "Prometheus",
       "targets": [
-        {
-          "expr": "rate(request_errors_total{service=\"ingestion\"}[5m])"
-        }
+        { "expr": "ingestion_failure_total" }
       ],
       "gridPos": { "x": 0, "y": 4, "w": 8, "h": 6 }
     },
@@ -84,9 +78,7 @@
       "title": "Persistence - Error Rate",
       "datasource": "Prometheus",
       "targets": [
-        {
-          "expr": "rate(request_errors_total{service=\"persistence\"}[5m])"
-        }
+        { "expr": "rate(request_errors_total{service=\"persistence\"}[5m])" }
       ],
       "gridPos": { "x": 8, "y": 4, "w": 8, "h": 6 }
     },
@@ -117,20 +109,44 @@
       "title": "Ingestion - Last Successful Batch",
       "datasource": "Prometheus",
       "targets": [
-        {
-          "expr": "max(last_success_timestamp_seconds{service=\"ingestion\"})"
-        }
+        { "expr": "last_success_timestamp" }
       ],
-      "gridPos": { "x": 0, "y": 22, "w": 8, "h": 4 }
+      "gridPos": { "x": 0, "y": 22, "w": 8, "h": 4 },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "fromNow",
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": 0 },
+              { "color": "red", "value": 80 }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": ["lastNotNull"],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto",
+        "wideLayout": true
+      }
     },
+
     {
       "type": "stat",
       "title": "Persistence - Last Successful Save",
       "datasource": "Prometheus",
       "targets": [
-        {
-          "expr": "max(last_success_timestamp_seconds{service=\"persistence\"})"
-        }
+        { "expr": "max(last_success_timestamp_seconds{service=\"persistence\"})" }
       ],
       "gridPos": { "x": 8, "y": 22, "w": 8, "h": 4 }
     }
