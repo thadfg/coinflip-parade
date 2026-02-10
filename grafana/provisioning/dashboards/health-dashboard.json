@@ -47,19 +47,25 @@
       }
     },
     {
-      "type": "stat",
-      "title": "Ingestion - Uptime",
-      "datasource": "Prometheus",
-      "targets": [
-        { "expr": "service_uptime_seconds" }
-      ],
-      "gridPos": { "x": 8, "y": 0, "w": 4, "h": 4 },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "s" 
+    "type": "stat",
+    "title": "Ingestion - Uptime",
+    "datasource": "Prometheus",
+    "targets": [
+      { "expr": "service_uptime_seconds" }
+    ],
+    "gridPos": { "x": 8, "y": 0, "w": 4, "h": 4 },
+    "fieldConfig": {
+      "defaults": {
+        "unit": "s",
+        "thresholds": {
+          "mode": "absolute",
+          "steps": [
+            { "color": "green", "value": null }
+          ]
         }
       }
-    },
+    }
+  },
     {
       "type": "stat",
       "title": "Persistence - Uptime (seconds)",
@@ -67,7 +73,18 @@
       "targets": [
         { "expr": "time() - process_start_time_seconds{service=\"persistence\"}" }
       ],
-      "gridPos": { "x": 12, "y": 0, "w": 4, "h": 4 }
+      "gridPos": { "x": 12, "y": 0, "w": 4, "h": 4 },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null }
+            ]
+          }
+        }
+      }
     },
     {
       "type": "timeseries",
@@ -119,19 +136,17 @@
       "title": "Ingestion - Last Successful Batch",
       "datasource": "Prometheus",
       "targets": [
-        { "expr": "last_success_timestamp" }
+        { "expr": "last_success_timestamp * 1000" }
       ],
       "gridPos": { "x": 0, "y": 22, "w": 8, "h": 4 },
       "fieldConfig": {
         "defaults": {
-          "unit": "fromNow",
+          "unit": "time:MM/DD/YYYY : HH:mm:ss",
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
             "steps": [
-              { "color": "green", "value": 0 },
-              { "color": "yellow", "value": 300 },
-              { "color": "red", "value": 3600 }
+              { "color": "green", "value": null }
             ]
           }
         },
