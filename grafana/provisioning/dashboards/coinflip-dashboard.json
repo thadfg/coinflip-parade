@@ -17,7 +17,25 @@
           "expr": "sum(ingestion_success_total)"
         }
       ],
-      "gridPos": { "x": 0, "y": 0, "w": 6, "h": 4 }
+      "gridPos": { "x": 0, "y": 0, "w": 6, "h": 4 },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "fixed"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null }
+            ]
+          }
+        }
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": ["lastNotNull"]
+        }
+      }
     },
     {
       "type": "stat",
@@ -83,7 +101,18 @@
           "expr": "service_uptime_seconds"
         }
       ],
-      "gridPos": { "x": 0, "y": 28, "w": 6, "h": 4 }
+      "gridPos": { "x": 0, "y": 28, "w": 6, "h": 4 },
+      "fieldConfig": {
+      "defaults": {
+        "unit": "s",
+        "thresholds": {
+          "mode": "absolute",
+          "steps": [
+            { "color": "green", "value": null }
+          ]
+        }
+      }
+    }
     },
     {
       "type": "stat",
@@ -94,7 +123,18 @@
           "expr": "time() - process_start_time_seconds{service=\"persistence\"}"
         }
       ],
-      "gridPos": { "x": 6, "y": 28, "w": 6, "h": 4 }
+      "gridPos": { "x": 6, "y": 28, "w": 6, "h": 4 },
+      "fieldConfig": {
+      "defaults": {
+        "unit": "s",
+        "thresholds": {
+          "mode": "absolute",
+          "steps": [
+            { "color": "green", "value": null }
+          ]
+        }
+      }
+    }
     }
   ]
 }

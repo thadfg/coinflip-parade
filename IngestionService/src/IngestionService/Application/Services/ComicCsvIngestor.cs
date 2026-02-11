@@ -51,8 +51,8 @@ public class ComicCsvIngestor
     {
         return _lastSuccessTimestamp;
     });
-    
-    private static double _lastSuccessTimestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+
+    private static double _lastSuccessTimestamp = 0;
 
 
 

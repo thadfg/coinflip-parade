@@ -68,7 +68,7 @@
   },
     {
       "type": "stat",
-      "title": "Persistence - Uptime (seconds)",
+      "title": "Persistence - Uptime",
       "datasource": "Prometheus",
       "targets": [
         { "expr": "time() - process_start_time_seconds{service=\"persistence\"}" }
@@ -91,9 +91,15 @@
       "title": "Ingestion - Error Rate",
       "datasource": "Prometheus",
       "targets": [
-        { "expr": "ingestion_failure_total" }
+        { "expr": "sum(rate(ingestion_failure_total[5m]))" }
       ],
-      "gridPos": { "x": 0, "y": 4, "w": 8, "h": 6 }
+      "gridPos": { "x": 0, "y": 4, "w": 8, "h": 6 },
+      "fieldConfig": {
+        "defaults": {
+          "custom": { "drawStyle": "bars" },
+          "color": { "fixedColor": "red", "mode": "fixed" }
+        }
+      }
     },
     {
       "type": "timeseries",
@@ -106,19 +112,23 @@
     },
     {
       "type": "timeseries",
-      "title": "Ingestion - Last Batch Duration (ms)",
+      "title": "Ingestion - Last Batch Duration",
       "datasource": "Prometheus",
       "targets": [
         {
-          "expr": "histogram_quantile(0.95, sum(rate(ingestion_duration_seconds_bucket{otel_scope_name=\"ComicIngestion\"}[5m])) by (le))"
+          "expr": "histogram_quantile(0.95, sum(rate(ingestion_duration_seconds_bucket[5m])) by (le)) * 1000"
         }
       ],
-      "fieldConfig":{
-        "defaults":{
-          "unit": "s"
+      "gridPos": { "x": 0, "y": 10, "w": 16, "h": 6 },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [{ "color": "green", "value": null }]
+          }
         }
-      },
-      "gridPos": { "x": 0, "y": 10, "w": 16, "h": 6 }
+      }
     },
     {
       "type": "timeseries",
@@ -136,13 +146,23 @@
       "title": "Ingestion - Last Successful Batch",
       "datasource": "Prometheus",
       "targets": [
-        { "expr": "last_success_timestamp * 1000" }
+        { "expr": "last_success_timestamp * 1000",
+          "instant": true
+        }
       ],
       "gridPos": { "x": 0, "y": 22, "w": 8, "h": 4 },
       "fieldConfig": {
         "defaults": {
           "unit": "time:MM/DD/YYYY : HH:mm:ss",
-          "mappings": [],
+          "noValue": "No Data",
+          "mappings": [
+            {
+              "type": "value",
+              "options": {
+                "0": { "text": "No Data", "color": "gray" }
+              }
+            }
+          ],
           "thresholds": {
             "mode": "absolute",
             "steps": [

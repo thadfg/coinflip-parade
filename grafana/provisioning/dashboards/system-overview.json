@@ -26,16 +26,28 @@
         ]
       }
     },
+    
     {
       "type": "stat",
       "title": "Ingestion - Uptime",
       "datasource": "Prometheus",
       "targets": [
         {
-          "expr": "time() - process_start_time_seconds{service=\"ingestion\"}"
+          "expr": "service_uptime_seconds"
         }
       ],
-      "gridPos": { "x": 4, "y": 0, "w": 4, "h": 4 }
+      "gridPos": { "x": 4, "y": 0, "w": 4, "h": 4 },
+      "fieldConfig": {
+      "defaults": {
+        "unit": "s",
+        "thresholds": {
+          "mode": "absolute",
+          "steps": [
+            { "color": "green", "value": null }
+          ]
+        }
+      }
+    }
     },
     {
       "type": "stat",
@@ -46,8 +58,20 @@
           "expr": "time() - process_start_time_seconds{service=\"persistence\"}"
         }
       ],
-      "gridPos": { "x": 8, "y": 0, "w": 4, "h": 4 }
-    },
+      "gridPos": { "x": 8, "y": 0, "w": 4, "h": 4 },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null }
+            ]
+          }
+        }
+      }
+    }
+    ,
     {
       "type": "stat",
       "title": "Total Comics Ingested",
