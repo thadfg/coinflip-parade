@@ -78,7 +78,7 @@
       "datasource": "Prometheus",
       "targets": [
         {
-          "expr": "sum(incoming_comics_total{service=\"ingestion\"})"
+          "expr": "sum(ingestion_success_total) + sum(ingestion_failure_total)"
         }
       ],
       "gridPos": { "x": 12, "y": 0, "w": 4, "h": 4 }
@@ -100,7 +100,7 @@
       "datasource": "Prometheus",
       "targets": [
         {
-          "expr": "rate(incoming_comics_total{service=\"ingestion\"}[1m])"
+          "expr": "sum(rate(ingestion_success_total[1m])) + sum(rate(ingestion_failure_total[1m]))"
         }
       ],
       "gridPos": { "x": 0, "y": 4, "w": 10, "h": 6 }
@@ -144,9 +144,14 @@
       "datasource": "Prometheus",
       "targets": [
         {
-          "expr": "histogram_quantile(0.95, sum(rate(batch_duration_ms_bucket{service=\"ingestion\"}[5m])) by (le))"
+          "expr": "histogram_quantile(0.95, sum(rate(ingestion_duration_seconds_bucket{service=\"ComicCsvIngestorService\"}[5m])) by (le)) * 1000"
         }
       ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms"
+        }
+      },
       "gridPos": { "x": 0, "y": 22, "w": 10, "h": 6 }
     },
     {

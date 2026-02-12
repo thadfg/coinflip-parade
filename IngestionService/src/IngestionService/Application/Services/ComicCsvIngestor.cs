@@ -9,6 +9,7 @@ using SharedLibrary.Models;
 using System.Diagnostics;
 using System.Diagnostics.Metrics;
 using System.Globalization;
+using OpenTelemetry.Trace;
 
 namespace IngestionService.Application.Services;
 
@@ -16,48 +17,21 @@ public class ComicCsvIngestor
 {
     private readonly IKafkaProducer _producer;
 
+    // --- Metrics Setup ---
     private static readonly Meter Meter = new(MeterNames.ComicIngestion);
-
-    private static readonly Counter<long> IngestionSuccess =
-        Meter.CreateCounter<long>(
-            "ingestion_success_total",
-            description: "Successful ingestion records");
-
-    private static readonly Counter<long> IngestionFailure =
-        Meter.CreateCounter<long>(
-            "ingestion_failure_total",
-            description: "Failed ingestion records");
-
-    private static readonly Histogram<double> IngestionDuration =
-        Meter.CreateHistogram<double>(
-            "ingestion_duration_seconds",
-            unit: "s",
-            description: "Ingestion duration in seconds");
-
+    private static readonly Counter<long> IngestionSuccess = Meter.CreateCounter<long>("ingestion_success_total");
+    private static readonly Counter<long> IngestionFailure = Meter.CreateCounter<long>("ingestion_failure_total");
+    private static readonly Histogram<double> IngestionDuration = Meter.CreateHistogram<double>("ingestion_duration_seconds", "s");
+    
     private static readonly DateTimeOffset ServiceStart = DateTimeOffset.UtcNow;
-
-    // Expose read-only start time without exposing the field itself
+    
     public static DateTimeOffset ServiceStartTime => ServiceStart;
-
-    private static readonly ObservableGauge<double> ServiceUptime =
-        Meter.CreateObservableGauge("service_uptime_seconds", () =>
-        {
-            var now = DateTimeOffset.UtcNow;
-            return (now - ServiceStart).TotalSeconds;
-        }, null, description: "Service uptime in seconds");
-
-    private static readonly ObservableGauge<double> LastSuccessTimestamp =
-    Meter.CreateObservableGauge("last_success_timestamp", () =>
-    {
-        return _lastSuccessTimestamp;
-    });
-
     private static double _lastSuccessTimestamp = 0;
 
+    private static readonly ObservableGauge<double> ServiceUptime = Meter.CreateObservableGauge("service_uptime_seconds", () => (DateTimeOffset.UtcNow - ServiceStart).TotalSeconds);
+    private static readonly ObservableGauge<double> LastSuccessTimestamp = Meter.CreateObservableGauge("last_success_timestamp", () => _lastSuccessTimestamp);
 
-
-
-    // ActivitySource used to create producer spans for tracing
+    // --- Tracing Setup ---
     private static readonly ActivitySource ActivitySource = new("IngestionService.ComicCsvIngestor");
 
     public ComicCsvIngestor(IKafkaProducer producer)
@@ -67,153 +41,140 @@ public class ComicCsvIngestor
 
     public async Task IngestAsync(string csvPath)
     {
+        // 1. Start Root Activity: Wraps the entire file processing logic
+        using var activity = ActivitySource.StartActivity("Ingest.Batch.Process", ActivityKind.Internal);
+        
         var importId = Guid.NewGuid();
-
         var importIdStr = importId.ToString();
         var service = "ComicCsvIngestorService";
         var trigger = "UserUpload";
+        
+        activity?.SetTag("import.id", importIdStr);
+        activity?.SetTag("file.path", csvPath);
 
-        using var reader = new StreamReader(csvPath);
-        using var csv = new CsvReader(reader, CultureInfo.InvariantCulture);
-
-        var records = csv.GetRecords<ComicCsvRecord>().ToList();
-
+        var started = DateTimeOffset.UtcNow;
         int successCount = 0;
         int failureCount = 0;
-        var started = DateTimeOffset.UtcNow;
 
-        foreach (var record in records)
+        try
         {
-            // per-record correlation id
-            var correlationId = Guid.NewGuid().ToString();
+            using var reader = new StreamReader(csvPath);
+            using var csv = new CsvReader(reader, CultureInfo.InvariantCulture);
+            var records = csv.GetRecords<ComicCsvRecord>().ToList();
+            
+            activity?.SetTag("record.count", records.Count);
 
-            if (!record.IsValid(out var validationError))
+            foreach (var record in records)
             {
-                var deadLetter = new DeadLetterEnvelope<ComicCsvRecord>
-                {
-                    ImportId = importId.ToString(),
-                    Timestamp = DateTime.UtcNow,
-                    Reason = $"Validation failed: {validationError}",
-                    FailedPayload = record,
-                    EventType = "Ingestion"
-                };
+                var correlationId = Guid.NewGuid().ToString();
 
-                var key = $"dead|{importId}|{correlationId}";
-
-                // start activity so traceparent is available to the producer
-                using (var activity = ActivitySource.StartActivity("Ingest.Record.DeadLetter", ActivityKind.Producer))
+                // Validation Phase
+                if (!record.IsValid(out var validationError))
                 {
-                    activity?.SetTag("import.id", importId.ToString());
-                    activity?.AddBaggage("correlation-id", correlationId);
-                    await _producer.ProduceAsync("comic-ingestion-dead-letter", key, deadLetter, correlationId);
+                    await ProduceDeadLetterAsync(record, importIdStr, correlationId, $"Validation failed: {validationError}", "Validation");
+                    failureCount++;
+                    RecordMetric(IngestionFailure, importIdStr, service, trigger);
+                    continue;
                 }
 
-                failureCount++;
-
-                var tags = new TagList
+                // Processing Phase
+                try
                 {
-                    { "import_id", importIdStr },
-                    { "service", service },
-                    { "trigger", trigger }
-                };
-                IngestionFailure.Add(1, tags);
+                    var comicEvent = record.ToFacet<ComicCsvRecord, ComicCsvRecordDto>();
+                    var publisherKey = record.PublisherName.Normalize("-");
+                    var seriesKey = record.SeriesName.Normalize("-");
+                    var key = $"{publisherKey}|{seriesKey}|{importIdStr}|{correlationId}";
 
-                continue;
-            }
+                    var envelope = new KafkaEnvelope<ComicCsvRecordDto>
+                    {
+                        ImportId = importIdStr,
+                        Timestamp = DateTime.UtcNow,
+                        Payload = comicEvent
+                    };
 
-            try
-            {
-                var comicEvent = record.ToFacet<ComicCsvRecord, ComicCsvRecordDto>();
+                    // 2. Child Span: Specific to the Kafka Produce operation
+                    using (var childActivity = ActivitySource.StartActivity("Ingest.Record.Produce", ActivityKind.Producer))
+                    {
+                        childActivity?.SetTag("messaging.destination", "comic-imported");
+                        childActivity?.SetTag("import.id", importIdStr);
+                        childActivity?.SetTag("publisher", publisherKey);
+                        childActivity?.AddBaggage("correlation.id", correlationId);
 
-                var publisherKey = record.PublisherName.Normalize("-");
-                var seriesKey = record.SeriesName.Normalize("-");
-                var key = $"{publisherKey}|{seriesKey}|{importId}|{correlationId}";
+                        await _producer.ProduceAsync("comic-imported", key, envelope, correlationId);
+                    }
 
-                var envelope = new KafkaEnvelope<ComicCsvRecordDto>
-                {
-                    ImportId = importId.ToString(),
-                    Timestamp = DateTime.UtcNow,
-                    Payload = comicEvent
-                };
-
-                using (var activity = ActivitySource.StartActivity("Ingest.Record.Produce", ActivityKind.Producer))
-                {
-                    activity?.SetTag("import.id", importId.ToString());
-                    activity?.SetTag("publisher", publisherKey);
-                    activity?.AddBaggage("correlation-id", correlationId);
-
-                    await _producer.ProduceAsync("comic-imported", key, envelope, correlationId);
+                    successCount++;
+                    RecordMetric(IngestionSuccess, importIdStr, service, trigger);
                 }
-
-                successCount++;
-
-                var tags = new TagList
+                catch (Exception ex)
                 {
-                    { "import_id", importIdStr },
-                    { "service", service },
-                    { "trigger", trigger }
-                };
-                IngestionSuccess.Add(1, tags);
-            }
-            catch (Exception ex)
-            {
-                var deadLetter = new DeadLetterEnvelope<ComicCsvRecord>
-                {
-                    ImportId = importId.ToString(),
-                    Timestamp = DateTime.UtcNow,
-                    Reason = ex.Message,
-                    FailedPayload = record,
-                    EventType = "Ingestion"
-                };
-
-                var key = $"dead|{importId}|{correlationId}";
-
-                using (var activity = ActivitySource.StartActivity("Ingest.Record.DeadLetterOnError", ActivityKind.Producer))
-                {
-                    activity?.SetTag("import.id", importId.ToString());
-                    activity?.AddBaggage("correlation-id", correlationId);
-                    await _producer.ProduceAsync("comic-ingestion-dead-letter", key, deadLetter, correlationId);
+                    // 3. Log Error to the Root Activity
+                    activity?.RecordException(ex);
+                    
+                    await ProduceDeadLetterAsync(record, importIdStr, correlationId, ex.Message, "RuntimeError");
+                    failureCount++;
+                    RecordMetric(IngestionFailure, importIdStr, service, trigger);
                 }
-
-                failureCount++;
-
-                var tags = new TagList
-                {
-                    { "import_id", importIdStr },
-                    { "service", service },
-                    { "trigger", trigger }
-                };
-                IngestionFailure.Add(1, tags);
             }
+
+            await FinalizeIngestion(importIdStr, started, successCount, failureCount);
         }
+        catch (Exception ex)
+        {
+            // If the CSV reading itself fails
+            activity?.SetStatus(ActivityStatusCode.Error, "Batch processing failed");
+            activity?.RecordException(ex);
+            throw;
+        }
+        finally
+        {
+            var durationSeconds = (DateTimeOffset.UtcNow - started).TotalSeconds;
+            IngestionDuration.Record(durationSeconds, new TagList { { "import_id", importIdStr }, { "service", service } });
+        }
+    }
 
+    private async Task ProduceDeadLetterAsync(ComicCsvRecord record, string importId, string correlationId, string reason, string errorType)
+    {
+        // 4. Child Span: Specific to Dead Lettering
+        using var dlqActivity = ActivitySource.StartActivity("Ingest.Record.DeadLetter", ActivityKind.Producer);
+        dlqActivity?.SetTag("error.type", errorType);
+        dlqActivity?.SetTag("error.reason", reason);
+        dlqActivity?.AddBaggage("correlation.id", correlationId);
+
+        var deadLetter = new DeadLetterEnvelope<ComicCsvRecord>
+        {
+            ImportId = importId,
+            Timestamp = DateTime.UtcNow,
+            Reason = reason,
+            FailedPayload = record,
+            EventType = "Ingestion"
+        };
+
+        var key = $"dead|{importId}|{correlationId}";
+        await _producer.ProduceAsync("comic-ingestion-dead-letter", key, deadLetter, correlationId);
+    }
+
+    private async Task FinalizeIngestion(string importId, DateTimeOffset started, int success, int failure)
+    {
         var metrics = new BatchIngestionMetrics
         {
-            ImportId = importId.ToString(),
+            ImportId = importId,
             StartedAt = started,
             CompletedAt = DateTimeOffset.UtcNow,
-            TotalRecords = records.Count,
-            SuccessfulRecords = successCount,
-            FailedRecords = failureCount,
+            TotalRecords = success + failure,
+            SuccessfulRecords = success,
+            FailedRecords = failure,
             SourceSystem = "CsvImportService",
             TriggeredBy = "UserUpload"
         };
 
-        await _producer.ProduceAsync("comic-ingestion-metrics", importId.ToString(), metrics);
-
+        await _producer.ProduceAsync("comic-ingestion-metrics", importId, metrics);
         _lastSuccessTimestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
-        Console.WriteLine($"[Metrics] Updated LastSuccessTimestamp to: {_lastSuccessTimestamp}");
+    }
 
-
-        var completed = DateTimeOffset.UtcNow;
-        var durationSeconds = (completed - started).TotalSeconds;
-
-        var durationTags = new TagList
-        {
-            { "import_id", importIdStr },
-            { "service", service },
-            { "trigger", trigger }
-        };
-        IngestionDuration.Record(durationSeconds, durationTags);
+    private void RecordMetric(Counter<long> counter, string importId, string service, string trigger)
+    {
+        var tags = new TagList { { "import_id", importId }, { "service", service }, { "trigger", trigger } };
+        counter.Add(1, tags);
     }
 }
