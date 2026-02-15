@@ -78,10 +78,26 @@
       "datasource": "Prometheus",
       "targets": [
         {
-          "expr": "sum(ingestion_success_total) + sum(ingestion_failure_total)"
+          "expr": "(sum(ingestion_success_total{service=\"ingestion\"}) or on() vector(0)) + (sum(ingestion_failure_total{service=\"ingestion\"}) or on() vector(0))"
         }
       ],
-      "gridPos": { "x": 12, "y": 0, "w": 4, "h": 4 }
+      "gridPos": { "x": 12, "y": 0, "w": 4, "h": 4 },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "grey",
+                "value": null
+              }
+            ]
+          }
+        }
+      }
     },
     {
       "type": "stat",

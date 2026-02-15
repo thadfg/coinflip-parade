@@ -19,8 +19,8 @@ public class ComicCsvIngestor
 
     // --- Metrics Setup ---
     private static readonly Meter Meter = new(MeterNames.ComicIngestion);
-    private static readonly Counter<long> IngestionSuccess = Meter.CreateCounter<long>("ingestion_success_total");
-    private static readonly Counter<long> IngestionFailure = Meter.CreateCounter<long>("ingestion_failure_total");
+    private static readonly Counter<long> IngestionSuccess = Meter.CreateCounter<long>("ingestion_success");
+    private static readonly Counter<long> IngestionFailure = Meter.CreateCounter<long>("ingestion_failure");
     private static readonly Histogram<double> IngestionDuration = Meter.CreateHistogram<double>("ingestion_duration_seconds", "s");
     
     private static readonly DateTimeOffset ServiceStart = DateTimeOffset.UtcNow;
