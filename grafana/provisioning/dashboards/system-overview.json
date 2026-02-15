@@ -133,7 +133,8 @@
       "datasource": "Prometheus",
       "targets": [
         {
-          "expr": "sum(kafka_consumer_lag{service=\"ingestion\"})"
+          "expr": "sum(kafka_consumer_lag{group=\"ComicCsvIngestorGroup\"})",
+          "legendFormat": "Unprocessed Comic Records"
         }
       ],
       "gridPos": { "x": 0, "y": 16, "w": 20, "h": 6 }
