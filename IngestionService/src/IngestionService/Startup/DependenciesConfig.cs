@@ -33,8 +33,9 @@ public static class DependenciesConfig
         builder.Services.AddSingleton<ILoggerProvider, KafkaLoggerProvider>();
 
         // Force the metrics class to initialize so the Gauges register immediately
-        // Replace 'ComicCsvIngestor' with whatever class holds your Meter
+        
         System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(ComicCsvIngestor).TypeHandle);
+        System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(KafkaProducer).TypeHandle);
 
         // Register the meter name 
         // Telemetry 

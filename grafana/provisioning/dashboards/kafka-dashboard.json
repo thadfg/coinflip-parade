@@ -124,6 +124,17 @@
         }
       ],
       "gridPos": { "x": 0, "y": 34, "w": 16, "h": 6 }
+    },
+    {
+      "type": "timeseries",
+      "title": "Messages Produced per Second",
+      "datasource": "Prometheus",
+      "targets": [
+        {
+          "expr": "rate(kafka_messages_produced_total{service=\"ingestion\"}[1m])"
+        }
+      ],
+      "gridPos": { "x": 0, "y": 40, "w": 16, "h": 6 }
     }
   ]
 }
