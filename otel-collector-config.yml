@@ -1,0 +1,50 @@
+extensions:
+  health_check:
+    endpoint: 0.0.0.0:13133
+
+receivers:
+  otlp:
+    protocols:
+      grpc:
+      http:
+
+exporters:
+  # The new home for your logs!
+  kafka:
+    brokers: ["kafka:9092"]
+    topic: "comic-ingestion-logs"
+    encoding: json
+
+  # Export metrics to Prometheus (using the OTLP-to-Prometheus bridge)
+  exporters:
+    prometheus:
+      endpoint: "0.0.0.0:8889"
+      # This ensures "service.name" from your C# app becomes a label in Prometheus
+      resource_to_telemetry_conversion:
+        enabled: true
+
+  # Export traces to Jaeger
+  otlp/jaeger:
+    endpoint: jaeger:4317
+    tls:
+      insecure: true
+
+  # Print to Docker logs (great for local debugging)
+  logging:
+    verbosity: detailed
+
+service:
+  extensions: [health_check]
+  pipelines:
+    logs:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [kafka, logging]
+    traces:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [otlp/jaeger]
+    metrics:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [prometheus, logging]

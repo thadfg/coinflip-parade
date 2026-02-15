@@ -10,13 +10,14 @@ public static class DependenciesConfig
 {
     public static void AddDependencies(this WebApplicationBuilder builder)
     {
-        var env = builder.Environment.EnvironmentName;
-        var config = builder.Configuration;
-        var kafkaConfig = new Confluent.Kafka.ProducerConfig();
-        config.GetSection("Kafka").Bind(kafkaConfig);
+        // 1. Setup Logging/Telemetry first so we catch startup events
+        builder.AddCustomTelemetry(new[] { MeterNames.ComicIngestion });
 
-        // Log active environment
-        Console.WriteLine($"[Startup] Environment: {env}");
+        // 2. Access the logger for startup messages
+        var logger = builder.Services.BuildServiceProvider().GetRequiredService<ILogger<Program>>();
+        var env = builder.Environment.EnvironmentName;
+
+        logger.LogInformation("[Startup] Environment: {Env}", env);
 
         // Application Services
         builder.Services.AddScoped<ComicCsvIngestor>();
@@ -25,32 +26,17 @@ public static class DependenciesConfig
         builder.Services.AddHealthChecks()
             .AddCheck("self", () => HealthCheckResult.Healthy(), tags: new[] { "live" });
 
-        // Kafka setup
-        Console.WriteLine($"[Startup] Registering Kafka for {env}");
-        builder.Services.AddKafka(config);
+        // Kafka (Binding is handled internally within AddKafka)
+        logger.LogInformation("[Startup] Registering Kafka for {Env}", env);
+        builder.Services.AddKafka(builder.Configuration);
 
-        // Register Kafka-based logger provider (will send Error+ logs to Kafka)
-        builder.Services.AddSingleton<ILoggerProvider, KafkaLoggerProvider>();
-
-        // Force the metrics class to initialize so the Gauges register immediately
-        
-        System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(ComicCsvIngestor).TypeHandle);
-        System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(KafkaProducer).TypeHandle);
-
-        // Register the meter name 
-        // Telemetry 
-        builder.Services.AddCustomTelemetry(
-            new[] { MeterNames.ComicIngestion },
-            enableRuntimeInstrumentation: false
-        );
-
-        // OpenAPI
+        // OpenAPI & HTTP Logging
         builder.Services.AddOpenApiServices();
-
-        // Http Logging
         builder.Services.AddHttpLogging(logging =>
         {
             logging.LoggingFields = Microsoft.AspNetCore.HttpLogging.HttpLoggingFields.All;
         });
     }
+
+
 }

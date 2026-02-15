@@ -6,34 +6,20 @@ rule_files:
   - "alerting_rules.yml"
 
 scrape_configs:
-  # ============================
-  # IngestionService
-  # ============================
-  - job_name: 'ingestion'
-    metrics_path: '/ingestion/custom-metrics'
-    scheme: https
-    tls_config:
-      ca_file: /etc/prometheus/dev.crt
-      insecure_skip_verify: true
+  # =============================================================
+  # Unified Metrics Scrape (Ingestion + Persistence + Others)
+  # =============================================================
+  - job_name: 'otel-collector-metrics'
+    # 'otel-collector' matches the service name in your docker-compose
+    # '8889' is the port we opened in the otel-collector-config.yaml
     static_configs:
-      - targets: ['caddy:8443']
+      - targets: ['otel-collector:8889']
         labels:
-          service: ingestion
-          component: ingestionservice
           environment: local
 
-  # ============================
-  # PersistenceService
-  # ============================
-  - job_name: 'persistence'
-    metrics_path: '/persistence/custom-metrics'
-    scheme: https
-    tls_config:
-      ca_file: /etc/prometheus/dev.crt
-      insecure_skip_verify: true
+  # =============================================================
+  # Collector Self-Monitoring (Optional)
+  # =============================================================
+  - job_name: 'otel-collector-self'
     static_configs:
-      - targets: ['caddy:8443']
-        labels:
-          service: persistence
-          component: persistenceservice
-          environment: local
+      - targets: ['otel-collector:8888']

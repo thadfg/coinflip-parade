@@ -2,24 +2,52 @@
 using Microsoft.Extensions.DependencyInjection;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
+using OpenTelemetry.Trace; 
+using OpenTelemetry.Logs;
+using OpenTelemetry;
 
 
 public static class TelemetryConfigurationExtensions
 {
-    public static void AddCustomTelemetry(this IServiceCollection services, string[] meterNames, bool enableRuntimeInstrumentation = true)
+    public static void AddCustomTelemetry(this WebApplicationBuilder builder, string[] meterNames, bool enableRuntimeInstrumentation = true)
     {
-        services.AddOpenTelemetry()
+        var resourceBuilder = ResourceBuilder.CreateDefault().AddService("ingestion");
+
+        builder.Services.AddOpenTelemetry()
+
             .ConfigureResource(r => r.AddService(serviceName: "ingestion"))
+            .WithTracing(tracing =>
+            {
+                tracing
+                    .AddAspNetCoreInstrumentation()
+                    .AddHttpClientInstrumentation()
+                    .AddSource("ingestion")
+                    .AddOtlpExporter();
+            })
             .WithMetrics(metrics =>
             {
                 metrics
-                    .AddAspNetCoreInstrumentation()                    
+                    .AddAspNetCoreInstrumentation()        
+                    .AddHttpClientInstrumentation()            
                     .AddMeter(meterNames)
-                    .AddPrometheusExporter();
+                    .AddPrometheusExporter()
+                    .AddOtlpExporter();
 
-                // NOTE: enableRuntimeInstrumentation is intentionally not wired up here unless
-                // you add the corresponding runtime instrumentation package.
-                _ = enableRuntimeInstrumentation;
+                
+                if (enableRuntimeInstrumentation)
+                {
+                    // This is the extension method from the .Runtime package
+                    metrics.AddRuntimeInstrumentation();
+                }
             });
+        // This part is crucial—it's what finally replaces your KafkaLoggerProvider
+        builder.Logging.AddOpenTelemetry(options =>
+        {
+            options.SetResourceBuilder(resourceBuilder);
+            options.IncludeScopes = true;
+            options.ParseStateValues = true;
+            options.IncludeFormattedMessage = true;
+            options.AddOtlpExporter();
+        });
     }
 }
