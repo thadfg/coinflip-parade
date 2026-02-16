@@ -22,8 +22,10 @@ public static class TelemetryConfigurationExtensions
                 tracing
                     .AddAspNetCoreInstrumentation()
                     .AddHttpClientInstrumentation()
-                    .AddSource("ingestion")
-                    .AddOtlpExporter();
+                    .AddSource("Ingest.Batch.Process")
+                    .AddOtlpExporter(opt => {
+                        opt.Endpoint = new Uri("http://jaeger:4317"); // Matches your docker-compose
+                    });
             })
             .WithMetrics(metrics =>
             {

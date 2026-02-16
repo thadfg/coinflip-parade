@@ -1,7 +1,3 @@
-extensions:
-  health_check:
-    endpoint: 0.0.0.0:13133
-
 receivers:
   otlp:
     protocols:
@@ -10,44 +6,88 @@ receivers:
       http:
         endpoint: 0.0.0.0:4318
 
+  prometheus:
+    config:
+      scrape_configs:
+        - job_name: 'ingestion'
+          static_configs:
+            - targets: ['ingestion:5283']
+        - job_name: 'persistence'
+          static_configs:
+            - targets: ['persistenceservice:5067']
+
 processors:
   batch:
     timeout: 10s
 
+  # This is the "Bridge" between C# and Grafana
+  transform:
+    log_statements:
+      - context: log
+        statements:
+          # Promotes the OTLP trace context to a searchable attribute for Loki
+          - set(attributes["trace_id"], trace_id.string)
+
+  # Ensures every signal (logs/traces/metrics) is labeled with the same service name
+  resource:
+    attributes:
+      - action: upsert
+        key: service.name
+        value: "ingestion"
+
 exporters:
-  kafka:
-    brokers: ["kafka:9092"]
-    topic: "comic-ingestion-logs"
-    # FIX: "json" is no longer valid; use a specific marshaler
-    encoding: otlp_json 
+  otlp_grpc/jaeger:
+    endpoint: jaeger:4317
+    tls:
+      insecure: true
+
+  # The modern OTLP path to Loki (requires Loki 3.0+)
+  otlphttp/loki:
+    endpoint: "http://loki:3100/otlp"
+    tls:
+      insecure: true
 
   prometheus:
     endpoint: "0.0.0.0:8889"
     resource_to_telemetry_conversion:
       enabled: true
 
-  # FIX: Using otlp_grpc instead of deprecated otlp alias
-  otlp_grpc/jaeger:
-    endpoint: jaeger:4317
-    tls:
-      insecure: true
+  kafka:
+    brokers: ["kafka:9092"]
+    topic: "comic-ingestion-logs"
+    encoding: otlp_json 
 
-  # FIX: debug exporter used instead of deprecated logging
   debug:
     verbosity: detailed
 
 service:
+  telemetry:
+    metrics:
+      level: normal
+      readers:
+        - pull:
+            exporter:
+              prometheus:
+                host: '0.0.0.0'
+                port: 8888
   extensions: [health_check]
   pipelines:
-    logs:
-      receivers: [otlp]
-      processors: [batch]
-      exporters: [kafka, debug]
     traces:
       receivers: [otlp]
-      processors: [batch]
+      processors: [resource, batch]
       exporters: [otlp_grpc/jaeger, debug]
+    
     metrics:
-      receivers: [otlp]
-      processors: [batch]
+      receivers: [otlp, prometheus]
+      processors: [resource, batch]
       exporters: [prometheus, debug]
+      
+    logs:
+      receivers: [otlp]
+      # Order is vital: Transform the trace ID, then stamp the resource, then batch
+      processors: [transform, resource, batch]
+      exporters: [otlphttp/loki, kafka, debug]
+
+extensions:
+  health_check:
+    endpoint: 0.0.0.0:13133

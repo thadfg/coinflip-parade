@@ -1,25 +1,13 @@
 global:
   scrape_interval: 15s
-  scrape_timeout: 10s
-
-rule_files:
-  - "alerting_rules.yml"
 
 scrape_configs:
-  # =============================================================
-  # Unified Metrics Scrape (Ingestion + Persistence + Others)
-  # =============================================================
-  - job_name: 'otel-collector-metrics'
-    # 'otel-collector' matches the service name in your docker-compose
-    # '8889' is the port we opened in the otel-collector-config.yaml
+  # The Unified metrics from your apps + OTLP data
+  - job_name: 'otel-collector-unified'
     static_configs:
       - targets: ['otel-collector:8889']
-        labels:
-          environment: local
 
-  # =============================================================
-  # Collector Self-Monitoring (Optional)
-  # =============================================================
-  - job_name: 'otel-collector-self'
+  # Internal health of the OTel Collector itself
+  - job_name: 'otel-collector-internal'
     static_configs:
       - targets: ['otel-collector:8888']
