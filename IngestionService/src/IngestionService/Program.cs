@@ -15,6 +15,8 @@ try
 
     var app = builder.Build();
 
+    app.Logger.LogInformation("[Startup] Environment: {Env}", app.Environment.EnvironmentName);
+
     app.Logger.LogInformation("=== Program.cs updated at {Time} ===", DateTime.UtcNow);
 
     // Health checks

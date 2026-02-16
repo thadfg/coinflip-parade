@@ -11,11 +11,12 @@ public static class TelemetryConfigurationExtensions
 {
     public static void AddCustomTelemetry(this WebApplicationBuilder builder, string[] meterNames, bool enableRuntimeInstrumentation = true)
     {
-        var resourceBuilder = ResourceBuilder.CreateDefault().AddService("ingestion");
+        // Define the resource configuration once
+        var resourceBuilder = ResourceBuilder.CreateDefault()
+        .AddService(serviceName: "ingestion");
 
         builder.Services.AddOpenTelemetry()
-
-            .ConfigureResource(r => r.AddService(serviceName: "ingestion"))
+            
             .WithTracing(tracing =>
             {
                 tracing
@@ -43,7 +44,7 @@ public static class TelemetryConfigurationExtensions
         // This part is crucial—it's what finally replaces your KafkaLoggerProvider
         builder.Logging.AddOpenTelemetry(options =>
         {
-            options.SetResourceBuilder(resourceBuilder);
+            options.SetResourceBuilder(resourceBuilder);            
             options.IncludeScopes = true;
             options.ParseStateValues = true;
             options.IncludeFormattedMessage = true;

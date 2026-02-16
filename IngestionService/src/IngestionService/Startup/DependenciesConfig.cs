@@ -13,11 +13,11 @@ public static class DependenciesConfig
         // 1. Setup Logging/Telemetry first so we catch startup events
         builder.AddCustomTelemetry(new[] { MeterNames.ComicIngestion });
 
-        // 2. Access the logger for startup messages
-        var logger = builder.Services.BuildServiceProvider().GetRequiredService<ILogger<Program>>();
+        
+        
         var env = builder.Environment.EnvironmentName;
 
-        logger.LogInformation("[Startup] Environment: {Env}", env);
+        //logger.LogInformation("[Startup] Environment: {Env}", env);
 
         // Application Services
         builder.Services.AddScoped<ComicCsvIngestor>();
@@ -27,7 +27,7 @@ public static class DependenciesConfig
             .AddCheck("self", () => HealthCheckResult.Healthy(), tags: new[] { "live" });
 
         // Kafka (Binding is handled internally within AddKafka)
-        logger.LogInformation("[Startup] Registering Kafka for {Env}", env);
+        //logger.LogInformation("[Startup] Registering Kafka for {Env}", env);
         builder.Services.AddKafka(builder.Configuration);
 
         // OpenAPI & HTTP Logging
