@@ -28,13 +28,6 @@ processors:
           # Promotes the OTLP trace context to a searchable attribute for Loki
           - set(attributes["trace_id"], trace_id.string)
 
-  # Ensures every signal (logs/traces/metrics) is labeled with the same service name
-  resource:
-    attributes:
-      - action: upsert
-        key: service.name
-        value: "ingestion"
-
 exporters:
   otlp_grpc/jaeger:
     endpoint: jaeger:4317
@@ -74,18 +67,18 @@ service:
   pipelines:
     traces:
       receivers: [otlp]
-      processors: [resource, batch]
+      processors: [batch]
       exporters: [otlp_grpc/jaeger, debug]
     
     metrics:
       receivers: [otlp, prometheus]
-      processors: [resource, batch]
+      processors: [batch]
       exporters: [prometheus, debug]
       
     logs:
       receivers: [otlp]
       # Order is vital: Transform the trace ID, then stamp the resource, then batch
-      processors: [transform, resource, batch]
+      processors: [transform, batch]
       exporters: [otlphttp/loki, kafka, debug]
 
 extensions:

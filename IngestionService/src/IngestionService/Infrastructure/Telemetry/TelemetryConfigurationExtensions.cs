@@ -6,23 +6,28 @@ using OpenTelemetry.Trace;
 using OpenTelemetry.Logs;
 using OpenTelemetry;
 
-
+namespace IngestionService.Infrastructure.Telemetry;
 public static class TelemetryConfigurationExtensions
 {
     public static void AddCustomTelemetry(this WebApplicationBuilder builder, string[] meterNames, bool enableRuntimeInstrumentation = true)
     {
+        
+        var serviceName = builder.Configuration["OTEL_SETTINGS:ServiceName"] 
+                          ?? builder.Environment.ApplicationName;
+        
         // Define the resource configuration once
         var resourceBuilder = ResourceBuilder.CreateDefault()
-        .AddService(serviceName: "ingestion");
+        .AddService(serviceName: serviceName);
 
         builder.Services.AddOpenTelemetry()
             
             .WithTracing(tracing =>
             {
                 tracing
+                    .ConfigureResource(r => r.AddService(serviceName))
                     .AddAspNetCoreInstrumentation()
                     .AddHttpClientInstrumentation()
-                    .AddSource("Ingest.Batch.Process")
+                    .AddSource("IngestionService.ComicCsvIngestor")
                     .AddOtlpExporter(opt => {
                         opt.Endpoint = new Uri("http://jaeger:4317"); // Matches your docker-compose
                     });
@@ -30,6 +35,7 @@ public static class TelemetryConfigurationExtensions
             .WithMetrics(metrics =>
             {
                 metrics
+                    .SetResourceBuilder(resourceBuilder)
                     .AddAspNetCoreInstrumentation()        
                     .AddHttpClientInstrumentation()            
                     .AddMeter(meterNames)

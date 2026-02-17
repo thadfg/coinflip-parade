@@ -14,7 +14,7 @@
       "datasource": "Prometheus",
       "targets": [
         {
-          "expr": "min(up{service=~\"ingestion|persistence\"})"
+          "expr": "min(up{job=~\"ingestion|persistence\"})"
         }
       ],
       "gridPos": { "x": 0, "y": 0, "w": 4, "h": 4 },
@@ -33,7 +33,7 @@
       "datasource": "Prometheus",
       "targets": [
         {
-          "expr": "service_uptime_seconds"
+          "expr": "time() - process_runtime_dotnet_process_start_time_seconds{job=\"ingestion\"}"
         }
       ],
       "gridPos": { "x": 4, "y": 0, "w": 4, "h": 4 },
@@ -55,7 +55,7 @@
       "datasource": "Prometheus",
       "targets": [
         {
-          "expr": "time() - process_start_time_seconds{service=\"persistence\"}"
+          "expr": "time() - process_runtime_dotnet_process_start_time_seconds{job=\"persistence\"}"
         }
       ],
       "gridPos": { "x": 8, "y": 0, "w": 4, "h": 4 },
@@ -78,7 +78,7 @@
       "datasource": "Prometheus",
       "targets": [
         {
-          "expr": "(sum(ingestion_success_total{service=\"ingestion\"}) or on() vector(0)) + (sum(ingestion_failure_total{service=\"ingestion\"}) or on() vector(0))"
+          "expr": "sum(ingestion_success_total{service_name=\"ingestion\"})"
         }
       ],
       "gridPos": { "x": 12, "y": 0, "w": 4, "h": 4 },
@@ -105,7 +105,7 @@
       "datasource": "Prometheus",
       "targets": [
         {
-          "expr": "sum(saved_comics_total{service=\"persistence\"})"
+          "expr": "sum(saved_comics_total{service_name=\"persistence\"})"
         }
       ],
       "gridPos": { "x": 16, "y": 0, "w": 4, "h": 4 }
@@ -127,7 +127,7 @@
       "datasource": "Prometheus",
       "targets": [
         {
-          "expr": "rate(saved_comics_total{service=\"persistence\"}[1m])"
+          "expr": "rate(saved_comics_total{service_name=\"persistence\"}[1m])"
         }
       ],
       "gridPos": { "x": 10, "y": 4, "w": 10, "h": 6 }

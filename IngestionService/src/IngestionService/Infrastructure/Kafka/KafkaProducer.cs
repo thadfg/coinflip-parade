@@ -37,7 +37,7 @@ namespace IngestionService.Infrastructure.Kafka
             };
 
             _producer = new ProducerBuilder<string, string>(config)
-            // 3. This is the "Hook"
+            // 3. This is the "Hook"  
             .SetStatisticsHandler((_, json) =>
             {
                 // This code runs every 5 seconds. 

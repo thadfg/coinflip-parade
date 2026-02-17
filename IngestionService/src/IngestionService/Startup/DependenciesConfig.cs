@@ -3,6 +3,7 @@ using IngestionService.Infrastructure.Kafka;
 using IngestionService.Infrastructure.Logging;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using SharedLibrary.Constants;
+using IngestionService.Infrastructure.Telemetry;
 
 namespace IngestionService.Startup;
 
