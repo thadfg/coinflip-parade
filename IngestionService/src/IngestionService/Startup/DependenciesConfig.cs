@@ -14,8 +14,10 @@ public static class DependenciesConfig
         // 1. Setup Logging/Telemetry first so we catch startup events
         builder.AddCustomTelemetry(new[] { MeterNames.ComicIngestion });
 
-        
-        
+        // Force the static constructor of the ingestor to run 
+        // so the Meter is registered with OpenTelemetry immediately
+        _ = ComicCsvIngestor.ServiceStartTime;
+
         var env = builder.Environment.EnvironmentName;
 
         //logger.LogInformation("[Startup] Environment: {Env}", env);

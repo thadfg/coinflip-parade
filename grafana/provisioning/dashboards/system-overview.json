@@ -33,13 +33,14 @@
       "datasource": "Prometheus",
       "targets": [
         {
-          "expr": "time() - process_runtime_dotnet_process_start_time_seconds{job=\"ingestion\"}"
+          "expr": "service_uptime_seconds{otel_scope_name=\"ComicIngestionMetrics\"}"
         }
       ],
       "gridPos": { "x": 4, "y": 0, "w": 4, "h": 4 },
       "fieldConfig": {
       "defaults": {
-        "unit": "s",
+        "unit": "duration:s",
+        "decimals": 0,
         "thresholds": {
           "mode": "absolute",
           "steps": [
@@ -78,7 +79,7 @@
       "datasource": "Prometheus",
       "targets": [
         {
-          "expr": "sum(ingestion_success_total{service_name=\"ingestion\"})"
+          "expr": "sum(ingestion_success_total{otel_scope_name=\"ComicIngestionMetrics\"}) or vector(0)"
         }
       ],
       "gridPos": { "x": 12, "y": 0, "w": 4, "h": 4 },
@@ -116,7 +117,7 @@
       "datasource": "Prometheus",
       "targets": [
         {
-          "expr": "sum(rate(ingestion_success_total[1m])) + sum(rate(ingestion_failure_total[1m]))"
+          "expr": "(sum(rate(ingestion_success_total{otel_scope_name=\"ComicIngestionMetrics\"}[1m])) or vector(0)) + (sum(rate(ingestion_failure_total{otel_scope_name=\"ComicIngestionMetrics\"}[1m])) or vector(0))"
         }
       ],
       "gridPos": { "x": 0, "y": 4, "w": 10, "h": 6 }
