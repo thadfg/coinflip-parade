@@ -70,7 +70,7 @@ jobs:
 
     - name: Pack SharedLibrary
       # Adjust this path if SharedLibrary.csproj is in a different folder
-      run: 
+      run: |
           dotnet build SharedLibrary/SharedLibrary.csproj -c Release
           dotnet pack SharedLibrary/SharedLibrary.csproj -c Release -o out --no-build
 
