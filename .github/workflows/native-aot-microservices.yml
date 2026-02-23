@@ -75,8 +75,4 @@ jobs:
           dotnet pack SharedLibrary/SharedLibrary.csproj -c Release -o out --no-build
 
     - name: Push to GitHub Packages
-      run: |
-        dotnet nuget push "out/*.nupkg" 
-          --api-key ${{ secrets.GITHUB_TOKEN }} 
-          --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" 
-          --skip-duplicate
+      run: dotnet nuget push "out/*.nupkg" --api-key ${{ secrets.GITHUB_TOKEN }} --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" --skip-duplicate
