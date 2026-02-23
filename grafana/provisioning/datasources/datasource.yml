@@ -5,4 +5,34 @@ datasources:
     type: prometheus
     access: proxy
     url: http://prometheus:9090
+    jsonData:
+      # This section creates the "click to see trace" magic
+      derivedFields:
+        - datasourceUid: jaeger-datasource-001 # Matches the UID we gave Jaeger
+          matcherRegex: "trace_id=(\\w+)"      # Adjust this regex to match your log format
+          name: TraceID
+          url: '$${__value.raw}'               # Opens the trace in Grafana Explore
     isDefault: true
+  
+  - name: Jaeger
+    type: jaeger
+    uid: jaeger-datasource-001  # Hardcoding a UID makes linking logs/traces easier later
+    access: proxy
+    # Use the service name defined in your docker-compose
+    url: http://jaeger:16686/jaeger
+    jsonData:
+      # This helps Grafana understand where to find the search and trace APIs
+      # since you used a custom base path.
+      nodeGraph:
+        enabled: true
+
+  - name: Loki
+    type: loki
+    uid: loki-datasource-001
+    url: http://loki:3100
+    jsonData:
+      derivedFields:
+        - datasourceUid: jaeger-datasource-001
+          matcherRegex: "TraceId: (\\w+)"
+          name: TraceID
+          url: '$${__value.raw}'

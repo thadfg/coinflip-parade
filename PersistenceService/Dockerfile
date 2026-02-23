@@ -13,25 +13,19 @@ WORKDIR /src
 
 # Copy NuGet config (from PersistenceService folder)
 COPY ${NUGET_CONFIG} /src/NuGet.config
-#COPY PersistenceService/${NUGET_CONFIG} /src/NuGet.config
-#COPY PersistenceService/nuget.config /src/NuGet.config
+
 
 
 
 # Copy the ENTIRE PersistenceService project tree
-#COPY PersistenceService/ /src/PersistenceService/
-COPY PersistenceService/src/PersistenceService/ /src/PersistenceService/
-#COPY . .
+COPY PersistenceService/ /src/PersistenceService/
 
-RUN ls -R /src
-
+# For Debugging
+#RUN ls -R /src
 
 # Move into the project folder
-#WORKDIR /src/PersistenceService/src/PersistenceService
-WORKDIR /src/PersistenceService
+WORKDIR /src/PersistenceService/src/PersistenceService
 
-# Restore using injected config
-#RUN dotnet restore "PersistenceService.csproj" --configfile /src/NuGet.config
 
 # Publish
 RUN dotnet publish "PersistenceService.csproj" -c Release -o /out

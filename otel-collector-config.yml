@@ -1,0 +1,86 @@
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
+
+  prometheus:
+    config:
+      scrape_configs:
+        - job_name: 'ingestion'
+          static_configs:
+            - targets: ['ingestion:5283']
+        - job_name: 'persistence'
+          static_configs:
+            - targets: ['persistenceservice:5067']
+
+processors:
+  batch:
+    timeout: 10s
+
+  # This is the "Bridge" between C# and Grafana
+  transform:
+    log_statements:
+      - context: log
+        statements:
+          # Promotes the OTLP trace context to a searchable attribute for Loki
+          - set(attributes["trace_id"], trace_id.string)
+
+exporters:
+  otlp_grpc/jaeger:
+    endpoint: jaeger:4317
+    tls:
+      insecure: true
+
+  # The modern OTLP path to Loki (requires Loki 3.0+)
+  otlphttp/loki:
+    endpoint: "http://loki:3100/otlp"
+    tls:
+      insecure: true
+
+  prometheus:
+    endpoint: "0.0.0.0:8889"
+    resource_to_telemetry_conversion:
+      enabled: true
+
+  kafka:
+    brokers: ["kafka:9092"]
+    topic: "comic-ingestion-logs"
+    encoding: otlp_json 
+
+  debug:
+    verbosity: detailed
+
+service:
+  telemetry:
+    metrics:
+      level: normal
+      readers:
+        - pull:
+            exporter:
+              prometheus:
+                host: '0.0.0.0'
+                port: 8888
+  extensions: [health_check]
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [otlp_grpc/jaeger, debug]
+    
+    metrics:
+      receivers: [otlp, prometheus]
+      processors: [batch]
+      exporters: [prometheus, debug]
+      
+    logs:
+      receivers: [otlp]
+      # Order is vital: Transform the trace ID, then stamp the resource, then batch
+      processors: [transform, batch]
+      exporters: [otlphttp/loki, kafka, debug]
+
+extensions:
+  health_check:
+    endpoint: 0.0.0.0:13133

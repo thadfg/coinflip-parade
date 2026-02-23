@@ -23,17 +23,20 @@ public class ComicCollectionRepository : IComicCollectionRepository
         _logger = logger;
     }
 
-    public async Task UpsertBatchAsync(IEnumerable<(ComicRecordEntity Comic, System.Guid EventId)> batch, CancellationToken cancellationToken)
+    public async Task UpsertBatchAsync(IEnumerable<(ComicRecordEntity Comic, Guid EventId)> batch, CancellationToken cancellationToken)
     {
         var items = batch.ToList();
+
+        // Materialize EventIds BEFORE the EF query to avoid InMemory deadlock
+        var eventIds = items.Select(i => i.EventId).ToList();
 
         for (int attempt = 1; attempt <= MaxRetries; attempt++)
         {
             try
             {
-                // ✅ Step 1: Filter out already processed events
+                // Step 1: Filter out already processed events
                 var processedIds = await _dbContext.ProcessedEvents
-                    .Where(e => items.Select(i => i.EventId).Contains(e.EventId))
+                    .Where(e => eventIds.Contains(e.EventId))
                     .Select(e => e.EventId)
                     .ToListAsync(cancellationToken);
 
@@ -47,13 +50,13 @@ public class ComicCollectionRepository : IComicCollectionRepository
                     return;
                 }
 
-                // ✅ Step 2: Fetch existing comics by ID
+                // Step 2: Fetch existing comics by ID
                 var comicIds = unprocessedItems.Select(i => i.Comic.Id).Distinct().ToList();
                 var existingComics = await _dbContext.ComicRecords
                     .Where(c => comicIds.Contains(c.Id))
                     .ToDictionaryAsync(c => c.Id, cancellationToken);
 
-                // ✅ Step 3: Upsert logic
+                // Step 3: Upsert logic
                 foreach (var (comic, eventId) in unprocessedItems)
                 {
                     if (existingComics.TryGetValue(comic.Id, out var existing))
@@ -100,4 +103,3 @@ public class ComicCollectionRepository : IComicCollectionRepository
         }
     }
 }
-

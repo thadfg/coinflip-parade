@@ -12,6 +12,8 @@ public class EventDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.HasDefaultSchema("comics");        
+
         modelBuilder.ApplyConfiguration(new EventEntityConfiguration());        
     }  
 

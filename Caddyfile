@@ -1,96 +1,140 @@
 {
     auto_https off
     admin off
+    debug
 }
 
 :8443 {
     tls /certs/dev.crt /certs/dev.key
 
+    log {
+        output file /var/log/caddy/access.log
+        format json
+        level INFO
+    }
+
     # ============================
-    # IngestionService Metrics
+    # Jaeger Tracing UI
     # ============================
-    @metrics path_regexp metrics ^/ingestion/metrics(?:/.*)?$
-    handle @metrics {
-        uri replace /ingestion/metrics /custom-metrics
+    @jaeger path /jaeger*
+    handle @jaeger {        
+        reverse_proxy jaeger:16686
+    }
+
+    #
+    # ============================
+    # IngestionService
+    # ============================
+    #
+
+    # API
+    @ingestion_api path /api/*
+    handle @ingestion_api {
         reverse_proxy ingestion:5283
     }
 
     # ============================
-    # Scalar JS assets
+    # IngestionService Metrics
     # ============================
+    @ingestion_metrics path /ingestion/custom-metrics*
+    handle @ingestion_metrics {
+        uri strip_prefix /ingestion
+        reverse_proxy ingestion:5283
+    }
+
+    # Health
+    @ingestion_health path /ingestion/health
+    handle @ingestion_health {
+        reverse_proxy ingestion:5283
+    }
+
+    @ingestion_ready path /ingestion/ready
+    handle @ingestion_ready {
+        reverse_proxy ingestion:5283
+    }
+
+    @ingestion_live path /ingestion/live
+    handle @ingestion_live {
+        reverse_proxy ingestion:5283
+    }
+
+
+    #
+    # ============================
+    # PersistenceService
+    # ============================
+    #
+
+    # ============================
+    # PersistenceService Metrics
+    # ============================
+    @persistence_metrics path /persistence/custom-metrics*
+    handle @persistence_metrics {
+        uri strip_prefix /persistence
+        reverse_proxy persistenceservice:5067
+    }
+
+    # Health
+    @persistence_health path /persistence/health
+    handle @persistence_health {
+        reverse_proxy persistenceservice:5067
+    }
+
+    @persistence_ready path /persistence/ready
+    handle @persistence_ready {
+        reverse_proxy persistenceservice:5067
+    }
+
+    @persistence_live path /persistence/live
+    handle @persistence_live {
+        reverse_proxy persistenceservice:5067
+    }
+
+
+    #
+    # ============================
+    # Scalar UI + OpenAPI (Ingestion only)
+    # ============================
+    #
+
     @scalar_assets path_regexp scalar_assets ^/scalar/(?:scalar\.js|scalar\.aspnetcore\.js)$
     handle @scalar_assets {
         reverse_proxy ingestion:5283
     }
 
-    # ============================
-    # Scalar UI
-    # ============================
     @scalar_ui path /scalar/v1*
     handle @scalar_ui {
         reverse_proxy ingestion:5283
     }
 
-    # ============================
-    # OpenAPI spec for Scalar
-    # ============================
-    @scalar_spec path /openapi/v1.json
-    handle @scalar_spec {
+    @openapi_spec path /openapi/v1.json
+    handle @openapi_spec {
         reverse_proxy ingestion:5283
     }
 
-    # ============================
-    # API Endpoints (CSV ingest, etc.)
-    # ============================
-    @api path /api/*
-    handle @api {
-        reverse_proxy ingestion:5283
-
-        # ---- CORS HEADERS ----
-        header Access-Control-Allow-Origin "*"
-        header Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
-        header Access-Control-Allow-Headers "*"
-    }
-
-    # ============================
-    # Friendly redirect to Scalar UI
-    # ============================
     @openapi_redirect path /ingestion/openapi
     handle @openapi_redirect {
         redir /scalar/v1 permanent
     }
 
-    # ============================
-    # Raw OpenAPI JSON
-    # ============================
     @openapi_json path /ingestion/openapi.json
     handle @openapi_json {
         uri replace /ingestion/openapi.json /openapi/v1.json
         reverse_proxy ingestion:5283
     }
 
+
+    #
     # ============================
-    # Health endpoints
+    # Default fallback (safe)
     # ============================
-    @health path /health
-    handle @health {
-        reverse_proxy ingestion:5283
+    #
+
+    @fallback_notfound {
+        path_regexp nevermatch ^$
     }
 
-    @ready path /ready
-    handle @ready {
-        reverse_proxy ingestion:5283
-    }
-
-    @live path /live
-    handle @live {
-        reverse_proxy ingestion:5283
-    }
-
-    # ============================
-    # Default fallback
-    # ============================
-    handle {
+    handle @fallback_notfound {
         respond "Not Found" 404
     }
 }

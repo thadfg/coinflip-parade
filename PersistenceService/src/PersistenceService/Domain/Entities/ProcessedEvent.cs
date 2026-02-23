@@ -8,6 +8,8 @@ namespace PersistenceService.Domain.Entities;
 public class ProcessedEvent
 {
     [Key]
+    public Guid Id { get; set; }
+
     public System.Guid EventId { get; set; }
 
     public DateTime ProcessedAtUtc { get; set; }

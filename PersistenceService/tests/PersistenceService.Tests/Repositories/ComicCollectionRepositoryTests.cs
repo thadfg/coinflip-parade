@@ -55,7 +55,8 @@ public class ComicCollectionRepositoryTests
         Assert.NotNull(persisted);
         Assert.Equal("Marvel", persisted.PublisherName);
 
-        var processed = await dbContext.ProcessedEvents.FindAsync(eventId);
+        var processed = await dbContext.ProcessedEvents
+            .SingleOrDefaultAsync(p => p.EventId == eventId);
         Assert.NotNull(processed);
     }
 

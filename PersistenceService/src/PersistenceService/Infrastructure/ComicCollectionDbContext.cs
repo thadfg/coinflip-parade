@@ -14,14 +14,15 @@ public class ComicCollectionDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.HasDefaultSchema("comics");        
+
         modelBuilder.Entity<ComicRecordEntity>()
             .HasKey(c => c.Id);
 
-        modelBuilder.Entity<ProcessedEvent>().HasKey(p => p.EventId);
+        modelBuilder.Entity<ProcessedEvent>().HasKey(p =>  p.Id);
 
         modelBuilder.Entity<ProcessedEvent>()
-            .HasIndex(p => p.EventId)
-            .IsUnique();
+            .HasIndex(p => p.EventId);
 
         modelBuilder.Entity<ProcessedEvent>()
             .Property(p => p.ProcessedAtUtc)

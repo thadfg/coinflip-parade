@@ -9,6 +9,7 @@ using Confluent.Kafka;
 using PersistenceService.Infrastructure.Kafka;
 using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Builder;
+using PersistenceService.Infrastructure.Database;
 
 namespace PersistenceService.Startup;
 
@@ -24,13 +25,21 @@ public static class DependenciesConfig
         var config = builder.Configuration;
 
         // Add DbContext with PostgreSQL provider
-        builder.Services.AddDbContext<EventDbContext>(options =>
-            options.UseNpgsql(config.GetConnectionString("EventDb")));
+        builder.Services.AddDbContext<EventDbContext>(options =>            
+            options.UseNpgsql(config.GetConnectionString("EventDb"), npgsqlOptions => 
+            { 
+                npgsqlOptions.MigrationsHistoryTable("__EFMigrationsHistory", "public"); 
+            }));
 
-        builder.Services.AddDbContext<ComicCollectionDbContext>(options =>
-            options.UseNpgsql(config.GetConnectionString("EventDb")));
+        builder.Services.AddDbContext<ComicCollectionDbContext>(options =>            
+            options.UseNpgsql(config.GetConnectionString("EventDb"), npgsqlOptions => 
+            { 
+                npgsqlOptions.MigrationsHistoryTable("__EFMigrationsHistory", "public"); 
+            }));
+
 
         // Add other dependencies as needed
+        builder.Services.AddScoped<IDatabaseReadyChecker, DatabaseReadyChecker>();
         builder.Services.AddScoped<IEventRepository, EventRepository>();
         builder.Services.AddScoped<IComicCollectionRepository, ComicCollectionRepository>();
 

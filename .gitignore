@@ -103,3 +103,4 @@ Migrations/
 /SharedLibrary/NuGet.config
 /IngestionService/ContainerErrors.txt
 /NuGet.local.config
+/BackupConfigs

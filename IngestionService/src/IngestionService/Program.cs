@@ -1,7 +1,7 @@
 using IngestionService.Startup;
 using IngestionService.Web.Features.ComicCsv;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
-using Prometheus;
+using OpenTelemetry.Exporter;
 
 try
 {
@@ -15,6 +15,8 @@ try
 
     var app = builder.Build();
 
+    app.Logger.LogInformation("[Startup] Environment: {Env}", app.Environment.EnvironmentName);
+
     app.Logger.LogInformation("=== Program.cs updated at {Time} ===", DateTime.UtcNow);
 
     // Health checks
@@ -25,12 +27,14 @@ try
     // Ingestion endpoints
     app.MapComicCsvIngestorEndpoints();
 
-    // Prometheus metrics endpoint (stable)
-    app.UseMetricServer("/custom-metrics");
-    app.UseHttpMetrics();
+    // Prometheus scrape endpoint via OpenTelemetry exporter
+    app.MapPrometheusScrapingEndpoint("/custom-metrics");
 
     // OpenAPI
     app.UseOpenApi();
+
+    // Http logging middleware
+    app.UseHttpsRedirection();
 
     app.Run();
 }
