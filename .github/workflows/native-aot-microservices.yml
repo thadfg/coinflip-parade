@@ -56,7 +56,6 @@ jobs:
   publish-library:
     name: Pack and Publish SharedLibrary
     runs-on: windows-latest
-    # Only publish when merging to main, not on every PR check
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     
     steps:
@@ -69,10 +68,11 @@ jobs:
         dotnet-version: '9.0.x'
 
     - name: Pack SharedLibrary
-      # Adjust this path if SharedLibrary.csproj is in a different folder
+      # Removed extra spaces before dotnet
       run: |
-          dotnet build SharedLibrary/SharedLibrary.csproj -c Release
-          dotnet pack SharedLibrary/SharedLibrary.csproj -c Release -o out --no-build
+        dotnet build SharedLibrary/SharedLibrary.csproj -c Release
+        dotnet pack SharedLibrary/SharedLibrary.csproj -c Release -o ${{ github.workspace }}\out --no-build
 
     - name: Push to GitHub Packages
-      run: dotnet nuget push "out/*.nupkg" --api-key ${{ secrets.GITHUB_TOKEN }} --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" --skip-duplicate
+      # Using the full path ensures the shell finds the folder
+      run: dotnet nuget push "${{ github.workspace }}\out\*.nupkg" --api-key ${{ secrets.GITHUB_TOKEN }} --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" --skip-duplicate
