@@ -39,6 +39,7 @@ public static class TelemetryConfigurationExtensions
                     .AddAspNetCoreInstrumentation()        
                     .AddHttpClientInstrumentation()            
                     .AddMeter(meterNames)
+                    .AddMeter("ComicIngestion.Meter")
                     .AddPrometheusExporter()
                     .AddOtlpExporter();
 

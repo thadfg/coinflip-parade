@@ -93,7 +93,7 @@ service:
     metrics:
       receivers: [otlp, prometheus, httpcheck]
       # FIXED: Added resource processor here
-      processors: [resource, batch] 
+      processors: [batch] 
       exporters: [prometheus, debug]
       
     logs:

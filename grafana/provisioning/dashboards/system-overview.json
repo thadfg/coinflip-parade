@@ -36,7 +36,7 @@
       "title": "Ingestion - Uptime",
       "datasource": "Prometheus",
       "targets": [{ 
-        "expr": "max(process_uptime_seconds{service_name=\"ingestion\"})", 
+        "expr": "max(service_uptime_seconds{exported_job=\"ingestion\"})", 
         "instant": true 
       }],
       "gridPos": { "x": 8, "y": 0, "w": 8, "h": 4 },
