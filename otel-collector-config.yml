@@ -8,25 +8,43 @@ receivers:
 
   prometheus:
     config:
+      global:
+        scrape_interval: 1s
       scrape_configs:
         - job_name: 'ingestion'
+          scrape_interval: 1s
+          metrics_path: '/custom-metrics'
           static_configs:
             - targets: ['ingestion:5283']
-        - job_name: 'persistence'
+
+        - job_name: 'persistence-service'
+          scrape_interval: 1s
+          metrics_path: '/custom-metrics'
+          honor_timestamps: false
           static_configs:
             - targets: ['persistenceservice:5067']
 
+  httpcheck:
+    targets:
+      - endpoint: http://ingestion:5283
+      - endpoint: http://persistenceservice:5067
+
 processors:
   batch:
-    timeout: 10s
+    timeout: 1s
 
-  # This is the "Bridge" between C# and Grafana
+  # FIXED: This processor safely adds the label without causing the "duplicate" crash
+  resource:
+    attributes:
+      - key: service_name
+        from_attribute: service.name
+        action: insert 
+
   transform:
     log_statements:
       - context: log
         statements:
-          # Promotes the OTLP trace context to a searchable attribute for Loki
-          - set(attributes["trace_id"], trace_id.string)
+          - set(log.attributes["trace_id"], log.trace_id.string)
 
 exporters:
   otlp_grpc/jaeger:
@@ -34,16 +52,18 @@ exporters:
     tls:
       insecure: true
 
-  # The modern OTLP path to Loki (requires Loki 3.0+)
-  otlphttp/loki:
+  # FIXED: Swapped to otlp_http to resolve the warning in your logs
+  otlp_http/loki:
     endpoint: "http://loki:3100/otlp"
     tls:
       insecure: true
 
   prometheus:
     endpoint: "0.0.0.0:8889"
+    # FIXED: Set to false to stop the "duplicate label names" error
     resource_to_telemetry_conversion:
-      enabled: true
+      enabled: false 
+    enable_open_metrics: true
 
   kafka:
     brokers: ["kafka:9092"]
@@ -51,7 +71,7 @@ exporters:
     encoding: otlp_json 
 
   debug:
-    verbosity: detailed
+    verbosity: basic
 
 service:
   telemetry:
@@ -62,7 +82,7 @@ service:
             exporter:
               prometheus:
                 host: '0.0.0.0'
-                port: 8888
+                port: 8888 
   extensions: [health_check]
   pipelines:
     traces:
@@ -71,15 +91,15 @@ service:
       exporters: [otlp_grpc/jaeger, debug]
     
     metrics:
-      receivers: [otlp, prometheus]
-      processors: [batch]
+      receivers: [otlp, prometheus, httpcheck]
+      # FIXED: Added resource processor here
+      processors: [resource, batch] 
       exporters: [prometheus, debug]
       
     logs:
       receivers: [otlp]
-      # Order is vital: Transform the trace ID, then stamp the resource, then batch
       processors: [transform, batch]
-      exporters: [otlphttp/loki, kafka, debug]
+      exporters: [otlp_http/loki, kafka, debug]
 
 extensions:
   health_check:

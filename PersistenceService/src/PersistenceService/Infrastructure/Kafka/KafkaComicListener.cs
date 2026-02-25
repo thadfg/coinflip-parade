@@ -5,10 +5,11 @@ using PersistenceService.Application.Mappers;
 using PersistenceService.Domain.Entities;
 using PersistenceService.Infrastructure.Database;
 using PersistenceService.Infrastructure.Kafka;
-using Prometheus;
+using PersistenceService.Infrastructure.Observability.Metrics;
 using SharedLibrary.Facet;
 using SharedLibrary.Models;
 using System.Text.Json;
+using System.Diagnostics.Metrics;
 
 public class KafkaComicListener : BackgroundService
 {
@@ -30,21 +31,20 @@ public class KafkaComicListener : BackgroundService
     private readonly TimeSpan _flushInterval;
     private readonly TimeSpan _consumeTimeout;
     private readonly int _consumeInitializeDelay;
-    protected CancellationTokenSource? _internalCts;
-    private readonly int batchSize;
+    private CancellationTokenSource? _internalCts;
+    private readonly int _batchSize;
 
-    private static readonly Gauge KafkaConsumerLag =
-    Metrics.CreateGauge(
-        "kafka_consumer_lag",
-        "Kafka consumer lag for persistence service",
-        new GaugeConfiguration
-        {
-            LabelNames = new[] { "topic", "partition", "service" }
-        });
+    private static readonly Meter KafkaMeter = new("PersistenceService.Kafka", "1.0.0");
+    
+    private static readonly Counter<long> SavedComicsCounter = 
+        KafkaMeter.CreateCounter<long>("saved_comics_total", "comics", "Total comics successfully persisted");
+    
+    private static readonly ObservableGauge<long> KafkaConsumerLag = 
+        KafkaMeter.CreateObservableGauge<long>("kafka_consumer_lag", () => _latestLags.Values, "Kafka consumer lag for persistence service");
 
-
-
-
+    private static readonly System.Collections.Concurrent.ConcurrentDictionary<string, Measurement<long>> _latestLags = new();
+    
+    public static void Initialize() { /* Forces static field initialization */ }
 
     public KafkaComicListener(
         ILogger<KafkaComicListener> logger,
@@ -72,7 +72,7 @@ public class KafkaComicListener : BackgroundService
 
         _consumeInitializeDelay = _config.GetValue<int>("KafkaListener:ConsumeInitializeDelay", 1000);
 
-         batchSize = _config.GetValue<int>("KafkaListener:BatchSize",  10);
+         _batchSize = _config.GetValue<int>("KafkaListener:BatchSize",  10);
         
 
     }
@@ -91,11 +91,13 @@ public class KafkaComicListener : BackgroundService
             await Task.Delay(_dbReadyDelay, linkedToken);
         }
 
-        _logger.LogInformation("Database ready. Initializing Kafka consumer…");
+        _logger.LogInformation("Database ready. Exposing readiness metric.");
+        ReadinessMetrics.SetDatabaseReady(1);
+
+        _logger.LogInformation("Initializing Kafka consumer…");
 
         // Create consumer if not already created (useful for testing/mocking)
-        if (_consumer == null)
-            _consumer = CreateConsumer();
+        _consumer ??= CreateConsumer() ;
 
         // Subscribe to Kafka topic
         var topic = _config["Kafka:Topic"];
@@ -156,9 +158,11 @@ public class KafkaComicListener : BackgroundService
                     
                     long lag = endOffset - currentOffset; 
                     // Emit the metric
-                    KafkaConsumerLag 
-                        .WithLabels(result.Topic, result.Partition.ToString(), "persistence") 
-                        .Set(lag); 
+                    var key = $"{result.Topic}-{result.Partition}";
+                    _latestLags[key] = new Measurement<long>(lag, 
+                        new KeyValuePair<string, object?>("topic", result.Topic),
+                        new KeyValuePair<string, object?>("partition", result.Partition.ToString()),
+                        new KeyValuePair<string, object?>("service", "persistence"));
                     // --- END BLOCK ---
 
                     if (result.Message?.Value == null)
@@ -198,15 +202,19 @@ public class KafkaComicListener : BackgroundService
                     _eventBuffer.Add(eventEntity);
 
                     // 4️ Batch flush based on size
-                    if (_comicRecordBuffer.Count >= batchSize)
+                    if (_comicRecordBuffer.Count >= _batchSize)
                     {
                         using var scope = _serviceProvider.CreateScope();
                         var comicRepo = scope.ServiceProvider.GetRequiredService<IComicCollectionRepository>();
                         await comicRepo.UpsertBatchAsync(_comicRecordBuffer, stoppingToken);
+                        
+                        // REPORT SUCCESS TO METRICS
+                        SavedComicsCounter.Add(_comicRecordBuffer.Count, new KeyValuePair<string, object?>("service_name", "PersistenceService"));
+                        
                         _comicRecordBuffer.Clear();
                     }
 
-                    if (_eventBuffer.Count >= batchSize)
+                    if (_eventBuffer.Count >= _batchSize)
                     {
                         using var scope = _serviceProvider.CreateScope();
                         var eventRepo = scope.ServiceProvider.GetRequiredService<IEventRepository>();

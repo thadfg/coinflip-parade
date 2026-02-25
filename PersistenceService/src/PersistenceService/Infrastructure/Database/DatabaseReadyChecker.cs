@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using PersistenceService.Infrastructure;
 using PersistenceService.Infrastructure.Database;
+using PersistenceService.Infrastructure.Observability.Metrics;
 
 public sealed class DatabaseReadyChecker : IDatabaseReadyChecker
 {
@@ -86,6 +87,6 @@ public sealed class DatabaseReadyChecker : IDatabaseReadyChecker
         return count >= 3;
     }
 
-    private void SetReady() => ReadinessMetrics.DatabaseReady.Set(1);
-    private void SetNotReady() => ReadinessMetrics.DatabaseReady.Set(0);
+    private void SetReady() => ReadinessMetrics.SetDatabaseReady(1);
+    private void SetNotReady() => ReadinessMetrics.SetDatabaseReady(0);
 }
