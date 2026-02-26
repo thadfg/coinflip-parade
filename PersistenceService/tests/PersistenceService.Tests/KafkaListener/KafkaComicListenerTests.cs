@@ -83,6 +83,10 @@ namespace PersistenceService.Tests.KafkaListener
                 })
                 .Returns(Task.CompletedTask);
 
+            // Needed for lag calculation
+            mockConsumer.Setup(c => c.QueryWatermarkOffsets(It.IsAny<TopicPartition>(), It.IsAny<TimeSpan>()))
+                .Returns(new WatermarkOffsets(0, 10));
+
             var services = new ServiceCollection();
             services.AddSingleton(mockEventRepo.Object);
             services.AddSingleton(mockComicRepo.Object);

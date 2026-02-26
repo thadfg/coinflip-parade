@@ -255,6 +255,8 @@ public class KafkaComicListener : BackgroundService
                 using var scope = _serviceProvider.CreateScope();
                 var comicRepo = scope.ServiceProvider.GetRequiredService<IComicCollectionRepository>();
                 await comicRepo.UpsertBatchAsync(_comicRecordBuffer, CancellationToken.None);
+                
+                SavedComicsCounter.Add(_comicRecordBuffer.Count, new KeyValuePair<string, object?>("service_name", "PersistenceService"));
             }
 
             _consumer?.Close();
@@ -293,6 +295,9 @@ public class KafkaComicListener : BackgroundService
             var comicRepo = scope.ServiceProvider.GetRequiredService<IComicCollectionRepository>();
             await comicRepo.UpsertBatchAsync(_comicRecordBuffer, stoppingToken);
             _logger.LogInformation("Timed flush: persisted {Count} comics", _comicRecordBuffer.Count);
+
+            SavedComicsCounter.Add(_comicRecordBuffer.Count, new KeyValuePair<string, object?>("service_name", "PersistenceService"));
+
             _comicRecordBuffer.Clear();
         }
 
