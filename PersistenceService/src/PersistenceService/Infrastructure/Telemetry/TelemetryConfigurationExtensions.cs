@@ -31,10 +31,11 @@ public static class TelemetryConfigurationExtensions
                     .AddMeter(MeterNames.ComicPersistence)
                     .AddMeter("PersistenceService.Kafka")
                     .AddPrometheusExporter()
-                    .AddOtlpExporter(options =>
+                    .AddOtlpExporter((options, readerOptions) =>
                     {
                         options.Endpoint = new Uri("http://otel-collector:4317"); 
                         options.Protocol = OpenTelemetry.Exporter.OtlpExportProtocol.Grpc;
+                        readerOptions.PeriodicExportingMetricReaderOptions.ExportIntervalMilliseconds = 1000;
                     });
             })
             .WithTracing(tracing =>
