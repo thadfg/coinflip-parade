@@ -17,12 +17,14 @@ public static class TelemetryConfigurationExtensions
     public static void AddCustomTelemetry(this WebApplicationBuilder builder, string[] meterNames, bool enableRuntimeInstrumentation = true)
     {
         
-        var serviceName = builder.Configuration["OTEL_SETTINGS:ServiceName"] 
-                          ?? builder.Environment.ApplicationName;
-        
-        // Define the resource configuration once
-        var resourceBuilder = ResourceBuilder.CreateDefault()
-        .AddService(serviceName: serviceName);
+        var serviceName = builder.Configuration["OTEL_SETTINGS:ServiceName"] ?? builder.Environment.ApplicationName;
+        var resourceBuilder = ResourceBuilder.CreateDefault().AddService(serviceName);
+
+        // Allow configuring the OTLP endpoint via configuration or environment.
+        // Config keys checked (in order): "OTEL_SETTINGS:OtlpEndpoint", "OTEL_EXPORTER_OTLP_ENDPOINT".
+        var otlpEndpoint = builder.Configuration["OTEL_SETTINGS:OtlpEndpoint"]
+            ?? builder.Configuration["OTEL_EXPORTER_OTLP_ENDPOINT"]
+            ?? "http://otel-collector:4317";
 
         builder.Services.AddOpenTelemetry()
             
@@ -33,9 +35,7 @@ public static class TelemetryConfigurationExtensions
                     .AddAspNetCoreInstrumentation()
                     .AddHttpClientInstrumentation()
                     .AddSource("IngestionService.ComicCsvIngestor")
-                    .AddOtlpExporter(opt => {
-                        opt.Endpoint = new Uri("http://jaeger:4317"); // Matches your docker-compose
-                    });
+                    .AddOtlpExporter(opt => { opt.Endpoint = new Uri(otlpEndpoint); });
             })
             .WithMetrics(metrics =>
             {
@@ -45,8 +45,7 @@ public static class TelemetryConfigurationExtensions
                     .AddHttpClientInstrumentation()            
                     .AddMeter(meterNames)
                     .AddMeter("ComicIngestion.Meter")
-                    .AddPrometheusExporter()
-                    .AddOtlpExporter();
+                    .AddOtlpExporter(opt => { opt.Endpoint = new Uri(otlpEndpoint); });
 
                 
                 if (enableRuntimeInstrumentation)

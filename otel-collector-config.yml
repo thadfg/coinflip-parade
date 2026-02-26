@@ -6,72 +6,29 @@ receivers:
       http:
         endpoint: 0.0.0.0:4318
 
-  prometheus:
-    config:
-      global:
-        scrape_interval: 1s
-      scrape_configs:
-        - job_name: 'ingestion'
-          scrape_interval: 1s
-          metrics_path: '/custom-metrics'
-          static_configs:
-            - targets: ['ingestion:5283']
-
-        - job_name: 'persistence-service'
-          scrape_interval: 1s
-          metrics_path: '/custom-metrics'
-          honor_timestamps: false
-          static_configs:
-            - targets: ['persistenceservice:5067']
-
-  httpcheck:
-    targets:
-      - endpoint: http://ingestion:5283
-      - endpoint: http://persistenceservice:5067
-
 processors:
-  batch:
-    timeout: 1s
-
-  # FIXED: This processor safely adds the label without causing the "duplicate" crash
+  batch: {}
   resource:
     attributes:
       - key: service_name
         from_attribute: service.name
-        action: insert 
-
-  transform:
-    log_statements:
-      - context: log
-        statements:
-          - set(log.attributes["trace_id"], log.trace_id.string)
+        action: insert
 
 exporters:
-  otlp_grpc/jaeger:
-    endpoint: jaeger:4317
-    tls:
-      insecure: true
-
-  # FIXED: Swapped to otlp_http to resolve the warning in your logs
-  otlp_http/loki:
-    endpoint: "http://loki:3100/otlp"
-    tls:
-      insecure: true
-
   prometheus:
+    # This is the "Data Endpoint" (Business Metrics)
     endpoint: "0.0.0.0:8889"
-    # FIXED: Set to false to stop the "duplicate label names" error
     resource_to_telemetry_conversion:
       enabled: false 
-    enable_open_metrics: true
 
-  kafka:
-    brokers: ["kafka:9092"]
-    topic: "comic-ingestion-logs"
-    encoding: otlp_json 
+  otlphttp/loki:
+    endpoint: "http://loki:3100/otlp" 
+    tls:
+      insecure: true
 
-  debug:
-    verbosity: basic
+extensions:
+  health_check:
+    endpoint: 0.0.0.0:13133
 
 service:
   telemetry:
@@ -82,25 +39,18 @@ service:
             exporter:
               prometheus:
                 host: '0.0.0.0'
+                # This is the "Internal Endpoint" (Collector Health)
                 port: 8888 
+  
   extensions: [health_check]
+
   pipelines:
-    traces:
-      receivers: [otlp]
-      processors: [batch]
-      exporters: [otlp_grpc/jaeger, debug]
-    
     metrics:
-      receivers: [otlp, prometheus, httpcheck]
-      # FIXED: Added resource processor here
-      processors: [batch] 
-      exporters: [prometheus, debug]
-      
+      receivers: [otlp]
+      processors: [resource, batch]
+      exporters: [prometheus]
+
     logs:
       receivers: [otlp]
-      processors: [transform, batch]
-      exporters: [otlp_http/loki, kafka, debug]
-
-extensions:
-  health_check:
-    endpoint: 0.0.0.0:13133
+      processors: [resource, batch]
+      exporters: [otlphttp/loki]

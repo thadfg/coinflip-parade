@@ -16,7 +16,7 @@
       "type": "stat",
       "title": "Pipeline Health",
       "datasource": "Prometheus",
-      "targets": [{ "expr": "min(up{job=\"otel-collector-unified\"})", "instant": true }],
+      "targets": [{ "expr": "min(up{job=\"app-metrics\"})", "instant": true }],
       "gridPos": { "x": 0, "y": 0, "w": 8, "h": 4 },
       "fieldConfig": {
         "defaults": {

@@ -27,8 +27,9 @@ try
     // Ingestion endpoints
     app.MapComicCsvIngestorEndpoints();
 
-    // Prometheus scrape endpoint via OpenTelemetry exporter
-    app.MapPrometheusScrapingEndpoint("/custom-metrics");
+    // Metrics are exported via OTLP to the OpenTelemetry Collector; do not expose a Prometheus scrape endpoint here.
+
+    // Prometheus scrape endpoint removed: metrics are exported via OTLP to the OpenTelemetry Collector
 
     // OpenAPI
     app.UseOpenApi();
