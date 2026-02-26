@@ -105,7 +105,7 @@
       "gridPos": { "x": 0, "y": 28, "w": 6, "h": 4 },
       "fieldConfig": {
       "defaults": {
-        "unit": "dhdms",
+        "unit": "dtdhms",
         "thresholds": {
           "mode": "absolute",
           "steps": [
@@ -113,7 +113,10 @@
           ]
         }
       }
-    }
+    },
+    "options": {
+        "wideLayout": true
+      }
     },
     {
       "type": "stat",
@@ -128,7 +131,7 @@
       "gridPos": { "x": 6, "y": 28, "w": 6, "h": 4 },
       "fieldConfig": {
       "defaults": {
-        "unit": "dhdms",
+        "unit": "dtdhms",
         "thresholds": {
           "mode": "absolute",
           "steps": [
@@ -136,7 +139,10 @@
           ]
         }
       }
-    }
+    },
+    "options": {
+        "wideLayout": true
+      }
     }
   ]
 }

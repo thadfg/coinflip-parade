@@ -41,7 +41,10 @@
       }],
       "gridPos": { "x": 8, "y": 0, "w": 8, "h": 4 },
       "fieldConfig": {
-        "defaults": { "unit": "s", "color": { "mode": "thresholds" }, "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }] } }
+        "defaults": { "unit": "dtdhms", "color": { "mode": "thresholds" }, "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }] } }
+      },
+      "options": {
+        "wideLayout": true
       }
     },
     {
@@ -54,7 +57,10 @@
       }],
       "gridPos": { "x": 16, "y": 0, "w": 8, "h": 4 },
       "fieldConfig": {
-        "defaults": { "unit": "s", "color": { "mode": "thresholds" }, "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }] } }
+        "defaults": { "unit": "dtdhms", "color": { "mode": "thresholds" }, "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }] } }
+      },
+      "options": {
+        "wideLayout": true
       }
     },
     {
