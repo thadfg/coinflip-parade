@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using OpenTelemetry.Exporter;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using OpenTelemetry.Metrics;
 using System.Diagnostics.Metrics;
@@ -45,7 +46,7 @@ public static class TelemetryConfigurationExtensions
                     .AddHttpClientInstrumentation()            
                     .AddMeter(meterNames)
                     .AddMeter("ComicIngestion.Meter")
-                    .AddOtlpExporter(opt => { opt.Endpoint = new Uri(otlpEndpoint); });
+                    .AddReader(new PeriodicExportingMetricReader(new OtlpMetricExporter(new OtlpExporterOptions { Endpoint = new Uri(otlpEndpoint) }), 1000));
 
                 
                 if (enableRuntimeInstrumentation)
@@ -61,7 +62,10 @@ public static class TelemetryConfigurationExtensions
             options.IncludeScopes = true;
             options.ParseStateValues = true;
             options.IncludeFormattedMessage = true;
-            options.AddOtlpExporter();
+            options.AddOtlpExporter(opt =>
+            {
+                opt.Endpoint = new Uri(otlpEndpoint);
+            });
         });
         
         UptimeMeter.CreateObservableGauge("service_uptime_seconds", () =>
