@@ -27,8 +27,6 @@ public class ComicCsvIngestor
     
     public static DateTimeOffset ServiceStartTime => ServiceStart;
     private static double _lastSuccessTimestamp = 0;
-
-    private static readonly ObservableGauge<double> ServiceUptime = Meter.CreateObservableGauge("service_uptime_seconds", () => (DateTimeOffset.UtcNow - ServiceStart).TotalSeconds);
     private static readonly ObservableGauge<double> LastSuccessTimestamp = Meter.CreateObservableGauge("last_success_timestamp", () => _lastSuccessTimestamp);
 
     // --- Tracing Setup ---

@@ -36,12 +36,12 @@
       "title": "Ingestion - Uptime",
       "datasource": "Prometheus",
       "targets": [{ 
-        "expr": "max(service_uptime_seconds{exported_job=\"ingestion\"})", 
+        "expr": "max(service_uptime_seconds{service_name=\"IngestionService\"})", 
         "instant": true 
       }],
       "gridPos": { "x": 8, "y": 0, "w": 8, "h": 4 },
       "fieldConfig": {
-        "defaults": { "unit": "dts", "color": { "mode": "thresholds" }, "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }] } }
+        "defaults": { "unit": "s", "color": { "mode": "thresholds" }, "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }] } }
       }
     },
     {
@@ -54,14 +54,14 @@
       }],
       "gridPos": { "x": 16, "y": 0, "w": 8, "h": 4 },
       "fieldConfig": {
-        "defaults": { "unit": "dts", "color": { "mode": "thresholds" }, "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }] } }
+        "defaults": { "unit": "s", "color": { "mode": "thresholds" }, "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }] } }
       }
     },
     {
       "type": "stat",
       "title": "Total Comics Ingested",
       "datasource": "Prometheus",
-      "targets": [{ "expr": "sum(ingestion_success_total{service_name=\"ingestion\"}) or vector(0)", "instant": true }],
+      "targets": [{ "expr": "sum(ingestion_success_total{service_name=\"IngestionService\"}) or vector(0)", "instant": true }],
       "gridPos": { "x": 0, "y": 4, "w": 12, "h": 4 },
       "fieldConfig": {
         "defaults": { "color": { "mode": "thresholds" }, "thresholds": { "mode": "absolute", "steps": [{ "color": "blue", "value": null }] } }
@@ -81,7 +81,7 @@
       "type": "timeseries",
       "title": "Ingestion Throughput (comics/sec)",
       "datasource": "Prometheus",
-      "targets": [{ "expr": "sum(rate(ingestion_success_total{service_name=\"ingestion\"}[1m]))" }],
+      "targets": [{ "expr": "sum(rate(ingestion_success_total{service_name=\"IngestionService\"}[1m]))" }],
       "gridPos": { "x": 0, "y": 8, "w": 12, "h": 7 }
     },
     {
@@ -120,7 +120,7 @@
       "type": "timeseries",
       "title": "Ingestion - Batch Duration (95th %)",
       "datasource": "Prometheus",
-      "targets": [{ "expr": "histogram_quantile(0.95, sum(rate(ingestion_duration_seconds_bucket{service_name=\"ingestion\"}[5m])) by (le)) * 1000" }],
+      "targets": [{ "expr": "histogram_quantile(0.95, sum(rate(ingestion_duration_seconds_bucket{service_name=\"IngestionService\"}[5m])) by (le)) * 1000" }],
       "fieldConfig": { "defaults": { "unit": "ms" } },
       "gridPos": { "x": 0, "y": 27, "w": 12, "h": 7 }
     },

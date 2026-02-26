@@ -98,7 +98,8 @@
       "datasource": "Prometheus",
       "targets": [
         {
-          "expr": "service_uptime_seconds"
+          "expr": "service_uptime_seconds{service_name=\"IngestionService\"}",
+          "instant": true 
         }
       ],
       "gridPos": { "x": 0, "y": 28, "w": 6, "h": 4 },
@@ -120,7 +121,7 @@
       "datasource": "Prometheus",
       "targets": [
         {
-          "expr": "time() - process_start_time_seconds{service=\"persistence\"}"
+          "expr": "process_uptime_seconds"
         }
       ],
       "gridPos": { "x": 6, "y": 28, "w": 6, "h": 4 },
