@@ -7,7 +7,8 @@ receivers:
         endpoint: 0.0.0.0:4318
 
 processors:
-  batch: {}
+  batch: 
+    timeout: 100ms # Added explicit flush timeout for high-resolution updates
   resource:
     attributes:
       - key: service_name
