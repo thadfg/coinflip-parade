@@ -42,6 +42,8 @@ public class ComicCsvIngestor
         // 1. Start Root Activity: Wraps the entire file processing logic
         using var activity = ActivitySource.StartActivity("Ingest.Batch.Process", ActivityKind.Internal);
         
+        
+        
         var importId = Guid.NewGuid();
         var importIdStr = importId.ToString();
         var service = "ComicCsvIngestorService";
@@ -85,7 +87,8 @@ public class ComicCsvIngestor
 
                     var envelope = new KafkaEnvelope<ComicCsvRecordDto>
                     {
-                        ImportId = importIdStr,
+                        
+                        ImportId = GenerateComicId(record.PublisherName, record.SeriesName, record.FullTitle,  record.ReleaseDate).ToString(),
                         Timestamp = DateTime.UtcNow,
                         Payload = comicEvent
                     };
@@ -129,6 +132,15 @@ public class ComicCsvIngestor
             var durationSeconds = (DateTimeOffset.UtcNow - started).TotalSeconds;
             IngestionDuration.Record(durationSeconds, new TagList { { "import_id", importIdStr }, { "service", service } });
         }
+    }
+    
+    // Example Logic for Ingestion Service
+    public Guid GenerateComicId(string publisher, string series, string title, string date)
+    {
+        var input = $"{publisher}-{series}-{title}-{date:yyyyMMdd}".ToLower();
+        using var md5 = System.Security.Cryptography.MD5.Create();
+        byte[] hash = md5.ComputeHash(System.Text.Encoding.UTF8.GetBytes(input));
+        return new Guid(hash);
     }
 
     private async Task ProduceDeadLetterAsync(ComicCsvRecord record, string importId, string correlationId, string reason, string errorType)
