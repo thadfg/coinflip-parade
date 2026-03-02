@@ -1,3 +1,8 @@
-﻿namespace IngestionService.Web.Features.ComicCsv;
+﻿using Microsoft.AspNetCore.Http;
 
-public class ComicCsvUploadRequest { public IFormFile File { get; set; } }
+namespace IngestionService.Web.Features.ComicCsv;
+
+public class ComicCsvUploadRequest
+{
+    public required IFormFile File { get; set; }
+}

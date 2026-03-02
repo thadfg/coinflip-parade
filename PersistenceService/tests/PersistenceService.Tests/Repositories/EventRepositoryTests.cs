@@ -199,7 +199,6 @@ public class EventRepositoryTests
             mockLogger.Object,
             config,
             mockKafkaLogHelper.Object,
-            mockDbReadyChecker.Object,
             provider,
             mockConsumer.Object
         );
