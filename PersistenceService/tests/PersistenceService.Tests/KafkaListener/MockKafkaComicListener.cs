@@ -17,8 +17,8 @@ namespace PersistenceService.Tests.KafkaListener
             IConfiguration config,
             IKafkaLogHelper kafkaLogHelper,
             IServiceProvider serviceProvider,
-            IConsumer<Ignore, string> mockConsumer)
-            : base(logger, config, kafkaLogHelper, serviceProvider, mockConsumer)
+            IConsumer<string, string> consumer)
+            : base(logger, config, kafkaLogHelper, serviceProvider, consumer)
         {
         }
 

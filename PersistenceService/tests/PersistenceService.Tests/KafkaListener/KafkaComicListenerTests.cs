@@ -54,15 +54,16 @@ namespace PersistenceService.Tests.KafkaListener
                 }
             };
 
-            var message = new ConsumeResult<Ignore, string>
+            var message = new ConsumeResult<string, string>
             {
-                Message = new Message<Ignore, string>
+                Message = new Message<string, string>
                 {
+                    Key = "test-key",
                     Value = JsonSerializer.Serialize(envelope)
                 }
             };
             
-            var mockConsumer = new Mock<IConsumer<Ignore, string>>();
+            var mockConsumer = new Mock<IConsumer<string, string>>();
 
             mockConsumer
                 .SetupSequence(c => c.Consume(It.IsAny<CancellationToken>()))

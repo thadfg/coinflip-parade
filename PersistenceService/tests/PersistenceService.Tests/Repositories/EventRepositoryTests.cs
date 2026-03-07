@@ -161,21 +161,21 @@ public class EventRepositoryTests
             }
         };
 
-        var message = new ConsumeResult<Ignore, string>
+        var message = new ConsumeResult<string, string>
         {
-            Message = new Message<Ignore, string>
+            Message = new Message<string, string>
             {
+                Key = "test-key",
                 Value = JsonSerializer.Serialize(envelope)
             }
         };
         
-        var mockConsumer = new Mock<IConsumer<Ignore, string>>();
+        var mockConsumer = new Mock<IConsumer<string, string>>();
 
         mockConsumer
             .SetupSequence(c => c.Consume(It.IsAny<CancellationToken>()))
-            .Returns(message) // first call returns a valid message
-            .Throws(new OperationCanceledException()); // second call ends the loop
-
+            .Returns(message)
+            .Throws(new OperationCanceledException());
 
         mockConsumer.Setup(c => c.Close());
         mockConsumer.Setup(c => c.Dispose());
@@ -189,6 +189,10 @@ public class EventRepositoryTests
                 capturedEvents = batch.ToList();
             })
             .Returns(Task.CompletedTask);
+
+        mockConsumer
+            .Setup(c => c.QueryWatermarkOffsets(It.IsAny<TopicPartition>(), It.IsAny<TimeSpan>()))
+            .Returns(new WatermarkOffsets(0, 10));
 
         var services = new ServiceCollection();
         services.AddSingleton(mockEventRepo.Object);

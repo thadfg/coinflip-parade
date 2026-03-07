@@ -18,7 +18,7 @@ public class KafkaComicListener : BackgroundService
     private readonly IKafkaLogHelper _kafkaLogHelper;
     private readonly IServiceProvider _serviceProvider; 
 
-    private IConsumer<Ignore, string>? _consumer;
+    private IConsumer<string, string>? _consumer;
 
     private readonly List<EventEntity> _eventBuffer = new();
     private readonly List<(ComicRecordEntity Comic, Guid EventId)> _comicRecordBuffer = new();
@@ -49,7 +49,7 @@ public class KafkaComicListener : BackgroundService
         IConfiguration config,
         IKafkaLogHelper kafkaLogHelper,
         IServiceProvider serviceProvider,                  
-        IConsumer<Ignore, string>? consumer = null)
+        IConsumer<string, string>? consumer = null)
     {
         _logger = logger;
         _config = config;
@@ -105,7 +105,7 @@ public class KafkaComicListener : BackgroundService
         await ConsumeLoopAsync(linkedToken);
     }
 
-    private IConsumer<Ignore, string> CreateConsumer()
+    private IConsumer<string, string> CreateConsumer()
     {
         var consumerConfig = new ConsumerConfig
         {
@@ -116,9 +116,9 @@ public class KafkaComicListener : BackgroundService
             EnablePartitionEof = true
         };
 
-        return new ConsumerBuilder<Ignore, string>(consumerConfig).Build();
+        return new ConsumerBuilder<string, string>(consumerConfig).Build();
     }
-
+    
     protected virtual async Task ConsumeLoopAsync(CancellationToken stoppingToken)
     {
         try
@@ -198,14 +198,15 @@ public class KafkaComicListener : BackgroundService
         }
     }
 
-    private void UpdateLagMetrics(ConsumeResult<Ignore, string> result)
+    private void UpdateLagMetrics(ConsumeResult<string, string> result)
     {
-        try 
+        try
         {
             var watermark = _consumer!.QueryWatermarkOffsets(result.TopicPartition, TimeSpan.FromMilliseconds(500));
             long lag = watermark.High - result.Offset.Value;
             var key = $"{result.Topic}-{result.Partition}";
-            _latestLags[key] = new Measurement<long>(lag, 
+            _latestLags[key] = new Measurement<long>(
+                lag,
                 new KeyValuePair<string, object?>("topic", result.Topic),
                 new KeyValuePair<string, object?>("partition", result.Partition.ToString()));
         }
@@ -214,7 +215,7 @@ public class KafkaComicListener : BackgroundService
             _logger.LogTrace("Could not update lag metrics: {Msg}", ex.Message);
         }
     }
-
+    
     private async Task FlushBuffersAsync(CancellationToken stoppingToken)
     {
         if (_comicRecordBuffer.Count == 0 && _eventBuffer.Count == 0) return;
@@ -266,11 +267,5 @@ public class KafkaComicListener : BackgroundService
             _consumer?.Close();
             _consumer?.Dispose();
         }
-    }
-
-    public override Task StopAsync(CancellationToken cancellationToken)
-    {
-        _internalCts?.Cancel();
-        return base.StopAsync(cancellationToken);
     }
 }
