@@ -7,6 +7,7 @@ using PersistenceService.Infrastructure.Database;
 using PersistenceService.Infrastructure.Kafka;
 using PersistenceService.Startup;
 
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Register all DI dependencies (DbContexts, Repositories, Kafka, Logging)
@@ -27,7 +28,7 @@ builder.Services.AddHostedService<KafkaComicListener>();
 var app = builder.Build();
 
 // Run DB readiness / migrations before Kafka listener starts
-DbInitializer.Initialize(app.Services);
+await DbInitializer.InitializeAsync(app.Services);
 
 
 // Development-only OpenAPI UI

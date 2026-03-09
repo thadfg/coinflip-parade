@@ -10,6 +10,7 @@ using SharedLibrary.Facet;
 using SharedLibrary.Models;
 using System.Text.Json;
 using System.Diagnostics.Metrics;
+using Polly;
 
 public class KafkaComicListener : BackgroundService
 {
@@ -76,15 +77,15 @@ public class KafkaComicListener : BackgroundService
         _internalCts = CancellationTokenSource.CreateLinkedTokenSource(stoppingToken); 
         var linkedToken = _internalCts.Token;
 
-        _logger.LogInformation("KafkaComicListener starting…");
+        _logger.LogInformation("KafkaComicListener starting...");
 
-        // FIX: Resolve the Scoped IDatabaseReadyChecker inside a manual scope to avoid DI lifetime errors
+        // 1. Database Readiness Check
         using (var scope = _serviceProvider.CreateScope())
         {
             var dbReadyChecker = scope.ServiceProvider.GetRequiredService<IDatabaseReadyChecker>();
             while (!await dbReadyChecker.IsReadyAsync(linkedToken))
             {
-                _logger.LogInformation("Waiting for database to be ready…");
+                _logger.LogInformation("Waiting for database to be ready...");
                 await Task.Delay(_dbReadyDelay, linkedToken);
             }
         }
@@ -92,15 +93,34 @@ public class KafkaComicListener : BackgroundService
         _logger.LogInformation("Database ready. Exposing readiness metric.");
         ReadinessMetrics.SetDatabaseReady(1);
 
-        _logger.LogInformation("Initializing Kafka consumer…");
+        // 2. Resilient Kafka Initialization with Polly
+        var kafkaRetryPolicy = Policy
+            .Handle<KafkaException>()
+            .WaitAndRetryAsync(5, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)),
+                (exception, timeSpan, retryCount, context) =>
+                {
+                    _logger.LogWarning("Kafka broker not ready (Attempt {Count}). Retrying in {Delay}s...", retryCount, timeSpan.TotalSeconds);
+                });
 
-        _consumer ??= CreateConsumer();
+        try 
+        {
+            await kafkaRetryPolicy.ExecuteAsync(async () => 
+            {
+                _logger.LogInformation("Initializing Kafka consumer...");
+                _consumer ??= CreateConsumer();
 
-        var topic = _config["Kafka:Topic"] ?? "comic-imported";
-        _logger.LogInformation("Subscribing to Kafka topic: {Topic}", topic);
-        _consumer.Subscribe(topic);
+                var topic = _config["Kafka:Topic"] ?? "comic-imported";
+                _logger.LogInformation("Subscribing to Kafka topic: {Topic}", topic);
+                _consumer.Subscribe(topic);
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogCritical(ex, "Failed to connect to Kafka after multiple retries. Service stopping.");
+            return; 
+        }
 
-        _logger.LogInformation("Kafka subscription complete. Starting consume loop…");
+        _logger.LogInformation("Kafka subscription complete. Starting consume loop...");
 
         await ConsumeLoopAsync(linkedToken);
     }
@@ -120,83 +140,88 @@ public class KafkaComicListener : BackgroundService
     }
     
     protected virtual async Task ConsumeLoopAsync(CancellationToken stoppingToken)
+{
+    try
     {
-        try
+        while (!stoppingToken.IsCancellationRequested)
         {
-            while (!stoppingToken.IsCancellationRequested)
+            try
             {
-                try
+                if (_consumer == null)
                 {
-                    if (_consumer == null)
-                    {
-                        _logger.LogWarning("Kafka consumer is not initialized.");
-                        await Task.Delay(_consumeInitializeDelay, stoppingToken);
-                        continue;
-                    }
+                    _logger.LogWarning("Kafka consumer is not initialized.");
+                    await Task.Delay(_consumeInitializeDelay, stoppingToken);
+                    continue;
+                }
 
-                    var result = _consumer.Consume(_consumeTimeout);
+                var result = _consumer.Consume(_consumeTimeout);
 
-                    if (result == null || result.IsPartitionEOF)
-                    {
-                        // Check if we need to flush buffers even if no message was received
-                        await FlushIfNeededAsync(stoppingToken);
-                        continue;
-                    }
-
-                    // --- LAG CALCULATION ---
-                    UpdateLagMetrics(result);
-
-                    if (result.Message?.Value == null) continue;
-
-                    // --- DESERIALIZATION ---
-                    var envelope = JsonSerializer.Deserialize<KafkaEnvelope<ComicCsvRecordDto>>(result.Message.Value);
-                    if (envelope == null) continue;
-
-                    // --- MAPPING ---
-                    var comic = ComicRecordMapper.ToEntity(envelope);
-                    
-                    // Note: Ensure EventEntityMapper generates/assigns a unique ID that matches your ProcessedEvents EventId logic
-                    var eventEntity = EventEntityMapper.FromPayload(
-                        envelope.Payload,
-                        Guid.Parse(envelope.ImportId),
-                        "ComicCsvRecordReceived"
-                    );
-                    
-                    _comicRecordBuffer.Add((comic, eventEntity.Id));
-                    _eventBuffer.Add(eventEntity);
-
-                    // --- BATCH FLUSH ---
-                    if (_comicRecordBuffer.Count >= _batchSize || _eventBuffer.Count >= _batchSize)
-                    {
-                        await FlushBuffersAsync(stoppingToken);
-                    }
-
+                if (result == null || result.IsPartitionEOF)
+                {
                     await FlushIfNeededAsync(stoppingToken);
+                    continue;
+                }
 
-                }
-                catch (ConsumeException ex)
+                UpdateLagMetrics(result);
+
+                if (result.Message?.Value == null) continue;
+                if (string.IsNullOrWhiteSpace(result.Message.Key))
                 {
-                    _logger.LogError(ex, "Kafka consume error");
+                    _logger.LogWarning("Received Kafka message with missing key. Skipping record.");
+                    continue;
                 }
-                catch (JsonException ex)
+
+                var envelope = JsonSerializer.Deserialize<KafkaEnvelope<ComicCsvRecordDto>>(result.Message.Value);
+                if (envelope == null) continue;
+
+                var comic = ComicRecordMapper.ToEntity(envelope, result.Message.Key);
+            
+                var eventEntity = EventEntityMapper.FromPayload(
+                    envelope.Payload,
+                    Guid.Parse(envelope.ImportId),
+                    "ComicCsvRecordReceived"
+                );
+            
+                _comicRecordBuffer.Add((comic, eventEntity.Id));
+                _eventBuffer.Add(eventEntity);
+
+                if (_comicRecordBuffer.Count >= _batchSize || _eventBuffer.Count >= _batchSize)
                 {
-                    _logger.LogWarning(ex, "Malformed JSON payload");
+                    await FlushBuffersAsync(stoppingToken);
                 }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "Unexpected error in consume loop");
-                }
+
+                await FlushIfNeededAsync(stoppingToken);
+            }
+            catch (ConsumeException ex)
+            {
+                // Typically a networking blip or broker rebalance
+                _logger.LogError(ex, "Kafka consume error. Waiting before retry...");
+                await Task.Delay(2000, stoppingToken);
+            }
+            catch (JsonException ex)
+            {
+                _logger.LogWarning(ex, "Malformed JSON payload. Skipping message.");
+                // No delay needed here as we want to skip and move to the next message
+            }
+            catch (Exception ex)
+            {
+                // This captures DB connection failures or other unexpected logic errors
+                _logger.LogError(ex, "Unexpected error in consume loop. Throttling before retry...");
+                
+                // CRITICAL: Prevents log spam and high CPU if the DB or Network is down
+                await Task.Delay(5000, stoppingToken); 
             }
         }
-        catch (OperationCanceledException)
-        {
-            _logger.LogInformation("KafkaComicListener cancellation requested");
-        }
-        finally
-        {
-            await FinalCleanupAsync();
-        }
     }
+    catch (OperationCanceledException)
+    {
+        _logger.LogInformation("KafkaComicListener cancellation requested");
+    }
+    finally
+    {
+        await FinalCleanupAsync();
+    }
+}
 
     private void UpdateLagMetrics(ConsumeResult<string, string> result)
     {

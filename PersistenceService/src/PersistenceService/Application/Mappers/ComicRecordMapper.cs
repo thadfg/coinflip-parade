@@ -7,10 +7,16 @@ namespace PersistenceService.Application.Mappers;
 
 public static class ComicRecordMapper
 {
-    public static ComicRecordEntity ToEntity(KafkaEnvelope<ComicCsvRecordDto> envelope)
+    public static ComicRecordEntity ToEntity(KafkaEnvelope<ComicCsvRecordDto> envelope, string kafkaMessageKey)
     {
         if (envelope?.Payload == null)
             throw new ArgumentNullException(nameof(envelope.Payload), "Payload cannot be null");
+
+        if (string.IsNullOrWhiteSpace(kafkaMessageKey))
+            throw new ArgumentException("Kafka message key cannot be null or empty.", nameof(kafkaMessageKey));
+
+        if (!Guid.TryParse(kafkaMessageKey, out var comicId))
+            throw new FormatException($"Kafka message key is not a valid GUID: '{kafkaMessageKey}'");
 
         var dto = envelope.Payload;
 
@@ -19,7 +25,7 @@ public static class ComicRecordMapper
 
         return new ComicRecordEntity
         {
-            Id = Guid.NewGuid(),
+            Id = comicId,
             PublisherName = dto.PublisherName,
             SeriesName = dto.SeriesName,
             FullTitle = dto.FullTitle,

@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using EFCore.BulkExtensions;
 
 namespace PersistenceService.Infrastructure.Repositories;
 
@@ -26,15 +27,16 @@ public class ComicCollectionRepository : IComicCollectionRepository
     public async Task UpsertBatchAsync(IEnumerable<(ComicRecordEntity Comic, Guid EventId)> batch, CancellationToken cancellationToken)
     {
         var items = batch.ToList();
+    
+        // 1. Prepare the lists using your Entity names
+        var eventLogs = items.Select(i => new ProcessedEvent 
+        { 
+            Id = Guid.NewGuid(),
+            EventId = i.EventId, 
+            ProcessedAtUtc = DateTime.UtcNow 
+        }).ToList();
 
-        // De-dupe within the batch to avoid double-processing the same comic id in one flush
-        items = items
-            .GroupBy(x => x.Comic.Id)
-            .Select(g => g.First())
-            .ToList();
-
-        // Optional optimization: pre-load processed event ids in one query
-        var eventIds = items.Select(i => i.EventId).Distinct().ToList();
+        var comics = items.Select(i => i.Comic).ToList();
 
         for (int attempt = 1; attempt <= MaxRetries; attempt++)
         {
@@ -42,55 +44,29 @@ public class ComicCollectionRepository : IComicCollectionRepository
             {
                 await using var tx = await _dbContext.Database.BeginTransactionAsync(cancellationToken);
 
-                // Best-effort filter to reduce work (NOT relied on for correctness)
-                var alreadyProcessed = await _dbContext.ProcessedEvents
-                    .Where(e => eventIds.Contains(e.EventId))
-                    .Select(e => e.EventId)
-                    .ToListAsync(cancellationToken);
+                // 2. Bulk Insert ProcessedEvents (Idempotency Check)
+                // Matches your unique index on EventId
+                await _dbContext.BulkInsertAsync(eventLogs, new BulkConfig 
+                { 
+                    UpdateByProperties = new List<string> { nameof(ProcessedEvent.EventId) },
+                    // This tells Postgres: if the EventId exists, don't do anything (ignore the row)
+                    OnConflictUpdateWhereSql = (table, column) => $"{table}.\"Timestamp\" < EXCLUDED.\"Timestamp\""
+                }, cancellationToken: cancellationToken);
 
-                var unprocessedItems = items
-                    .Where(i => !alreadyProcessed.Contains(i.EventId))
-                    .ToList();
-
-                foreach (var (comic, eventId) in unprocessedItems)
-                {
-                    // Idempotency gate (correctness): eventid unique constraint decides
-                    var processedEventRowId = Guid.NewGuid();
-                    var insertedProcessedEvent = await _dbContext.Database.ExecuteSqlInterpolatedAsync($@"
-                        INSERT INTO processedevents (id, eventid, processedatutc)
-                        VALUES ({processedEventRowId}, {eventId}, {DateTime.UtcNow})
-                        ON CONFLICT (eventid) DO NOTHING;
-                    ", cancellationToken);
-
-                    if (insertedProcessedEvent == 0)
-                        continue;
-
-                    // Comic upsert by deterministic id
-                    await _dbContext.Database.ExecuteSqlInterpolatedAsync($@"
-                        INSERT INTO comiccollection
-                            (id, publishername, seriesname, fulltitle, releasedate, incollection, value, coverartpath, importedat, lastupdatedutc)
-                        VALUES
-                            ({comic.Id}, {comic.PublisherName}, {comic.SeriesName}, {comic.FullTitle}, {comic.ReleaseDate},
-                             {comic.InCollection}, {comic.Value}, {comic.CoverArtPath}, {comic.ImportedAt}, {DateTime.UtcNow})
-                        ON CONFLICT (id) DO UPDATE SET
-                            publishername   = EXCLUDED.publishername,
-                            seriesname      = EXCLUDED.seriesname,
-                            fulltitle       = EXCLUDED.fulltitle,
-                            releasedate     = EXCLUDED.releasedate,
-                            incollection    = EXCLUDED.incollection,
-                            value           = EXCLUDED.value,
-                            coverartpath    = EXCLUDED.coverartpath,
-                            lastupdatedutc  = EXCLUDED.lastupdatedutc;
-                    ", cancellationToken);
-                }
+                // 3. Bulk Upsert ComicRecordEntity
+                // Matches your primary key on Id
+                await _dbContext.BulkInsertOrUpdateAsync(comics, new BulkConfig 
+                { 
+                    UpdateByProperties = new List<string> { nameof(ComicRecordEntity.Id) } 
+                }, cancellationToken: cancellationToken);
 
                 await tx.CommitAsync(cancellationToken);
-                _logger.LogInformation("Batch upsert completed successfully on attempt {Attempt}", attempt);
+                _logger.LogInformation("Successfully processed batch of {Count} items.", items.Count);
                 return;
             }
-            catch (DbUpdateException ex) when (attempt < MaxRetries)
+            catch (Exception ex) when (attempt < MaxRetries)
             {
-                _logger.LogWarning(ex, "Attempt {Attempt} failed. Retrying...", attempt);
+                _logger.LogWarning(ex, "Bulk upsert attempt {Attempt} failed. Retrying...", attempt);
                 await Task.Delay(DelayMilliseconds * attempt, cancellationToken);
             }
             catch (Exception ex)
