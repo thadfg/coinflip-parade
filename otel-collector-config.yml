@@ -6,52 +6,30 @@ receivers:
       http:
         endpoint: 0.0.0.0:4318
 
-  prometheus:
-    config:
-      scrape_configs:
-        - job_name: 'ingestion'
-          static_configs:
-            - targets: ['ingestion:5283']
-        - job_name: 'persistence'
-          static_configs:
-            - targets: ['persistenceservice:5067']
-
 processors:
-  batch:
-    timeout: 10s
-
-  # This is the "Bridge" between C# and Grafana
-  transform:
-    log_statements:
-      - context: log
-        statements:
-          # Promotes the OTLP trace context to a searchable attribute for Loki
-          - set(attributes["trace_id"], trace_id.string)
+  batch: 
+    timeout: 100ms # Added explicit flush timeout for high-resolution updates
+  resource:
+    attributes:
+      - key: service_name
+        from_attribute: service.name
+        action: insert
 
 exporters:
-  otlp_grpc/jaeger:
-    endpoint: jaeger:4317
-    tls:
-      insecure: true
-
-  # The modern OTLP path to Loki (requires Loki 3.0+)
-  otlphttp/loki:
-    endpoint: "http://loki:3100/otlp"
-    tls:
-      insecure: true
-
   prometheus:
+    # This is the "Data Endpoint" (Business Metrics)
     endpoint: "0.0.0.0:8889"
     resource_to_telemetry_conversion:
-      enabled: true
+      enabled: false 
 
-  kafka:
-    brokers: ["kafka:9092"]
-    topic: "comic-ingestion-logs"
-    encoding: otlp_json 
+  otlphttp/loki:
+    endpoint: "http://loki:3100/otlp"    
+    tls:
+      insecure: true
 
-  debug:
-    verbosity: detailed
+extensions:
+  health_check:
+    endpoint: 0.0.0.0:13133
 
 service:
   telemetry:
@@ -62,25 +40,18 @@ service:
             exporter:
               prometheus:
                 host: '0.0.0.0'
-                port: 8888
+                # This is the "Internal Endpoint" (Collector Health)
+                port: 8888 
+  
   extensions: [health_check]
+
   pipelines:
-    traces:
-      receivers: [otlp]
-      processors: [batch]
-      exporters: [otlp_grpc/jaeger, debug]
-    
     metrics:
-      receivers: [otlp, prometheus]
-      processors: [batch]
-      exporters: [prometheus, debug]
-      
+      receivers: [otlp]
+      processors: [resource, batch]
+      exporters: [prometheus]
+
     logs:
       receivers: [otlp]
-      # Order is vital: Transform the trace ID, then stamp the resource, then batch
-      processors: [transform, batch]
-      exporters: [otlphttp/loki, kafka, debug]
-
-extensions:
-  health_check:
-    endpoint: 0.0.0.0:13133
+      processors: [resource, batch]
+      exporters: [otlphttp/loki]

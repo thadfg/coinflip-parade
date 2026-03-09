@@ -22,7 +22,8 @@ public class ComicCollectionDbContext : DbContext
         modelBuilder.Entity<ProcessedEvent>().HasKey(p =>  p.Id);
 
         modelBuilder.Entity<ProcessedEvent>()
-            .HasIndex(p => p.EventId);
+            .HasIndex(p => p.EventId)
+            .IsUnique();
 
         modelBuilder.Entity<ProcessedEvent>()
             .Property(p => p.ProcessedAtUtc)

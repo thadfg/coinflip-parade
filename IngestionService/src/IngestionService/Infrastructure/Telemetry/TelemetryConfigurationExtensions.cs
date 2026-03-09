@@ -1,6 +1,9 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using OpenTelemetry.Exporter;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using OpenTelemetry.Metrics;
+using System.Diagnostics.Metrics;
+using IngestionService.Application.Services;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace; 
 using OpenTelemetry.Logs;
@@ -9,15 +12,20 @@ using OpenTelemetry;
 namespace IngestionService.Infrastructure.Telemetry;
 public static class TelemetryConfigurationExtensions
 {
+    private static readonly Meter UptimeMeter = new Meter("ComicIngestion.Meter");
+    private static readonly DateTime StartTime = DateTime.UtcNow;
+
     public static void AddCustomTelemetry(this WebApplicationBuilder builder, string[] meterNames, bool enableRuntimeInstrumentation = true)
     {
         
-        var serviceName = builder.Configuration["OTEL_SETTINGS:ServiceName"] 
-                          ?? builder.Environment.ApplicationName;
-        
-        // Define the resource configuration once
-        var resourceBuilder = ResourceBuilder.CreateDefault()
-        .AddService(serviceName: serviceName);
+        var serviceName = builder.Configuration["OTEL_SETTINGS:ServiceName"] ?? builder.Environment.ApplicationName;
+        var resourceBuilder = ResourceBuilder.CreateDefault().AddService(serviceName);
+
+        // Allow configuring the OTLP endpoint via configuration or environment.
+        // Config keys checked (in order): "OTEL_SETTINGS:OtlpEndpoint", "OTEL_EXPORTER_OTLP_ENDPOINT".
+        var otlpEndpoint = builder.Configuration["OTEL_SETTINGS:OtlpEndpoint"]
+            ?? builder.Configuration["OTEL_EXPORTER_OTLP_ENDPOINT"]
+            ?? "http://otel-collector:4317";
 
         builder.Services.AddOpenTelemetry()
             
@@ -28,9 +36,7 @@ public static class TelemetryConfigurationExtensions
                     .AddAspNetCoreInstrumentation()
                     .AddHttpClientInstrumentation()
                     .AddSource("IngestionService.ComicCsvIngestor")
-                    .AddOtlpExporter(opt => {
-                        opt.Endpoint = new Uri("http://jaeger:4317"); // Matches your docker-compose
-                    });
+                    .AddOtlpExporter(opt => { opt.Endpoint = new Uri(otlpEndpoint); });
             })
             .WithMetrics(metrics =>
             {
@@ -39,8 +45,8 @@ public static class TelemetryConfigurationExtensions
                     .AddAspNetCoreInstrumentation()        
                     .AddHttpClientInstrumentation()            
                     .AddMeter(meterNames)
-                    .AddPrometheusExporter()
-                    .AddOtlpExporter();
+                    .AddMeter("ComicIngestion.Meter")
+                    .AddReader(new PeriodicExportingMetricReader(new OtlpMetricExporter(new OtlpExporterOptions { Endpoint = new Uri(otlpEndpoint) }), 1000));
 
                 
                 if (enableRuntimeInstrumentation)
@@ -56,7 +62,19 @@ public static class TelemetryConfigurationExtensions
             options.IncludeScopes = true;
             options.ParseStateValues = true;
             options.IncludeFormattedMessage = true;
-            options.AddOtlpExporter();
+            options.AddOtlpExporter(opt =>
+            {
+                opt.Endpoint = new Uri(otlpEndpoint);
+            });
         });
+        
+        UptimeMeter.CreateObservableGauge("service_uptime_seconds", () =>
+        {
+            return new Measurement<double>(
+                (DateTime.UtcNow - StartTime).TotalSeconds,
+                new KeyValuePair<string, object?>("service_name", serviceName),
+                new KeyValuePair<string, object?>("env", builder.Environment.EnvironmentName)
+            );
+        });                
     }
 }

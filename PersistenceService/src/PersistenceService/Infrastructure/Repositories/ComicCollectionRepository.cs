@@ -27,66 +27,64 @@ public class ComicCollectionRepository : IComicCollectionRepository
     {
         var items = batch.ToList();
 
-        // Materialize EventIds BEFORE the EF query to avoid InMemory deadlock
-        var eventIds = items.Select(i => i.EventId).ToList();
+        // De-dupe within the batch to avoid double-processing the same comic id in one flush
+        items = items
+            .GroupBy(x => x.Comic.Id)
+            .Select(g => g.First())
+            .ToList();
+
+        // Optional optimization: pre-load processed event ids in one query
+        var eventIds = items.Select(i => i.EventId).Distinct().ToList();
 
         for (int attempt = 1; attempt <= MaxRetries; attempt++)
         {
             try
             {
-                // Step 1: Filter out already processed events
-                var processedIds = await _dbContext.ProcessedEvents
+                await using var tx = await _dbContext.Database.BeginTransactionAsync(cancellationToken);
+
+                // Best-effort filter to reduce work (NOT relied on for correctness)
+                var alreadyProcessed = await _dbContext.ProcessedEvents
                     .Where(e => eventIds.Contains(e.EventId))
                     .Select(e => e.EventId)
                     .ToListAsync(cancellationToken);
 
                 var unprocessedItems = items
-                    .Where(i => !processedIds.Contains(i.EventId))
+                    .Where(i => !alreadyProcessed.Contains(i.EventId))
                     .ToList();
 
-                if (!unprocessedItems.Any())
-                {
-                    _logger.LogInformation("All events in batch already processed. Skipping.");
-                    return;
-                }
-
-                // Step 2: Fetch existing comics by ID
-                var comicIds = unprocessedItems.Select(i => i.Comic.Id).Distinct().ToList();
-                var existingComics = await _dbContext.ComicRecords
-                    .Where(c => comicIds.Contains(c.Id))
-                    .ToDictionaryAsync(c => c.Id, cancellationToken);
-
-                // Step 3: Upsert logic
                 foreach (var (comic, eventId) in unprocessedItems)
                 {
-                    if (existingComics.TryGetValue(comic.Id, out var existing))
-                    {
-                        existing.PublisherName = comic.PublisherName;
-                        existing.SeriesName = comic.SeriesName;
-                        existing.FullTitle = comic.FullTitle;
-                        existing.ReleaseDate = comic.ReleaseDate;
-                        existing.InCollection = comic.InCollection;
-                        existing.Value = comic.Value;
-                        existing.CoverArtPath = comic.CoverArtPath;
-                        existing.LastUpdatedUtc = DateTime.UtcNow;
+                    // Idempotency gate (correctness): eventid unique constraint decides
+                    var processedEventRowId = Guid.NewGuid();
+                    var insertedProcessedEvent = await _dbContext.Database.ExecuteSqlInterpolatedAsync($@"
+                        INSERT INTO processedevents (id, eventid, processedatutc)
+                        VALUES ({processedEventRowId}, {eventId}, {DateTime.UtcNow})
+                        ON CONFLICT (eventid) DO NOTHING;
+                    ", cancellationToken);
 
-                        _logger.LogInformation("Updated ComicRecord {Id}", comic.Id);
-                    }
-                    else
-                    {
-                        comic.LastUpdatedUtc = DateTime.UtcNow;
-                        _dbContext.ComicRecords.Add(comic);
-                        _logger.LogInformation("Inserted new ComicRecord {Id}", comic.Id);
-                    }
+                    if (insertedProcessedEvent == 0)
+                        continue;
 
-                    _dbContext.ProcessedEvents.Add(new ProcessedEvent
-                    {
-                        EventId = eventId,
-                        ProcessedAtUtc = DateTime.UtcNow
-                    });
+                    // Comic upsert by deterministic id
+                    await _dbContext.Database.ExecuteSqlInterpolatedAsync($@"
+                        INSERT INTO comiccollection
+                            (id, publishername, seriesname, fulltitle, releasedate, incollection, value, coverartpath, importedat, lastupdatedutc)
+                        VALUES
+                            ({comic.Id}, {comic.PublisherName}, {comic.SeriesName}, {comic.FullTitle}, {comic.ReleaseDate},
+                             {comic.InCollection}, {comic.Value}, {comic.CoverArtPath}, {comic.ImportedAt}, {DateTime.UtcNow})
+                        ON CONFLICT (id) DO UPDATE SET
+                            publishername   = EXCLUDED.publishername,
+                            seriesname      = EXCLUDED.seriesname,
+                            fulltitle       = EXCLUDED.fulltitle,
+                            releasedate     = EXCLUDED.releasedate,
+                            incollection    = EXCLUDED.incollection,
+                            value           = EXCLUDED.value,
+                            coverartpath    = EXCLUDED.coverartpath,
+                            lastupdatedutc  = EXCLUDED.lastupdatedutc;
+                    ", cancellationToken);
                 }
 
-                await _dbContext.SaveChangesAsync(cancellationToken);
+                await tx.CommitAsync(cancellationToken);
                 _logger.LogInformation("Batch upsert completed successfully on attempt {Attempt}", attempt);
                 return;
             }

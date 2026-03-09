@@ -27,8 +27,6 @@ public class ComicCsvIngestor
     
     public static DateTimeOffset ServiceStartTime => ServiceStart;
     private static double _lastSuccessTimestamp = 0;
-
-    private static readonly ObservableGauge<double> ServiceUptime = Meter.CreateObservableGauge("service_uptime_seconds", () => (DateTimeOffset.UtcNow - ServiceStart).TotalSeconds);
     private static readonly ObservableGauge<double> LastSuccessTimestamp = Meter.CreateObservableGauge("last_success_timestamp", () => _lastSuccessTimestamp);
 
     // --- Tracing Setup ---
@@ -43,6 +41,8 @@ public class ComicCsvIngestor
     {
         // 1. Start Root Activity: Wraps the entire file processing logic
         using var activity = ActivitySource.StartActivity("Ingest.Batch.Process", ActivityKind.Internal);
+        
+        
         
         var importId = Guid.NewGuid();
         var importIdStr = importId.ToString();
@@ -67,6 +67,9 @@ public class ComicCsvIngestor
             foreach (var record in records)
             {
                 var correlationId = Guid.NewGuid().ToString();
+                var comicId = GenerateComicId(record.PublisherName, record.SeriesName, record.FullTitle, record.ReleaseDate).ToString();
+                var comicIdStr = comicId.ToString();
+                
 
                 // Validation Phase
                 if (!record.IsValid(out var validationError))
@@ -83,10 +86,11 @@ public class ComicCsvIngestor
                     var comicEvent = record.ToFacet<ComicCsvRecord, ComicCsvRecordDto>();
                     var publisherKey = record.PublisherName.Normalize("-");
                     var seriesKey = record.SeriesName.Normalize("-");
-                    var key = $"{publisherKey}|{seriesKey}|{importIdStr}|{correlationId}";
+                    var key = comicIdStr;
 
                     var envelope = new KafkaEnvelope<ComicCsvRecordDto>
                     {
+                        
                         ImportId = importIdStr,
                         Timestamp = DateTime.UtcNow,
                         Payload = comicEvent
@@ -131,6 +135,35 @@ public class ComicCsvIngestor
             var durationSeconds = (DateTimeOffset.UtcNow - started).TotalSeconds;
             IngestionDuration.Record(durationSeconds, new TagList { { "import_id", importIdStr }, { "service", service } });
         }
+    }
+    
+    // Example Logic for Ingestion Service
+    public Guid GenerateComicId(string publisher, string series, string title, string date)
+    {
+        if (string.IsNullOrWhiteSpace(publisher))
+            throw new ArgumentException("Publisher is required.", nameof(publisher));
+
+        if (string.IsNullOrWhiteSpace(series))
+            throw new ArgumentException("Series is required.", nameof(series));
+
+        if (string.IsNullOrWhiteSpace(title))
+            throw new ArgumentException("Title is required.", nameof(title));
+
+        if (string.IsNullOrWhiteSpace(date))
+            throw new ArgumentException("Release date is required.", nameof(date));
+
+        if (!DateTime.TryParse(date, CultureInfo.InvariantCulture, DateTimeStyles.None, out var parsedDate))
+            throw new FormatException($"Invalid release date format: '{date}'");
+
+        var normalizedInput =
+            $"{publisher.Trim().ToLowerInvariant()}-" +
+            $"{series.Trim().ToLowerInvariant()}-" +
+            $"{title.Trim().ToLowerInvariant()}-" +
+            $"{parsedDate:yyyyMMdd}";
+
+        using var md5 = System.Security.Cryptography.MD5.Create();
+        var hash = md5.ComputeHash(System.Text.Encoding.UTF8.GetBytes(normalizedInput));
+        return new Guid(hash);
     }
 
     private async Task ProduceDeadLetterAsync(ComicCsvRecord record, string importId, string correlationId, string reason, string errorType)

@@ -21,120 +21,75 @@
         reverse_proxy jaeger:16686
     }
 
-    #
+    # ============================
+    # Unified Metrics (OTel Collector)
+    # ============================
+    # This replaces the broken 'ingestion/custom-metrics' logic.
+    # It exposes the Collector's unified port (8889) to your browser/Prometheus.
+    @metrics path /metrics*
+    handle @metrics {
+        reverse_proxy otel-collector:8889
+    }
+
     # ============================
     # IngestionService
     # ============================
-    #
-
-    # API
     @ingestion_api path /api/*
+    @ingestion_health path /ingestion/health
+    @ingestion_ready path /ingestion/ready
+    @ingestion_live path /ingestion/live
+
     handle @ingestion_api {
         reverse_proxy ingestion:5283
     }
-
-    # ============================
-    # IngestionService Metrics
-    # ============================
-    @ingestion_metrics path /ingestion/custom-metrics*
-    handle @ingestion_metrics {
-        uri strip_prefix /ingestion
-        reverse_proxy ingestion:5283
-    }
-
-    # Health
-    @ingestion_health path /ingestion/health
     handle @ingestion_health {
         reverse_proxy ingestion:5283
     }
-
-    @ingestion_ready path /ingestion/ready
     handle @ingestion_ready {
         reverse_proxy ingestion:5283
     }
-
-    @ingestion_live path /ingestion/live
     handle @ingestion_live {
         reverse_proxy ingestion:5283
     }
 
-
-    #
     # ============================
     # PersistenceService
     # ============================
-    #
-
-    # ============================
-    # PersistenceService Metrics
-    # ============================
-    @persistence_metrics path /persistence/custom-metrics*
-    handle @persistence_metrics {
-        uri strip_prefix /persistence
-        reverse_proxy persistenceservice:5067
-    }
-
-    # Health
     @persistence_health path /persistence/health
+    @persistence_ready path /persistence/ready
+    @persistence_live path /persistence/live
+
     handle @persistence_health {
         reverse_proxy persistenceservice:5067
     }
-
-    @persistence_ready path /persistence/ready
     handle @persistence_ready {
         reverse_proxy persistenceservice:5067
     }
-
-    @persistence_live path /persistence/live
     handle @persistence_live {
         reverse_proxy persistenceservice:5067
     }
 
-
-    #
     # ============================
-    # Scalar UI + OpenAPI (Ingestion only)
+    # Scalar UI + OpenAPI
     # ============================
-    #
-
     @scalar_assets path_regexp scalar_assets ^/scalar/(?:scalar\.js|scalar\.aspnetcore\.js)$
+    @scalar_ui path /scalar/v1*
+    @openapi_spec path /openapi/v1.json
+
     handle @scalar_assets {
         reverse_proxy ingestion:5283
     }
-
-    @scalar_ui path /scalar/v1*
     handle @scalar_ui {
         reverse_proxy ingestion:5283
     }
-
-    @openapi_spec path /openapi/v1.json
     handle @openapi_spec {
         reverse_proxy ingestion:5283
     }
 
-    @openapi_redirect path /ingestion/openapi
-    handle @openapi_redirect {
-        redir /scalar/v1 permanent
-    }
-
-    @openapi_json path /ingestion/openapi.json
-    handle @openapi_json {
-        uri replace /ingestion/openapi.json /openapi/v1.json
-        reverse_proxy ingestion:5283
-    }
-
-
-    #
     # ============================
-    # Default fallback (safe)
+    # Default fallback
     # ============================
-    #
-
-    @fallback_notfound {
-        path_regexp nevermatch ^$
-    }
-
-    handle @fallback_notfound {
+    handle {
         respond "Not Found" 404
     }
 }

@@ -54,15 +54,16 @@ namespace PersistenceService.Tests.KafkaListener
                 }
             };
 
-            var message = new ConsumeResult<Ignore, string>
+            var message = new ConsumeResult<string, string>
             {
-                Message = new Message<Ignore, string>
+                Message = new Message<string, string>
                 {
+                    Key = "test-key",
                     Value = JsonSerializer.Serialize(envelope)
                 }
             };
             
-            var mockConsumer = new Mock<IConsumer<Ignore, string>>();
+            var mockConsumer = new Mock<IConsumer<string, string>>();
 
             mockConsumer
                 .SetupSequence(c => c.Consume(It.IsAny<CancellationToken>()))
@@ -83,6 +84,10 @@ namespace PersistenceService.Tests.KafkaListener
                 })
                 .Returns(Task.CompletedTask);
 
+            // Needed for lag calculation
+            mockConsumer.Setup(c => c.QueryWatermarkOffsets(It.IsAny<TopicPartition>(), It.IsAny<TimeSpan>()))
+                .Returns(new WatermarkOffsets(0, 10));
+
             var services = new ServiceCollection();
             services.AddSingleton(mockEventRepo.Object);
             services.AddSingleton(mockComicRepo.Object);
@@ -92,7 +97,6 @@ namespace PersistenceService.Tests.KafkaListener
                 mockLogger.Object,
                 config,
                 mockKafkaLogHelper.Object,
-                mockDbReadyChecker.Object,
                 provider,
                 mockConsumer.Object
             );

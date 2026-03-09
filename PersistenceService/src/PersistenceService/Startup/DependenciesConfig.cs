@@ -10,6 +10,8 @@ using PersistenceService.Infrastructure.Kafka;
 using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Builder;
 using PersistenceService.Infrastructure.Database;
+using PersistenceService.Infrastructure.Observability.Metrics;
+using PersistenceService.Infrastructure.Telemetry;
 
 namespace PersistenceService.Startup;
 
@@ -21,6 +23,11 @@ public static class DependenciesConfig
 {
     public static void AddDependencies(this WebApplicationBuilder builder)
     {
+        // Force-load the meters and gauges so they are ready for the OTel SDK
+        ReadinessMetrics.Initialize();
+        KafkaComicListener.Initialize();
+        
+        builder.AddCustomTelemetry();
         var env = builder.Environment.EnvironmentName;
         var config = builder.Configuration;
 

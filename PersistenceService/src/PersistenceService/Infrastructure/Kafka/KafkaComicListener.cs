@@ -5,22 +5,20 @@ using PersistenceService.Application.Mappers;
 using PersistenceService.Domain.Entities;
 using PersistenceService.Infrastructure.Database;
 using PersistenceService.Infrastructure.Kafka;
-using Prometheus;
+using PersistenceService.Infrastructure.Observability.Metrics;
 using SharedLibrary.Facet;
 using SharedLibrary.Models;
 using System.Text.Json;
+using System.Diagnostics.Metrics;
 
 public class KafkaComicListener : BackgroundService
 {
     private readonly ILogger<KafkaComicListener> _logger;
     private readonly IConfiguration _config;
     private readonly IKafkaLogHelper _kafkaLogHelper;
-    private readonly IDatabaseReadyChecker _dbReadyChecker;
-    private readonly TimeSpan _dbReadyDelay;
-
     private readonly IServiceProvider _serviceProvider; 
 
-    private IConsumer<Ignore, string>? _consumer;
+    private IConsumer<string, string>? _consumer;
 
     private readonly List<EventEntity> _eventBuffer = new();
     private readonly List<(ComicRecordEntity Comic, Guid EventId)> _comicRecordBuffer = new();
@@ -30,34 +28,32 @@ public class KafkaComicListener : BackgroundService
     private readonly TimeSpan _flushInterval;
     private readonly TimeSpan _consumeTimeout;
     private readonly int _consumeInitializeDelay;
-    protected CancellationTokenSource? _internalCts;
-    private readonly int batchSize;
+    private readonly TimeSpan _dbReadyDelay;
+    private CancellationTokenSource? _internalCts;
+    private readonly int _batchSize;
 
-    private static readonly Gauge KafkaConsumerLag =
-    Metrics.CreateGauge(
-        "kafka_consumer_lag",
-        "Kafka consumer lag for persistence service",
-        new GaugeConfiguration
-        {
-            LabelNames = new[] { "topic", "partition", "service" }
-        });
+    private static readonly Meter KafkaMeter = new("PersistenceService.Kafka", "1.0.0");
+    
+    private static readonly Counter<long> SavedComicsCounter = 
+        KafkaMeter.CreateCounter<long>("saved_comics_total", "comics", "Total comics successfully persisted");
+    
+    private static readonly ObservableGauge<long> KafkaConsumerLag = 
+        KafkaMeter.CreateObservableGauge<long>("kafka_consumer_lag", () => _latestLags.Values, "Kafka consumer lag for persistence service");
 
-
-
-
+    private static readonly System.Collections.Concurrent.ConcurrentDictionary<string, Measurement<long>> _latestLags = new();
+    
+    public static void Initialize() { /* Forces static field initialization */ }
 
     public KafkaComicListener(
         ILogger<KafkaComicListener> logger,
         IConfiguration config,
         IKafkaLogHelper kafkaLogHelper,
-        IDatabaseReadyChecker dbReadyChecker,
         IServiceProvider serviceProvider,                  
-        IConsumer<Ignore, string>? consumer = null)
+        IConsumer<string, string>? consumer = null)
     {
         _logger = logger;
         _config = config;
         _kafkaLogHelper = kafkaLogHelper;
-        _dbReadyChecker = dbReadyChecker;
         _consumer = consumer; 
         _serviceProvider = serviceProvider;               
 
@@ -72,9 +68,7 @@ public class KafkaComicListener : BackgroundService
 
         _consumeInitializeDelay = _config.GetValue<int>("KafkaListener:ConsumeInitializeDelay", 1000);
 
-         batchSize = _config.GetValue<int>("KafkaListener:BatchSize",  10);
-        
-
+         _batchSize = _config.GetValue<int>("KafkaListener:BatchSize",  10);
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -84,31 +78,34 @@ public class KafkaComicListener : BackgroundService
 
         _logger.LogInformation("KafkaComicListener starting…");
 
-        // Wait for the database to be ready before consuming Kafka messages
-        while (!await _dbReadyChecker.IsReadyAsync(linkedToken))
+        // FIX: Resolve the Scoped IDatabaseReadyChecker inside a manual scope to avoid DI lifetime errors
+        using (var scope = _serviceProvider.CreateScope())
         {
-            _logger.LogInformation("Waiting for database to be ready…");
-            await Task.Delay(_dbReadyDelay, linkedToken);
+            var dbReadyChecker = scope.ServiceProvider.GetRequiredService<IDatabaseReadyChecker>();
+            while (!await dbReadyChecker.IsReadyAsync(linkedToken))
+            {
+                _logger.LogInformation("Waiting for database to be ready…");
+                await Task.Delay(_dbReadyDelay, linkedToken);
+            }
         }
 
-        _logger.LogInformation("Database ready. Initializing Kafka consumer…");
+        _logger.LogInformation("Database ready. Exposing readiness metric.");
+        ReadinessMetrics.SetDatabaseReady(1);
 
-        // Create consumer if not already created (useful for testing/mocking)
-        if (_consumer == null)
-            _consumer = CreateConsumer();
+        _logger.LogInformation("Initializing Kafka consumer…");
 
-        // Subscribe to Kafka topic
-        var topic = _config["Kafka:Topic"];
+        _consumer ??= CreateConsumer();
+
+        var topic = _config["Kafka:Topic"] ?? "comic-imported";
         _logger.LogInformation("Subscribing to Kafka topic: {Topic}", topic);
         _consumer.Subscribe(topic);
 
         _logger.LogInformation("Kafka subscription complete. Starting consume loop…");
 
-        // Begin consuming messages
         await ConsumeLoopAsync(linkedToken);
     }
 
-    private IConsumer<Ignore, string> CreateConsumer()
+    private IConsumer<string, string> CreateConsumer()
     {
         var consumerConfig = new ConsumerConfig
         {
@@ -119,17 +116,15 @@ public class KafkaComicListener : BackgroundService
             EnablePartitionEof = true
         };
 
-        return new ConsumerBuilder<Ignore, string>(consumerConfig).Build();
+        return new ConsumerBuilder<string, string>(consumerConfig).Build();
     }
-
+    
     protected virtual async Task ConsumeLoopAsync(CancellationToken stoppingToken)
     {
         try
         {
-            while (true)
+            while (!stoppingToken.IsCancellationRequested)
             {
-                stoppingToken.ThrowIfCancellationRequested();
-
                 try
                 {
                     if (_consumer == null)
@@ -139,82 +134,43 @@ public class KafkaComicListener : BackgroundService
                         continue;
                     }
 
-                    // 1️ Consume (blocking, cancellation-aware)
-                    var result = _consumer.Consume(stoppingToken);
+                    var result = _consumer.Consume(_consumeTimeout);
 
                     if (result == null || result.IsPartitionEOF)
-                        continue;
-
-                    // --- LAG CALCULATION BLOCK ---
-                    var topicPartition = result.TopicPartition; 
-                    // Query the broker for the latest offsets
-                    var watermark = _consumer.QueryWatermarkOffsets(topicPartition, TimeSpan.FromSeconds(1)); 
-                    
-                    long endOffset = watermark.High; 
-
-                    long currentOffset = result.Offset.Value; 
-                    
-                    long lag = endOffset - currentOffset; 
-                    // Emit the metric
-                    KafkaConsumerLag 
-                        .WithLabels(result.Topic, result.Partition.ToString(), "persistence") 
-                        .Set(lag); 
-                    // --- END BLOCK ---
-
-                    if (result.Message?.Value == null)
                     {
-                        _logger.LogWarning("Kafka returned a message with null value.");
+                        // Check if we need to flush buffers even if no message was received
+                        await FlushIfNeededAsync(stoppingToken);
                         continue;
                     }
 
-                    // 2️ Deserialize
-                    KafkaEnvelope<ComicCsvRecordDto>? envelope;
-                    try
-                    {
-                        envelope = JsonSerializer.Deserialize<KafkaEnvelope<ComicCsvRecordDto>>(result.Message.Value);
-                    }
-                    catch (JsonException ex)
-                    {
-                        _logger.LogWarning(ex, "Malformed JSON payload");
-                        continue;
-                    }
+                    // --- LAG CALCULATION ---
+                    UpdateLagMetrics(result);
 
-                    if (envelope == null)
-                    {
-                        _logger.LogWarning("Envelope deserialized to null.");
-                        continue;
-                    }
+                    if (result.Message?.Value == null) continue;
 
-                    // 3️ Map to domain entities
+                    // --- DESERIALIZATION ---
+                    var envelope = JsonSerializer.Deserialize<KafkaEnvelope<ComicCsvRecordDto>>(result.Message.Value);
+                    if (envelope == null) continue;
+
+                    // --- MAPPING ---
                     var comic = ComicRecordMapper.ToEntity(envelope);
+                    
+                    // Note: Ensure EventEntityMapper generates/assigns a unique ID that matches your ProcessedEvents EventId logic
                     var eventEntity = EventEntityMapper.FromPayload(
                         envelope.Payload,
                         Guid.Parse(envelope.ImportId),
                         "ComicCsvRecordReceived"
                     );
-
-                    //_comicRecordBuffer.Add((comic, Guid.Parse(envelope.ImportId)));
+                    
                     _comicRecordBuffer.Add((comic, eventEntity.Id));
                     _eventBuffer.Add(eventEntity);
 
-                    // 4️ Batch flush based on size
-                    if (_comicRecordBuffer.Count >= batchSize)
+                    // --- BATCH FLUSH ---
+                    if (_comicRecordBuffer.Count >= _batchSize || _eventBuffer.Count >= _batchSize)
                     {
-                        using var scope = _serviceProvider.CreateScope();
-                        var comicRepo = scope.ServiceProvider.GetRequiredService<IComicCollectionRepository>();
-                        await comicRepo.UpsertBatchAsync(_comicRecordBuffer, stoppingToken);
-                        _comicRecordBuffer.Clear();
+                        await FlushBuffersAsync(stoppingToken);
                     }
 
-                    if (_eventBuffer.Count >= batchSize)
-                    {
-                        using var scope = _serviceProvider.CreateScope();
-                        var eventRepo = scope.ServiceProvider.GetRequiredService<IEventRepository>();
-                        await eventRepo.SaveBatchAsync(_eventBuffer, stoppingToken);
-                        _eventBuffer.Clear();
-                    }
-
-                    // 5️ Time-based flush (only once per loop)
                     await FlushIfNeededAsync(stoppingToken);
 
                 }
@@ -226,6 +182,10 @@ public class KafkaComicListener : BackgroundService
                 {
                     _logger.LogWarning(ex, "Malformed JSON payload");
                 }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Unexpected error in consume loop");
+                }
             }
         }
         catch (OperationCanceledException)
@@ -234,68 +194,53 @@ public class KafkaComicListener : BackgroundService
         }
         finally
         {
-            // 6️ Final flush on shutdown
-            if (_eventBuffer.Count > 0)
-            {
-                using var scope = _serviceProvider.CreateScope();
-                var eventRepo = scope.ServiceProvider.GetRequiredService<IEventRepository>();
-                await eventRepo.SaveBatchAsync(_eventBuffer, CancellationToken.None);
-            }
-
-            if (_comicRecordBuffer.Count > 0)
-            {
-                using var scope = _serviceProvider.CreateScope();
-                var comicRepo = scope.ServiceProvider.GetRequiredService<IComicCollectionRepository>();
-                await comicRepo.UpsertBatchAsync(_comicRecordBuffer, CancellationToken.None);
-            }
-
-            _consumer?.Close();
-            _consumer?.Dispose();
+            await FinalCleanupAsync();
         }
     }
 
-
-
-    public override Task StopAsync(CancellationToken cancellationToken)
+    private void UpdateLagMetrics(ConsumeResult<string, string> result)
     {
-        _internalCts?.Cancel();
-        return base.StopAsync(cancellationToken);
+        try
+        {
+            var watermark = _consumer!.QueryWatermarkOffsets(result.TopicPartition, TimeSpan.FromMilliseconds(500));
+            long lag = watermark.High - result.Offset.Value;
+            var key = $"{result.Topic}-{result.Partition}";
+            _latestLags[key] = new Measurement<long>(
+                lag,
+                new KeyValuePair<string, object?>("topic", result.Topic),
+                new KeyValuePair<string, object?>("partition", result.Partition.ToString()));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogTrace("Could not update lag metrics: {Msg}", ex.Message);
+        }
     }
-
-
+    
     private async Task FlushBuffersAsync(CancellationToken stoppingToken)
     {
+        if (_comicRecordBuffer.Count == 0 && _eventBuffer.Count == 0) return;
 
-        // Log event buffer contents before flushing
-        if (_eventBuffer.Count > 0) 
-        { 
-            _logger.LogInformation("Flushing {Count} events", _eventBuffer.Count); 
-            
-            foreach (var e in _eventBuffer) 
-            { 
-                _logger.LogInformation("EventEntity.Id: {Id}, AggregateId: {AggregateId}", 
-                    e.Id, e.AggregateId); 
-            } 
-        }
-
-
+        using var scope = _serviceProvider.CreateScope();
+        
         if (_comicRecordBuffer.Count > 0)
         {
-            using var scope = _serviceProvider.CreateScope();
             var comicRepo = scope.ServiceProvider.GetRequiredService<IComicCollectionRepository>();
             await comicRepo.UpsertBatchAsync(_comicRecordBuffer, stoppingToken);
-            _logger.LogInformation("Timed flush: persisted {Count} comics", _comicRecordBuffer.Count);
+            
+            SavedComicsCounter.Add(_comicRecordBuffer.Count, new KeyValuePair<string, object?>("service_name", "PersistenceService"));
+            _logger.LogInformation("Persisted {Count} comics", _comicRecordBuffer.Count);
             _comicRecordBuffer.Clear();
         }
 
         if (_eventBuffer.Count > 0)
         {
-            using var scope = _serviceProvider.CreateScope();
             var eventRepo = scope.ServiceProvider.GetRequiredService<IEventRepository>();
             await eventRepo.SaveBatchAsync(_eventBuffer, stoppingToken);
-            _logger.LogInformation("Timed flush: persisted {Count} events", _eventBuffer.Count);
+            _logger.LogInformation("Persisted {Count} events", _eventBuffer.Count);
             _eventBuffer.Clear();
         }
+        
+        _lastFlushTime = DateTime.UtcNow;
     }
 
     private async Task FlushIfNeededAsync(CancellationToken token)
@@ -303,11 +248,24 @@ public class KafkaComicListener : BackgroundService
         if ((DateTime.UtcNow - _lastFlushTime) >= _flushInterval)
         {
             await FlushBuffersAsync(token);
-            _lastFlushTime = DateTime.UtcNow;
         }
     }
 
-
+    private async Task FinalCleanupAsync()
+    {
+        _logger.LogInformation("Shutting down Kafka listener and performing final flush...");
+        try 
+        {
+            await FlushBuffersAsync(CancellationToken.None);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error during final buffer flush");
+        }
+        finally 
+        {
+            _consumer?.Close();
+            _consumer?.Dispose();
+        }
+    }
 }
-
-

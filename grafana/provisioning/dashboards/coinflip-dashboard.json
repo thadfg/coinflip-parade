@@ -6,7 +6,7 @@
   "timezone": "browser",
   "schemaVersion": 39,
   "version": 1,
-  "refresh": "10s",
+  "refresh": "1s",
   "panels": [
     {
       "type": "stat",
@@ -98,13 +98,14 @@
       "datasource": "Prometheus",
       "targets": [
         {
-          "expr": "service_uptime_seconds"
+          "expr": "service_uptime_seconds{service_name=\"IngestionService\"}",
+          "instant": true 
         }
       ],
       "gridPos": { "x": 0, "y": 28, "w": 6, "h": 4 },
       "fieldConfig": {
       "defaults": {
-        "unit": "s",
+        "unit": "dtdhms",
         "thresholds": {
           "mode": "absolute",
           "steps": [
@@ -112,7 +113,10 @@
           ]
         }
       }
-    }
+    },
+    "options": {
+        "wideLayout": true
+      }
     },
     {
       "type": "stat",
@@ -120,13 +124,14 @@
       "datasource": "Prometheus",
       "targets": [
         {
-          "expr": "time() - process_start_time_seconds{service=\"persistence\"}"
+          "expr": "process_uptime_seconds",
+          "instant": true
         }
       ],
       "gridPos": { "x": 6, "y": 28, "w": 6, "h": 4 },
       "fieldConfig": {
       "defaults": {
-        "unit": "s",
+        "unit": "dtdhms",
         "thresholds": {
           "mode": "absolute",
           "steps": [
@@ -134,7 +139,10 @@
           ]
         }
       }
-    }
+    },
+    "options": {
+        "wideLayout": true
+      }
     }
   ]
 }

@@ -6,7 +6,6 @@ using PersistenceService.Infrastructure;
 using PersistenceService.Infrastructure.Database;
 using PersistenceService.Infrastructure.Kafka;
 using PersistenceService.Startup;
-using Prometheus;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -42,7 +41,7 @@ app.MapHealthChecks("/health");
 
 app.MapHealthEndpoints();
 
-app.UseMetricServer("/custom-metrics");
+app.MapPrometheusScrapingEndpoint("/custom-metrics");
 
 
 // Map controllers

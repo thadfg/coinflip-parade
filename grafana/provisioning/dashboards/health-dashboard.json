@@ -5,8 +5,8 @@
   "tags": ["coinflip", "health"],
   "timezone": "browser",
   "schemaVersion": 39,
-  "version": 3,
-  "refresh": "10s",
+  "version": 11,
+  "refresh": "1s",
   "time": {
     "from": "now-6h",
     "to": "now"
@@ -16,183 +16,91 @@
       "type": "stat",
       "title": "Ingestion - Service Status",
       "datasource": "Prometheus",
-      "targets": [{ "expr": "up{service=\"ingestion\"}" }],
-      "gridPos": { "x": 0, "y": 0, "w": 4, "h": 4 },
-      "colorMode": "value",
-      "thresholds": {
-        "mode": "absolute",
-        "steps": [
-          { "color": "red", "value": 0 },
-          { "color": "green", "value": 1 }
-        ]
+      "targets": [{ "expr": "max(httpcheck_status{http_url=~\".*ingestion.*\"})", "legendFormat": "Status" }],
+      "gridPos": { "x": 0, "y": 0, "w": 6, "h": 5 },
+      "options": { "reduceOptions": { "values": false, "calcs": ["lastNotNull"] }, "textMode": "value" },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [{ "type": "value", "options": { "0": { "text": "DOWN", "color": "red" }, "1": { "text": "UP", "color": "green" } } }],
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "red", "value": 0 }, { "color": "green", "value": 1 }] }
+        }
       }
     },
     {
       "type": "stat",
       "title": "Persistence - Service Status",
       "datasource": "Prometheus",
-      "targets": [{ "expr": "up{service=\"persistence\"}" }],
-      "gridPos": { "x": 4, "y": 0, "w": 4, "h": 4 },
-      "colorMode": "value",
-      "thresholds": {
-        "mode": "absolute",
-        "steps": [
-          { "color": "red", "value": 0 },
-          { "color": "green", "value": 1 }
-        ]
+      "targets": [{ "expr": "max(httpcheck_status{http_url=~\".*persistence.*\"})", "legendFormat": "Status" }],
+      "gridPos": { "x": 6, "y": 0, "w": 6, "h": 5 },
+      "options": { "reduceOptions": { "values": false, "calcs": ["lastNotNull"] }, "textMode": "value" },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [{ "type": "value", "options": { "0": { "text": "DOWN", "color": "red" }, "1": { "text": "UP", "color": "green" } } }],
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "red", "value": 0 }, { "color": "green", "value": 1 }] }
+        }
       }
     },
     {
       "type": "stat",
       "title": "Ingestion - Uptime",
       "datasource": "Prometheus",
-      "targets": [{ "expr": "service_uptime_seconds" }],
-      "gridPos": { "x": 8, "y": 0, "w": 4, "h": 4 },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "s",
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [{ "color": "green", "value": null }]
-          }
-        }
-      }
+      "targets": [{ "expr": "max(service_uptime_seconds{service_name=\"ingestion\"})" }],
+      "gridPos": { "x": 12, "y": 0, "w": 6, "h": 5 },
+      "fieldConfig": { "defaults": { "unit": "dts", "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }] } } }
     },
     {
       "type": "stat",
       "title": "Persistence - Uptime",
       "datasource": "Prometheus",
-      "targets": [{ "expr": "time() - process_start_time_seconds{service=\"persistence\"}" }],
-      "gridPos": { "x": 12, "y": 0, "w": 4, "h": 4 },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "s",
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [{ "color": "green", "value": null }]
-          }
-        }
-      }
+      "targets": [{ "expr": "max(service_uptime_seconds{service_name=\"persistence\"})" }],
+      "gridPos": { "x": 18, "y": 0, "w": 6, "h": 5 },
+      "fieldConfig": { "defaults": { "unit": "dts", "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }] } } }
     },
     {
       "type": "stat",
       "title": "Ingestion - Batch Errors (Total)",
       "datasource": "Prometheus",
-      "targets": [
-        { "expr": "sum(ingestion_failure_total)" }
-      ],
-      "gridPos": { "x": 0, "y": 4, "w": 4, "h": 6 },
-      "fieldConfig": {
-        "defaults": {
-          "color": { "mode": "thresholds" },
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              { "color": "green", "value": null },
-              { "color": "red", "value": 1 }
-            ]
-          }
-        }
-      }
+      "targets": [{ "expr": "sum(ingestion_failure_total{service_name=\"ingestion\"}) or vector(0)" }],
+      "gridPos": { "x": 0, "y": 5, "w": 6, "h": 6 },
+      "fieldConfig": { "defaults": { "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }, { "color": "red", "value": 1 }] } } }
     },
     {
       "type": "timeseries",
       "title": "Ingestion - Error History (1h)",
       "datasource": "Prometheus",
-      "targets": [
-        { "expr": "sum(increase(ingestion_failure_total[1h]))" }
-      ],
-      "gridPos": { "x": 4, "y": 4, "w": 6, "h": 6 },
-      "fieldConfig": {
-        "defaults": {
-          "custom": { 
-            "drawStyle": "bars", 
-            "fillOpacity": 100
-          },
-          "color": { "fixedColor": "red", "mode": "fixed" }
-        }
-      }
-    },
-    {
-      "type": "timeseries",
-      "title": "Persistence - Error Rate",
-      "datasource": "Prometheus",
-      "targets": [
-        { "expr": "rate(request_errors_total{service=\"persistence\"}[5m])" }
-      ],
-      "gridPos": { "x": 10, "y": 4, "w": 6, "h": 6 }
+      "targets": [{ "expr": "sum(increase(ingestion_failure_total{service_name=\"ingestion\"}[1h]))" }],
+      "gridPos": { "x": 6, "y": 5, "w": 18, "h": 6 },
+      "fieldConfig": { "defaults": { "custom": { "drawStyle": "bars", "fillOpacity": 100 }, "color": { "fixedColor": "red", "mode": "fixed" } } }
     },
     {
       "type": "timeseries",
       "title": "Ingestion - Last Batch Duration (ms)",
       "datasource": "Prometheus",
-      "targets": [
-        {
-          "expr": "histogram_quantile(0.95, sum(rate(ingestion_duration_seconds_bucket{otel_scope_name=\"ComicIngestionMetrics\"}[5m])) by (le)) * 1000"
-        }
-      ],
-      "gridPos": { "x": 0, "y": 10, "w": 16, "h": 6 },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "ms",
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [{ "color": "green", "value": null }]
-          }
-        }
-      }
-    },
-    {
-      "type": "timeseries",
-      "title": "Persistence - Save Duration (ms)",
-      "datasource": "Prometheus",
-      "targets": [
-        {
-          "expr": "histogram_quantile(0.95, sum(rate(save_duration_ms_bucket{service=\"persistence\"}[5m])) by (le))"
-        }
-      ],
-      "gridPos": { "x": 0, "y": 16, "w": 16, "h": 6 }
+      "targets": [{ "expr": "histogram_quantile(0.95, sum(rate(ingestion_duration_seconds_bucket{service_name=\"ingestion\"}[5m])) by (le)) * 1000" }],
+      "gridPos": { "x": 0, "y": 11, "w": 24, "h": 7 },
+      "fieldConfig": { "defaults": { "unit": "ms" } }
     },
     {
       "type": "stat",
       "title": "Ingestion - Last Successful Batch",
       "datasource": "Prometheus",
-      "targets": [
-        { "expr": "last_success_timestamp * 1000", "instant": true }
-      ],
-      "gridPos": { "x": 0, "y": 22, "w": 8, "h": 4 },
+      "targets": [{ "expr": "max(last_success_timestamp_seconds{service_name=\"ingestion\"})", "instant": true }],
+      "gridPos": { "x": 0, "y": 18, "w": 12, "h": 4 },
       "fieldConfig": {
-        "defaults": {
-          "unit": "time:MM/DD/YYYY : HH:mm:ss",
-          "noValue": "No Data",
-          "mappings": [
-            {
-              "type": "value",
-              "options": { "0": { "text": "No Data", "color": "gray" } }
-            }
-          ],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [{ "color": "green", "value": null }]
-          }
-        }
+        "defaults": { "unit": "unixts", "noValue": "Never", "color": { "mode": "fixed", "fixedColor": "blue" } }
       },
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "reduceOptions": { "calcs": ["lastNotNull"] },
-        "textMode": "value"
-      }
+      "options": { "reduceOptions": { "values": false, "calcs": ["lastNotNull"] }, "textMode": "value" }
     },
     {
       "type": "stat",
       "title": "Persistence - Last Successful Save",
       "datasource": "Prometheus",
-      "targets": [
-        { "expr": "max(last_success_timestamp_seconds{service=\"persistence\"})" }
-      ],
-      "gridPos": { "x": 8, "y": 22, "w": 8, "h": 4 }
+      "targets": [{ "expr": "max(last_success_timestamp_seconds{service_name=\"persistence\"})", "instant": true }],
+      "gridPos": { "x": 12, "y": 18, "w": 12, "h": 4 },
+      "fieldConfig": {
+        "defaults": { "unit": "unixts", "noValue": "Never", "color": { "mode": "fixed", "fixedColor": "blue" } }
+      },
+      "options": { "reduceOptions": { "values": false, "calcs": ["lastNotNull"] }, "textMode": "value" }
     }
   ]
 }

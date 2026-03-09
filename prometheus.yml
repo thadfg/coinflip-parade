@@ -1,13 +1,13 @@
 global:
-  scrape_interval: 15s
+  scrape_interval: 1s
 
 scrape_configs:
-  # The Unified metrics from your apps + OTLP data
-  - job_name: 'otel-collector-unified'
+  # Job 1: Your actual Application data
+  - job_name: 'app-metrics'
     static_configs:
       - targets: ['otel-collector:8889']
 
-  # Internal health of the OTel Collector itself
-  - job_name: 'otel-collector-internal'
+  # Job 2: The Collector's own performance data
+  - job_name: 'otel-health'
     static_configs:
       - targets: ['otel-collector:8888']

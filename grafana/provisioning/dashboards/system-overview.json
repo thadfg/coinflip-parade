@@ -5,194 +5,138 @@
   "tags": ["coinflip", "overview", "system"],
   "timezone": "browser",
   "schemaVersion": 39,
-  "version": 1,
-  "refresh": "10s",
+  "version": 77,
+  "refresh": "1s",
+  "time": {
+    "from": "now-15m",
+    "to": "now"
+  },
   "panels": [
     {
       "type": "stat",
       "title": "Pipeline Health",
       "datasource": "Prometheus",
-      "targets": [
-        {
-          "expr": "min(up{job=~\"ingestion|persistence\"})"
+      "targets": [{ "expr": "min(up{job=\"app-metrics\"})", "instant": true }],
+      "gridPos": { "x": 0, "y": 0, "w": 8, "h": 4 },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "mappings": [
+            { "type": "value", "options": { "0": { "text": "DOWN", "color": "red" }, "1": { "text": "UP", "color": "green" } } }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [{ "color": "red", "value": 0 }, { "color": "green", "value": 1 }]
+          }
         }
-      ],
-      "gridPos": { "x": 0, "y": 0, "w": 4, "h": 4 },
-      "thresholds": {
-        "mode": "absolute",
-        "steps": [
-          { "color": "red", "value": 0 },
-          { "color": "green", "value": 1 }
-        ]
       }
     },
-    
     {
       "type": "stat",
       "title": "Ingestion - Uptime",
       "datasource": "Prometheus",
-      "targets": [
-        {
-          "expr": "service_uptime_seconds{otel_scope_name=\"ComicIngestionMetrics\"}"
-        }
-      ],
-      "gridPos": { "x": 4, "y": 0, "w": 4, "h": 4 },
+      "targets": [{ 
+        "expr": "max(service_uptime_seconds{service_name=\"IngestionService\"})", 
+        "instant": true 
+      }],
+      "gridPos": { "x": 8, "y": 0, "w": 8, "h": 4 },
       "fieldConfig": {
-      "defaults": {
-        "unit": "duration:s",
-        "decimals": 0,
-        "thresholds": {
-          "mode": "absolute",
-          "steps": [
-            { "color": "green", "value": null }
-          ]
-        }
+        "defaults": { "unit": "dtdhms", "color": { "mode": "thresholds" }, "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }] } }
+      },
+      "options": {
+        "wideLayout": true
       }
-    }
     },
     {
       "type": "stat",
       "title": "Persistence - Uptime",
       "datasource": "Prometheus",
-      "targets": [
-        {
-          "expr": "time() - process_runtime_dotnet_process_start_time_seconds{job=\"persistence\"}"
-        }
-      ],
-      "gridPos": { "x": 8, "y": 0, "w": 4, "h": 4 },
+      "targets": [{ 
+        "expr": "max(process_uptime_seconds{service_name=\"PersistenceService\"})", 
+        "instant": true 
+      }],
+      "gridPos": { "x": 16, "y": 0, "w": 8, "h": 4 },
       "fieldConfig": {
-        "defaults": {
-          "unit": "s",
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              { "color": "green", "value": null }
-            ]
-          }
-        }
+        "defaults": { "unit": "dtdhms", "color": { "mode": "thresholds" }, "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }] } }
+      },
+      "options": {
+        "wideLayout": true
       }
-    }
-    ,
+    },
     {
       "type": "stat",
       "title": "Total Comics Ingested",
       "datasource": "Prometheus",
-      "targets": [
-        {
-          "expr": "sum(ingestion_success_total{otel_scope_name=\"ComicIngestionMetrics\"}) or vector(0)"
-        }
-      ],
-      "gridPos": { "x": 12, "y": 0, "w": 4, "h": 4 },
+      "targets": [{ "expr": "sum(ingestion_success_total{service_name=\"IngestionService\"}) or vector(0)", "instant": true }],
+      "gridPos": { "x": 0, "y": 4, "w": 12, "h": 4 },
       "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "grey",
-                "value": null
-              }
-            ]
-          }
-        }
+        "defaults": { "color": { "mode": "thresholds" }, "thresholds": { "mode": "absolute", "steps": [{ "color": "blue", "value": null }] } }
       }
     },
     {
       "type": "stat",
       "title": "Total Comics Persisted",
       "datasource": "Prometheus",
-      "targets": [
-        {
-          "expr": "sum(saved_comics_total{service_name=\"persistence\"})"
-        }
-      ],
-      "gridPos": { "x": 16, "y": 0, "w": 4, "h": 4 }
+      "targets": [{ "expr": "sum(saved_comics_total{service_name=\"PersistenceService\"}) or vector(0)", "instant": true }],
+      "gridPos": { "x": 12, "y": 4, "w": 12, "h": 4 },
+      "fieldConfig": {
+        "defaults": { "color": { "mode": "thresholds" }, "thresholds": { "mode": "absolute", "steps": [{ "color": "purple", "value": null }] } }
+      }
     },
     {
       "type": "timeseries",
       "title": "Ingestion Throughput (comics/sec)",
       "datasource": "Prometheus",
-      "targets": [
-        {
-          "expr": "(sum(rate(ingestion_success_total{otel_scope_name=\"ComicIngestionMetrics\"}[1m])) or vector(0)) + (sum(rate(ingestion_failure_total{otel_scope_name=\"ComicIngestionMetrics\"}[1m])) or vector(0))"
-        }
-      ],
-      "gridPos": { "x": 0, "y": 4, "w": 10, "h": 6 }
+      "targets": [{ "expr": "sum(rate(ingestion_success_total{service_name=\"IngestionService\"}[1m]))" }],
+      "gridPos": { "x": 0, "y": 8, "w": 12, "h": 7 }
     },
     {
       "type": "timeseries",
       "title": "Persistence Throughput (comics/sec)",
       "datasource": "Prometheus",
-      "targets": [
-        {
-          "expr": "rate(saved_comics_total{service_name=\"persistence\"}[1m])"
-        }
-      ],
-      "gridPos": { "x": 10, "y": 4, "w": 10, "h": 6 }
-    },
-    {
-      "type": "timeseries",
-      "title": "End-to-End Latency (Ingestion → Persistence)",
-      "datasource": "Prometheus",
-      "targets": [
-        {
-          "expr": "histogram_quantile(0.95, sum(rate(end_to_end_latency_ms_bucket[5m])) by (le))"
-        }
-      ],
-      "gridPos": { "x": 0, "y": 10, "w": 20, "h": 6 }
+      "targets": [{ "expr": "sum(rate(saved_comics_total{service_name=\"PersistenceService\"}[1m]))" }],
+      "gridPos": { "x": 12, "y": 8, "w": 12, "h": 7 }
     },
     {
       "type": "timeseries",
       "title": "Kafka Consumer Lag",
       "datasource": "Prometheus",
-      "targets": [
-        {
-          "expr": "sum(kafka_consumer_lag{group=\"ComicCsvIngestorGroup\"})",
-          "legendFormat": "Unprocessed Comic Records"
-        }
-      ],
-      "gridPos": { "x": 0, "y": 16, "w": 20, "h": 6 }
+      "targets": [{ 
+        "expr": "sum(kafka_consumer_lag{service=\"persistence\"})", 
+        "legendFormat": "Unprocessed Records (Partition {{partition}})" 
+      }],
+      "gridPos": { "x": 0, "y": 15, "w": 16, "h": 6 }
     },
     {
       "type": "timeseries",
-      "title": "Ingestion - Batch Duration (95th percentile)",
+      "title": "Network Connections",
       "datasource": "Prometheus",
-      "targets": [
-        {
-          "expr": "histogram_quantile(0.95, sum(rate(ingestion_duration_seconds_bucket{service=\"ComicCsvIngestorService\"}[5m])) by (le)) * 1000"
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "ms"
-        }
-      },
-      "gridPos": { "x": 0, "y": 22, "w": 10, "h": 6 }
+      "targets": [{ "expr": "sum(kestrel_active_connections) by (service_name)", "legendFormat": "{{service_name}}" }],
+      "gridPos": { "x": 16, "y": 15, "w": 8, "h": 6 }
     },
     {
       "type": "timeseries",
-      "title": "Persistence - Save Duration (95th percentile)",
+      "title": "HTTP Check Durations",
       "datasource": "Prometheus",
-      "targets": [
-        {
-          "expr": "histogram_quantile(0.95, sum(rate(save_duration_ms_bucket{service=\"persistence\"}[5m])) by (le))"
-        }
-      ],
-      "gridPos": { "x": 10, "y": 22, "w": 10, "h": 6 }
+      "targets": [{ "expr": "httpcheck_duration_milliseconds", "legendFormat": "{{http_url}}" }],
+      "fieldConfig": { "defaults": { "unit": "ms" } },
+      "gridPos": { "x": 0, "y": 21, "w": 24, "h": 6 }
     },
     {
       "type": "timeseries",
-      "title": "Error Rate (All Services)",
+      "title": "Ingestion - Batch Duration (95th %)",
       "datasource": "Prometheus",
-      "targets": [
-        {
-          "expr": "sum(rate(request_errors_total[5m]))"
-        }
-      ],
-      "gridPos": { "x": 0, "y": 28, "w": 20, "h": 6 }
+      "targets": [{ "expr": "histogram_quantile(0.95, sum(rate(ingestion_duration_seconds_bucket{service_name=\"IngestionService\"}[5m])) by (le)) * 1000" }],
+      "fieldConfig": { "defaults": { "unit": "ms" } },
+      "gridPos": { "x": 0, "y": 27, "w": 12, "h": 7 }
+    },
+    {
+      "type": "timeseries",
+      "title": "Persistence - Save Duration (95th %)",
+      "datasource": "Prometheus",
+      "targets": [{ "expr": "histogram_quantile(0.95, sum(rate(save_duration_ms_bucket{service_name=\"PersistenceService\"}[5m])) by (le))" }],
+      "fieldConfig": { "defaults": { "unit": "ms" } },
+      "gridPos": { "x": 12, "y": 27, "w": 12, "h": 7 }
     }
   ]
 }
