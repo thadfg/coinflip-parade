@@ -42,9 +42,15 @@ namespace SharedLibrary.Models
                 error = "ReleaseDate is required.";
                 return false;
             }
-            if (!DateTime.TryParseExact(ReleaseDate, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out _))
+            string[] acceptedFormats = ["yyyy-MM-dd", "MM/dd/yyyy", "M/d/yyyy"];
+            if (!DateTime.TryParseExact
+                    (ReleaseDate,
+                    "yyyy-MM-dd",
+                    CultureInfo.InvariantCulture,
+                    DateTimeStyles.None,
+                    out _))
             {
-                error = "ReleaseDate must be in YYYY-MM-DD format.";
+                error = $"ReleaseDate '{ReleaseDate}' is not in a recognized format (YYYY-MM-DD or MM/DD/YYYY or M/D/YYYY).";
                 return false;
             }
             error = null;
