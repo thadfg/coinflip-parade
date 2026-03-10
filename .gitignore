@@ -105,3 +105,4 @@ Migrations/
 /NuGet.local.config
 /BackupConfigs
 /nuget.config
+IngestionService/nuget.config
