@@ -29,7 +29,8 @@ public class IntegrationTestEndToEndFlow
         var eventRepo = new EventRepository(eventDb, eventLogger.Object);
 
         var envelope = ComicEnvelopeBuilder.Build(Guid.NewGuid());
-        var comic = ComicRecordMapper.ToEntity(envelope);
+        var kafkaMessageKey = Guid.NewGuid().ToString();
+        var comic = ComicRecordMapper.ToEntity(envelope, kafkaMessageKey);
         var eventEntity = EventEntityMapper.FromPayload(
             envelope.Payload,
             Guid.Parse(envelope.ImportId),

@@ -35,13 +35,25 @@ public static class DependenciesConfig
         builder.Services.AddDbContext<EventDbContext>(options =>            
             options.UseNpgsql(config.GetConnectionString("EventDb"), npgsqlOptions => 
             { 
-                npgsqlOptions.MigrationsHistoryTable("__EFMigrationsHistory", "public"); 
+                npgsqlOptions.MigrationsHistoryTable("__EFMigrationsHistory", "public");
+        
+                // This enables the built-in Npgsql/EF Core strategy
+                npgsqlOptions.EnableRetryOnFailure(
+                    maxRetryCount: 5, 
+                    maxRetryDelay: TimeSpan.FromSeconds(30), 
+                    errorCodesToAdd: null); 
             }));
 
         builder.Services.AddDbContext<ComicCollectionDbContext>(options =>            
             options.UseNpgsql(config.GetConnectionString("EventDb"), npgsqlOptions => 
             { 
-                npgsqlOptions.MigrationsHistoryTable("__EFMigrationsHistory", "public"); 
+                npgsqlOptions.MigrationsHistoryTable("__EFMigrationsHistory", "public");
+        
+                // Enabling it here as well
+                npgsqlOptions.EnableRetryOnFailure(
+                    maxRetryCount: 5, 
+                    maxRetryDelay: TimeSpan.FromSeconds(30), 
+                    errorCodesToAdd: null); 
             }));
 
 

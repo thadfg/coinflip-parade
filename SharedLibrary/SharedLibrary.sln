@@ -15,6 +15,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Models", "Models", "{B43592
 		ComicCsvRecord.cs = ComicCsvRecord.cs
 		DeadLetterEnvelope.cs = DeadLetterEnvelope.cs
 		KafkaEnvelope.cs = KafkaEnvelope.cs
+		ComicRecordEntity.cs = ComicRecordEntity.cs
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Utilities", "Utilities", "{51BB659E-FD06-4AA8-8601-A1AA8E7E3542}"

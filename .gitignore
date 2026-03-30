@@ -104,3 +104,5 @@ Migrations/
 /IngestionService/ContainerErrors.txt
 /NuGet.local.config
 /BackupConfigs
+/nuget.config
+IngestionService/nuget.config

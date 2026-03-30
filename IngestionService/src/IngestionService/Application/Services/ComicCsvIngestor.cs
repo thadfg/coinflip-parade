@@ -68,7 +68,7 @@ public class ComicCsvIngestor
             {
                 var correlationId = Guid.NewGuid().ToString();
                 var comicId = GenerateComicId(record.PublisherName, record.SeriesName, record.FullTitle, record.ReleaseDate).ToString();
-                var comicIdStr = comicId.ToString();
+                var comicIdStr = comicId;
                 
 
                 // Validation Phase
