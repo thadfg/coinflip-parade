@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace SharedLibrary.Models;
+namespace SharedLibrary.Models
 
 [Table("comiccollection")]
 [Index(nameof(ReleaseDate))]
