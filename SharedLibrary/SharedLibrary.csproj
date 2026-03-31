@@ -22,7 +22,7 @@
     <!-- Assembly metadata -->
     <AssemblyVersion>1.1.7.0</AssemblyVersion>
     <FileVersion>1.1.7.0</FileVersion>
-    <InformationalVersion>1.1.5</InformationalVersion>
+    <InformationalVersion>1.1.7</InformationalVersion>
   </PropertyGroup>
 
   <ItemGroup>
