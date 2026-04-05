@@ -85,7 +85,7 @@ public class ValuationBackgroundWorkerTests
     }
 
     [Fact]
-    public async Task ExecuteAsync_DoesNotUpdate_WhenResponseCannotBeParsed()
+    public async Task ExecuteAsync_UpdatesLastUpdatedUtc_EvenWhenResponseCannotBeParsed()
     {
         var services = new ServiceCollection();
         services.AddLogging();
@@ -131,7 +131,7 @@ public class ValuationBackgroundWorkerTests
         // Refresh record from database
         var record = await dbContext.ComicRecords.FirstAsync();
         Assert.Null(record.Value);
-        Assert.Null(record.LastUpdatedUtc);
+        Assert.NotNull(record.LastUpdatedUtc); // Should be updated now
     }
 
     [Fact]
@@ -238,7 +238,7 @@ public class ValuationBackgroundWorkerTests
     }
 
     [Fact]
-    public async Task ExecuteAsync_HandlesMcpExceptionGracefully()
+    public async Task ExecuteAsync_HandlesMcpExceptionGracefully_AndUpdatesTimestamp()
     {
         var services = new ServiceCollection();
         services.AddLogging();
@@ -276,5 +276,6 @@ public class ValuationBackgroundWorkerTests
 
         var record = await dbContext.ComicRecords.FirstAsync();
         Assert.Null(record.Value); // Not updated, but worker didn't crash
+        Assert.NotNull(record.LastUpdatedUtc); // Timestamp should be updated
     }
 }

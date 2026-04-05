@@ -84,7 +84,7 @@ public class ValuationBackgroundWorker : BackgroundService
             using var activity = ActivitySource.StartActivity("ebay_valuation_lookup");
             activity?.SetTag("comic.title", record.FullTitle);
 
-            string prompt = $"I have {record.FullTitle} ({record.PublisherName}) from my database. Use Playwright to find the last 3 'Sold' prices on eBay for this book in Raw Mid-Grade condition. Return only the average numeric value.";
+            string prompt = $"I have {record.FullTitle} ({record.PublisherName}) from my database. Use Playwright to find the last 3 'Sold' prices on eBay for this book. Return only the average numeric value.";
 
             try
             {
@@ -103,6 +103,9 @@ public class ValuationBackgroundWorker : BackgroundService
                 else
                 {
                     _logger.LogWarning("Could not parse value for {FullTitle}. Response: {Response}", record.FullTitle, mcpResponse);
+                    // Mark as updated even if it failed so we don't try it again in a loop
+                    record.LastUpdatedUtc = DateTime.UtcNow;
+                    await dbContext.SaveChangesAsync(stoppingToken);
                     _failureCount.Add(1);
                     activity?.SetStatus(ActivityStatusCode.Error, "Could not parse value");
                 }
@@ -110,6 +113,9 @@ public class ValuationBackgroundWorker : BackgroundService
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Failed to research {FullTitle}", record.FullTitle);
+                // Mark as updated even if it failed so we don't try it again in a loop
+                record.LastUpdatedUtc = DateTime.UtcNow;
+                await dbContext.SaveChangesAsync(stoppingToken);
                 _failureCount.Add(1);
                 activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
             }

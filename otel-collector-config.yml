@@ -27,6 +27,11 @@ exporters:
     tls:
       insecure: true
 
+  otlp/jaeger:
+    endpoint: "jaeger:4317"
+    tls:
+      insecure: true
+
 extensions:
   health_check:
     endpoint: 0.0.0.0:13133
@@ -55,3 +60,8 @@ service:
       receivers: [otlp]
       processors: [resource, batch]
       exporters: [otlphttp/loki]
+
+    traces:
+      receivers: [otlp]
+      processors: [resource, batch]
+      exporters: [otlp/jaeger]

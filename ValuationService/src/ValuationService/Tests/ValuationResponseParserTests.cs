@@ -35,13 +35,21 @@ public class ValuationResponseParserTests
     }
 
     [Theory]
-    [InlineData("{\"result\": \"2.0\"}")]
-    [InlineData("{\"result\": \"1000001\"}")]
-    public void ParseValueFromMcpResponse_FilteredValues_ReturnsNull(string json)
+    [InlineData("123.45", 123.45)]
+    [InlineData("Current price is 15.99 on average", 15.99)]
+    [InlineData("25", 25.0)]
+    public void ParseValueFromMcpResponse_ValidNonJsonResponse_ReturnsValue(string text, decimal expected)
     {
-        // 2.0 and values > 1,000,000 are explicitly ignored in current implementation
+        var result = ValuationResponseParser.ParseValueFromMcpResponse(text);
+        Assert.Equal(expected, result);
+    }
+
+    [Theory]
+    [InlineData("{\"other\": \"123.45\"}", 123.45)]
+    public void ParseValueFromMcpResponse_JsonWithoutResult_ReturnsValue(string json, decimal expected)
+    {
         var result = ValuationResponseParser.ParseValueFromMcpResponse(json);
-        Assert.Null(result);
+        Assert.Equal(expected, result);
     }
 
     [Fact]
