@@ -17,17 +17,30 @@ public class McpClientWrapper : IMcpClientWrapper
 
     public McpClientWrapper()
     {
-        _nodePath = @"C:\Program Files\Microsoft Visual Studio\2022\Enterprise\MSBuild\Microsoft\VisualStudio\NodeJs";
-        _mcpCommand = "npx";
-        _mcpArgs = new[] { "-y", "@playwright/mcp@latest" };
+        bool isLinux = System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Linux);
+        if (isLinux)
+        {
+            _nodePath = "/usr/bin";
+            _mcpCommand = "npx";
+            _mcpArgs = new[] { "-y", "@playwright/mcp@latest" };
+        }
+        else
+        {
+            _nodePath = @"C:\Program Files\Microsoft Visual Studio\2022\Enterprise\MSBuild\Microsoft\VisualStudio\NodeJs";
+            _mcpCommand = "npx";
+            _mcpArgs = new[] { "-y", "@playwright/mcp@latest" };
+        }
     }
 
     public async Task<string> ExecuteResearch(string prompt)
     {
+        bool isLinux = System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Linux);
         var startInfo = new ProcessStartInfo
         {
-            FileName = Path.Combine(_nodePath, "node.exe"),
-            Arguments = $"{Path.Combine(_nodePath, "npx.cmd")} {_mcpCommand} {string.Join(" ", _mcpArgs)}",
+            FileName = isLinux ? "npx" : Path.Combine(_nodePath, "node.exe"),
+            Arguments = isLinux 
+                ? $"{_mcpCommand} {string.Join(" ", _mcpArgs)}"
+                : $"{Path.Combine(_nodePath, "npx.cmd")} {_mcpCommand} {string.Join(" ", _mcpArgs)}",
             RedirectStandardInput = true,
             RedirectStandardOutput = true,
             RedirectStandardError = true,

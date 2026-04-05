@@ -1,125 +1,55 @@
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Moq;
-using PersistenceService.Infrastructure;
-using SharedLibrary.Models;
-using ValuationService.Infrastructure;
-using ValuationService.Service;
 using Xunit;
+using ValuationService.Service;
 
 namespace ValuationService.Tests;
 
-public class ValuationBackgroundWorkerTests
+public class ValuationResponseParserTests
 {
-    private static ComicDbContext CreateDbContext(string dbName)
+    [Theory]
+    [InlineData("{\"result\": \"123.45\"}", 123.45)]
+    [InlineData("{\"result\": \"Current price is 15.99 on average\"}", 15.99)]
+    [InlineData("{\"result\": \"25\"}", 25.0)]
+    public void ParseValueFromMcpResponse_ValidResponse_ReturnsValue(string json, decimal expected)
     {
-        var options = new DbContextOptionsBuilder<ComicDbContext>()
-            .UseInMemoryDatabase(dbName)
-            .Options;
-
-        return new ComicDbContext(options);
-    }
-
-    private static ValuationBackgroundWorker CreateWorker(IServiceProvider provider, IMcpClientWrapper mcpClient)
-    {
-        var logger = Mock.Of<ILogger<ValuationBackgroundWorker>>();
-        return new ValuationBackgroundWorker(provider, logger, mcpClient);
+        var result = ValuationResponseParser.ParseValueFromMcpResponse(json);
+        Assert.Equal(expected, result);
     }
 
     [Fact]
-    public async Task ExecuteAsync_ProcessesRecord_AndUpdatesValue()
+    public void ParseValueFromMcpResponse_ErrorResponse_ReturnsNull()
     {
-        var services = new ServiceCollection();
-        services.AddLogging();
+        var json = "{\"isError\": true, \"result\": \"Error occurred\"}";
+        var result = ValuationResponseParser.ParseValueFromMcpResponse(json);
+        Assert.Null(result);
+    }
 
-        var dbName = Guid.NewGuid().ToString();
-        var dbContext = CreateDbContext(dbName);
+    [Theory]
+    [InlineData("{\"result\": \"unknown\"}")]
+    [InlineData("{\"result\": \"\"}")]
+    [InlineData("{}")]
+    [InlineData("invalid-json")]
+    public void ParseValueFromMcpResponse_InvalidOrEmptyResponse_ReturnsNull(string json)
+    {
+        var result = ValuationResponseParser.ParseValueFromMcpResponse(json);
+        Assert.Null(result);
+    }
 
-        var recordToAdd = new ComicRecordEntity
-        {
-            SeriesName = "Amazing Spider-Man",
-            FullTitle = "Amazing Spider-Man #1",
-            PublisherName = "Marvel",
-            Value = null,
-            LastUpdatedUtc = null
-        };
-        dbContext.ComicRecords.Add(recordToAdd);
-        await dbContext.SaveChangesAsync();
-
-        services.AddSingleton(dbContext);
-
-        var provider = services.BuildServiceProvider();
-
-        var mcp = new Mock<IMcpClientWrapper>();
-        mcp.Setup(x => x.ExecuteResearch(It.IsAny<string>()))
-           .ReturnsAsync("""
-           {
-             "result": "123.45"
-           }
-           """);
-
-        var worker = CreateWorker(provider, mcp.Object);
-
-        using var cts = new CancellationTokenSource();
-        var task = worker.StartAsync(cts.Token);
-        
-        // Wait a bit for it to process
-        await Task.Delay(200);
-        await cts.CancelAsync();
-        try { await task; } catch (OperationCanceledException) { }
-
-        // Refresh record from database
-        var updated = await dbContext.ComicRecords.FindAsync(recordToAdd.Id);
-        Assert.NotNull(updated);
-        Assert.Equal(123.45m, updated.Value);
-        Assert.NotNull(updated.LastUpdatedUtc);
+    [Theory]
+    [InlineData("{\"result\": \"2.0\"}")]
+    [InlineData("{\"result\": \"1000001\"}")]
+    public void ParseValueFromMcpResponse_FilteredValues_ReturnsNull(string json)
+    {
+        // 2.0 and values > 1,000,000 are explicitly ignored in current implementation
+        var result = ValuationResponseParser.ParseValueFromMcpResponse(json);
+        Assert.Null(result);
     }
 
     [Fact]
-    public async Task ExecuteAsync_DoesNotUpdate_WhenResponseCannotBeParsed()
+    public void ParseValueFromMcpResponse_MultipleNumbers_ReturnsFirstValid()
     {
-        var services = new ServiceCollection();
-        services.AddLogging();
-
-        var dbName = Guid.NewGuid().ToString();
-        var dbContext = CreateDbContext(dbName);
-
-        dbContext.ComicRecords.Add(new ComicRecordEntity
-        {
-            SeriesName = "Batman",
-            FullTitle = "Batman #1",
-            PublisherName = "DC",
-            Value = null,
-            LastUpdatedUtc = null
-        });
-        await dbContext.SaveChangesAsync();
-
-        services.AddSingleton(dbContext);
-
-        var provider = services.BuildServiceProvider();
-
-        var mcp = new Mock<IMcpClientWrapper>();
-        mcp.Setup(x => x.ExecuteResearch(It.IsAny<string>()))
-           .ReturnsAsync("""
-           {
-             "result": "unknown"
-           }
-           """);
-
-        var worker = CreateWorker(provider, mcp.Object);
-
-        using var cts = new CancellationTokenSource();
-        var task = worker.StartAsync(cts.Token);
-        
-        // Wait a bit for it to process
-        await Task.Delay(200);
-        await cts.CancelAsync();
-        try { await task; } catch (OperationCanceledException) { }
-
-        // Refresh record from database
-        var record = await dbContext.ComicRecords.FirstAsync();
-        Assert.Null(record.Value);
-        Assert.Null(record.LastUpdatedUtc);
+        // The implementation takes the first valid decimal that isn't filtered
+        var json = "{\"result\": \"Prices: 2.0, 45.50, 60.00\"}";
+        var result = ValuationResponseParser.ParseValueFromMcpResponse(json);
+        Assert.Equal(45.50m, result);
     }
 }

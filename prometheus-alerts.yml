@@ -78,3 +78,24 @@ groups:
         annotations:
           summary: "Database latency is critically high"
           description: "99th percentile DB query duration exceeded 2 seconds for 2 minutes."
+
+      # -----------------------------
+      # Valuation Service Alerts
+      # -----------------------------
+      - alert: ValuationServiceDown
+        expr: up{service="valuation-service"} == 0
+        for: 30s
+        labels:
+          severity: critical
+        annotations:
+          summary: "Valuation service is down"
+          description: "Prometheus has not scraped valuation-service for 30 seconds."
+
+      - alert: ValuationLatencyHigh
+        expr: histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket{service="valuation-service"}[5m])) by (le)) > 10
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Valuation service latency is high"
+          description: "95th percentile valuation request duration exceeded 10 seconds for 5 minutes."

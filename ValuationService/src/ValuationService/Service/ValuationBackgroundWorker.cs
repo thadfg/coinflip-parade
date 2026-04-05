@@ -3,6 +3,8 @@ using SharedLibrary.Models;
 using ValuationService.Infrastructure;
 using System.Text.Json;
 using PersistenceService.Infrastructure;
+using System.Diagnostics;
+using System.Diagnostics.Metrics;
 
 namespace ValuationService.Service;
 
@@ -11,15 +13,27 @@ public class ValuationBackgroundWorker : BackgroundService
     private readonly IServiceProvider _serviceProvider;
     private readonly ILogger<ValuationBackgroundWorker> _logger;
     private readonly IMcpClientWrapper _mcpClient;
+    private readonly ValuationControlService _controlService;
+
+    private static readonly ActivitySource ActivitySource = new ActivitySource("ValuationService");
+    private readonly Counter<long> _processedCount;
+    private readonly Counter<long> _failureCount;
 
     public ValuationBackgroundWorker(
         IServiceProvider serviceProvider,
         ILogger<ValuationBackgroundWorker> logger,
-        IMcpClientWrapper mcpClient)
+        IMcpClientWrapper mcpClient,
+        ValuationControlService controlService,
+        IMeterFactory meterFactory)
     {
         _serviceProvider = serviceProvider;
         _logger = logger;
         _mcpClient = mcpClient;
+        _controlService = controlService;
+
+        var meter = meterFactory.Create("ValuationService");
+        _processedCount = meter.CreateCounter<long>("valuation_processed_count");
+        _failureCount = meter.CreateCounter<long>("valuation_failure_count");
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -28,16 +42,23 @@ public class ValuationBackgroundWorker : BackgroundService
 
         while (!stoppingToken.IsCancellationRequested)
         {
-            try
+            if (_controlService.IsRunning)
             {
-                await ProcessValuations(stoppingToken);
+                try
+                {
+                    await ProcessValuations(stoppingToken);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error during valuation processing.");
+                }
             }
-            catch (Exception ex)
+            else
             {
-                _logger.LogError(ex, "Error during valuation processing.");
+                _logger.LogDebug("ValuationBackgroundWorker is paused.");
             }
 
-            await Task.Delay(TimeSpan.FromMinutes(30), stoppingToken);
+            await Task.Delay(TimeSpan.FromMinutes(1), stoppingToken);
         }
     }
 
@@ -60,6 +81,9 @@ public class ValuationBackgroundWorker : BackgroundService
 
             _logger.LogInformation("Processing valuation for {FullTitle}", record.FullTitle);
 
+            using var activity = ActivitySource.StartActivity("ebay_valuation_lookup");
+            activity?.SetTag("comic.title", record.FullTitle);
+
             string prompt = $"I have {record.FullTitle} ({record.PublisherName}) from my database. Use Playwright to find the last 3 'Sold' prices on eBay for this book in Raw Mid-Grade condition. Return only the average numeric value.";
 
             try
@@ -73,15 +97,21 @@ public class ValuationBackgroundWorker : BackgroundService
                     record.LastUpdatedUtc = DateTime.UtcNow;
                     await dbContext.SaveChangesAsync(stoppingToken);
                     _logger.LogInformation("Updated {FullTitle} with value {Value}", record.FullTitle, value);
+                    _processedCount.Add(1);
+                    activity?.SetStatus(ActivityStatusCode.Ok);
                 }
                 else
                 {
                     _logger.LogWarning("Could not parse value for {FullTitle}. Response: {Response}", record.FullTitle, mcpResponse);
+                    _failureCount.Add(1);
+                    activity?.SetStatus(ActivityStatusCode.Error, "Could not parse value");
                 }
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Failed to research {FullTitle}", record.FullTitle);
+                _failureCount.Add(1);
+                activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
             }
         }
     }
