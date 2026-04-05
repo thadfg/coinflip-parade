@@ -5,11 +5,13 @@ using ValuationService.Infrastructure;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
+using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllers();
+builder.Services.AddOpenApi();
 
 builder.Services.AddDbContext<ComicDbContext>(options =>
 {
@@ -56,6 +58,24 @@ var app = builder.Build();
 
 app.MapControllers();
 app.MapHealthChecks("/health");
+
+if (app.Environment.IsDevelopment() || app.Environment.IsEnvironment("Container"))
+{
+    app.MapOpenApi();
+    app.MapScalarApiReference("/scalar", options =>
+    {
+        options.Title = "Valuation Service API";
+        options.Theme = ScalarTheme.Saturn;
+        options.Layout = ScalarLayout.Modern;
+        options.HideClientButton = true;
+        options.Servers = [new ScalarServer("https://localhost:8443")];
+    });
+}
+else
+{
+    app.MapOpenApi();
+}
+
 app.UseOpenTelemetryPrometheusScrapingEndpoint();
 
 app.Run();
