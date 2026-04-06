@@ -26,11 +26,23 @@ RUN apt-get update && apt-get install -y \
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 WORKDIR /src
 
+# Install nodejs in build stage to use npm
+RUN apt-get update && apt-get install -y curl \
+    && curl -sL https://deb.nodesource.com/setup_18.x | bash - \
+    && apt-get install -y nodejs
+
 # Copy NuGet config
 COPY NuGet.local.config /src/NuGet.config
 
 # Copy the ENTIRE ValuationService project tree
 COPY ValuationService/ /src/ValuationService/
+
+# Copy the research script to the final app directory
+COPY ValuationService/src/ValuationService/research_comicbookrealm.js /app/research_comicbookrealm.js
+
+# Install playwright locally in the app directory to ensure it's found
+WORKDIR /app
+RUN npm install playwright
 
 # Move into the project folder
 WORKDIR /src/ValuationService/src/ValuationService
@@ -41,9 +53,12 @@ RUN dotnet restore "ValuationService.csproj" --configfile /src/NuGet.config
 # Publish
 RUN dotnet publish "ValuationService.csproj" -c Release -o /out
 
+# Final image
 FROM base AS final
 WORKDIR /app
 COPY --from=build /out .
+COPY --from=build /app/research_comicbookrealm.js .
+COPY --from=build /app/node_modules ./node_modules
 
 # Install Playwright browsers
 # Note: npx playwright is usually available via dotnet tool or npm, 

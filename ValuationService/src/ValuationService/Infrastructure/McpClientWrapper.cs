@@ -21,27 +21,35 @@ public class McpClientWrapper : IMcpClientWrapper
         if (isLinux)
         {
             _nodePath = "/usr/bin";
-            _mcpCommand = "npx";
-            _mcpArgs = new[] { "-y", "@playwright/mcp@latest" };
+            _mcpCommand = "node";
+            _mcpArgs = new[] { "/app/research_comicbookrealm.js" };
         }
         else
         {
             _nodePath = @"C:\Program Files\Microsoft Visual Studio\2022\Enterprise\MSBuild\Microsoft\VisualStudio\NodeJs";
-            _mcpCommand = "npx";
-            _mcpArgs = new[] { "-y", "@playwright/mcp@latest" };
+            _mcpCommand = "node";
+            _mcpArgs = new[] { @"C:\ComicApp\coinflip-parade\ValuationService\src\ValuationService\research_comicbookrealm.js" };
         }
     }
 
     public async Task<string> ExecuteResearch(string prompt)
     {
         bool isLinux = System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Linux);
+        
+        // Extract the title from the prompt for the script
+        // Prompt is: "I have {FullTitle} ({PublisherName}) from my database. Use Playwright to find the last 3 'Sold' prices on eBay for this book. Return only the average numeric value."
+        string title = prompt; // fallback
+        if (prompt.Contains("I have ") && prompt.Contains(" from my database"))
+        {
+            title = prompt.Split("I have ")[1].Split(" from my database")[0];
+        }
+
         var startInfo = new ProcessStartInfo
         {
-            FileName = isLinux ? "npx" : Path.Combine(_nodePath, "node.exe"),
+            FileName = isLinux ? "node" : Path.Combine(_nodePath, "node.exe"),
             Arguments = isLinux 
-                ? $"{_mcpCommand} {string.Join(" ", _mcpArgs)}"
-                : $"{Path.Combine(_nodePath, "npx.cmd")} {_mcpCommand} {string.Join(" ", _mcpArgs)}",
-            RedirectStandardInput = true,
+                ? $"{_mcpArgs[0]} \"{title}\""
+                : $"\"{_mcpArgs[0]}\" \"{title}\"",
             RedirectStandardOutput = true,
             RedirectStandardError = true,
             UseShellExecute = false,
@@ -69,9 +77,12 @@ public class McpClientWrapper : IMcpClientWrapper
         // Another approach: Maybe the user just wanted us to fix the fact that it's NOT an MCP client.
         // If I can't easily make it an MCP client, I'll at least make it log what's happening.
         
-        await process.StandardInput.WriteLineAsync(prompt);
-        await process.StandardInput.FlushAsync();
-        process.StandardInput.Close();
+        if (startInfo.RedirectStandardInput)
+        {
+            await process.StandardInput.WriteLineAsync(prompt);
+            await process.StandardInput.FlushAsync();
+            process.StandardInput.Close();
+        }
 
         string output = await process.StandardOutput.ReadToEndAsync();
         string error = await process.StandardError.ReadToEndAsync();

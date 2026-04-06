@@ -69,7 +69,8 @@ public class ValuationBackgroundWorker : BackgroundService
 
         var cutoffDate = DateTime.UtcNow.AddDays(-30);
         var recordsToUpdate = await dbContext.ComicRecords
-            .Where(r => r.Value == null || r.LastUpdatedUtc == null || r.LastUpdatedUtc < cutoffDate)
+            .Where(r => (r.Value == null && (r.LastUpdatedUtc == null || r.LastUpdatedUtc < cutoffDate)) || (r.LastUpdatedUtc < cutoffDate))
+            .OrderBy(r => r.LastUpdatedUtc) // Process oldest first
             .Take(10) // Process in small batches
             .ToListAsync(stoppingToken);
 
@@ -84,7 +85,7 @@ public class ValuationBackgroundWorker : BackgroundService
             using var activity = ActivitySource.StartActivity("ebay_valuation_lookup");
             activity?.SetTag("comic.title", record.FullTitle);
 
-            string prompt = $"I have {record.FullTitle} ({record.PublisherName}) from my database. Use Playwright to find the last 3 'Sold' prices on eBay for this book. Return only the average numeric value.";
+            string prompt = $"I have {record.FullTitle} ({record.PublisherName}) from my database. Use Playwright to find the price on comicbookrealm.com for this book. Return only the numeric value.";
 
             try
             {

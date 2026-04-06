@@ -7,12 +7,30 @@ public class ValuationResponseParserTests
 {
     [Theory]
     [InlineData("{\"result\": \"123.45\"}", 123.45)]
-    [InlineData("{\"result\": \"Current price is 15.99 on average\"}", 15.99)]
-    [InlineData("{\"result\": \"25\"}", 25.0)]
+    [InlineData("{\"result\": \"Current price is $15.99 on average\"}", 15.99)]
+    [InlineData("{\"result\": \"$25.00\"}", 25.0)]
+    [InlineData("{\"result\": \"40.00\"}", 40.0)]
     public void ParseValueFromMcpResponse_ValidResponse_ReturnsValue(string json, decimal expected)
     {
         var result = ValuationResponseParser.ParseValueFromMcpResponse(json);
         Assert.Equal(expected, result);
+    }
+
+    [Fact]
+    public void ParseValueFromMcpResponse_IgnoresGuidFragment()
+    {
+        // 1143 is a known GUID fragment that was being incorrectly parsed
+        var json = "Executed DbCommand (4ms) [Parameters=[@p1='1143...']";
+        var result = ValuationResponseParser.ParseValueFromMcpResponse(json);
+        Assert.Null(result);
+    }
+
+    [Fact]
+    public void ParseValueFromMcpResponse_IgnoresVeryLargeNumbers()
+    {
+        var json = "{\"result\": \"1000001\"}";
+        var result = ValuationResponseParser.ParseValueFromMcpResponse(json);
+        Assert.Null(result);
     }
 
     [Fact]
