@@ -1,0 +1,24 @@
+@page
+@model ReadingListService.Pages.IndexModel
+@{
+    ViewData["Title"] = "Collection Search";
+}
+
+<div class="mb-4">
+    <input class="form-control form-control-lg" type="search" 
+           name="term" placeholder="Search your collection (Series, Title, Publisher)..."
+           hx-get="/?handler=Search"
+           hx-trigger="input changed delay:300ms, search"
+           hx-target="#search-results"
+           hx-indicator=".htmx-indicator">
+</div>
+
+<div id="search-results">
+    <partial name="_ComicGrid" model="Model.Comics" />
+</div>
+
+<div class="htmx-indicator text-center p-3">
+    <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+    </div>
+</div>

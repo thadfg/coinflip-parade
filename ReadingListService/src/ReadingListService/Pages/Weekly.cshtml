@@ -1,0 +1,49 @@
+@page
+@model ReadingListService.Pages.WeeklyModel
+@{
+    ViewData["Title"] = "Weekly Reading List";
+}
+
+<div class="container">
+    <h2 class="mb-4">Weekly Reading List (Excluding Annuals)</h2>
+
+    @if (Model.WeeklyGroups.Any())
+    {
+        @foreach (var group in Model.WeeklyGroups)
+        {
+            <div class="card mb-4 shadow-sm">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Week @group.WeekNumber, @group.Year</h5>
+                    <span class="badge bg-light text-dark">@group.Comics.Count Comics</span>
+                </div>
+                <div class="card-body">
+                    <div class="list-group list-group-flush">
+                        @foreach (var comic in group.Comics)
+                        {
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="mb-0">@comic.FullTitle</h6>
+                                    <small class="text-muted">@comic.PublisherName - @comic.SeriesName #@comic.IssueNumber</small>
+                                </div>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" role="switch" 
+                                           id="check-@comic.Id" 
+                                           @(comic.IsRead ? "checked" : "")
+                                           hx-post="/api/reading-list/mark-read/@comic.Id"
+                                           hx-swap="none">
+                                    <label class="form-check-label" for="check-@comic.Id">Read</label>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <div class="alert alert-info">
+            Your weekly reading list is empty. Add comics with release dates to your collection to see them here.
+        </div>
+    }
+</div>
