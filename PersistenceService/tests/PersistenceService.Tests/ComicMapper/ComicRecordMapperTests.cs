@@ -29,12 +29,11 @@ public class ComicRecordMapperTests
         var entity = ComicRecordMapper.ToEntity(envelope, kafkaMessageKey);
 
         Assert.Equal(Guid.Parse(kafkaMessageKey), entity.Id);
-        Assert.Equal("Marvel", entity.PublisherName);
-        Assert.Equal("X-Men", entity.SeriesName);
+        Assert.Equal("Marvel", entity.Publisher);
+        Assert.Equal("X-Men", entity.Series);
         Assert.Equal("X-Men #1", entity.FullTitle);
         Assert.Equal(new DateTime(1991, 10, 1), entity.ReleaseDate);
-        Assert.Equal("Yes", entity.InCollection);
-        Assert.Equal(9.99m, entity.Value);
+        Assert.Equal("Yes", entity.KeyStatus);
         Assert.Equal("/covers/xmen1.jpg", entity.CoverArtPath);
         Assert.Equal(timestamp, entity.ImportedAt);
     }
@@ -88,8 +87,7 @@ public class ComicRecordMapperTests
         Assert.Equal(Guid.Parse(kafkaMessageKey), entity.Id);
         Assert.Equal("Untitled", entity.FullTitle);
         Assert.Equal(DateTime.MinValue, entity.ReleaseDate);
-        Assert.Null(entity.InCollection);
-        Assert.Null(entity.Value);
+        Assert.Equal(string.Empty, entity.KeyStatus);
         Assert.Equal("", entity.CoverArtPath);
     }
 

@@ -7,42 +7,50 @@ namespace PersistenceService.Domain.Entities;
 
 [Table("comiccollection")]
 [Index(nameof(ReleaseDate))]
-[Index(nameof(ImportedAt))]
+[Index(nameof(ImportedAt))]    
 public class ComicRecordEntity
 {
     [Key]
-    [Column("id")]
-    public System.Guid Id { get; set; }
+    [Column("Id")]
+    public Guid Id { get; set; }
 
     [Required]
-    [Column("publishername")]
-    public string PublisherName { get; set; }
+    public string Series { get; set; }
 
     [Required]
-    [Column ("seriesname")]
-    public string SeriesName { get; set; }
+    public string Issue { get; set; }
+
+    [Column("Variant Description")]
+    public string? VariantDescription { get; set; }
 
     [Required]
-    [Column("fulltitle")]
-    public string FullTitle { get; set; }
+    public string Publisher { get; set; }
 
     [Required]
-    [Column("releasedate")]
+    [Column("Release Date")]
+    [DataType(DataType.Date)]
     public DateTime ReleaseDate { get; set; }
 
-    [Column("incollection")]
-    public string? InCollection { get; set; }
+    [Required]
+    public string Format { get; set; }
 
-    [Column("value")]
-    public decimal? Value { get; set; }
+    [Required]
+    [MaxLength(20)]
+    public string Barcode { get; set; }
+
+    [Column("Full Title")]
+    public string? FullTitle { get; set; }
 
     [Column("coverartpath")]public string? CoverArtPath { get; set; }
-
+            
     [Required]
     [Column("importedat")]
     public DateTime ImportedAt { get; set; } = DateTime.UtcNow;
 
-    [Column("lastupdatedutc")]
-    public DateTime? LastUpdatedUtc { get; set; }
-
+    /// <summary>
+    /// Maps to the 'Key' column in the CSV. 
+    /// Named 'KeyStatus' to avoid conflict with the EF [Key] attribute.
+    /// </summary>
+    [Column("Key")]
+    public string KeyStatus { get; set; }
 }
