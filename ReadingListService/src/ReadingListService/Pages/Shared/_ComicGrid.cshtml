@@ -1,0 +1,41 @@
+@using ReadingListService.Dtos
+@model List<ComicSearchResultDto>
+
+<div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+    @if (Model.Any())
+    {
+        @foreach (var comic in Model)
+        {
+            <div class="col">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">@comic.FullTitle</h5>
+                        <p class="card-text text-muted">
+                            @comic.PublisherName - @comic.SeriesName #@comic.IssueNumber
+                        </p>
+                        @if (comic.ReleaseDate.HasValue)
+                        {
+                            <p class="small text-muted">Released: @comic.ReleaseDate.Value.ToShortDateString()</p>
+                        }
+                    </div>
+                    <div class="card-footer bg-transparent border-top-0">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" role="switch" 
+                                   id="check-@comic.Id" 
+                                   @(comic.IsRead ? "checked" : "")
+                                   hx-post="/api/reading-list/mark-read/@comic.Id"
+                                   hx-swap="none">
+                            <label class="form-check-label" for="check-@comic.Id">Read</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <div class="col-12 text-center text-muted">
+            <p>No comics found in your collection.</p>
+        </div>
+    }
+</div>

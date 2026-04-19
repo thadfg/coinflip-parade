@@ -1,41 +1,81 @@
+using ValuationService.Service;
+using PersistenceService.Infrastructure;
+using Microsoft.EntityFrameworkCore;
+using ValuationService.Infrastructure;
+using OpenTelemetry.Metrics;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
+using Scalar.AspNetCore;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+builder.Services.AddControllers();
 builder.Services.AddOpenApi();
+
+builder.Services.AddDbContext<ComicDbContext>(options =>
+{
+    var connectionString = builder.Configuration.GetConnectionString("Default") 
+                           ?? "Host=localhost;Port=5432;Database=comicdb;Username=comicadmin;Password=comicpass";
+    options.UseNpgsql(connectionString);
+});
+
+builder.Services.AddSingleton<ValuationControlService>();
+builder.Services.AddSingleton<IMcpClientWrapper, McpClientWrapper>();
+builder.Services.AddHostedService<ValuationBackgroundWorker>();
+
+// Health Checks
+builder.Services.AddHealthChecks()
+    .AddDbContextCheck<ComicDbContext>();
+
+// OpenTelemetry
+var otelResourceBuilder = ResourceBuilder.CreateDefault()
+    .AddService("valuation-service");
+
+builder.Services.AddOpenTelemetry()
+    .WithTracing(tracing => tracing
+        .SetResourceBuilder(otelResourceBuilder)
+        .AddAspNetCoreInstrumentation()
+        .AddHttpClientInstrumentation()
+        .AddSource("ValuationService")
+        .AddOtlpExporter(opt =>
+        {
+            opt.Endpoint = new Uri(builder.Configuration["OTEL_EXPORTER_OTLP_ENDPOINT"] ?? "http://localhost:4317");
+        }))
+    .WithMetrics(metrics => metrics
+        .SetResourceBuilder(otelResourceBuilder)
+        .AddAspNetCoreInstrumentation()
+        .AddHttpClientInstrumentation()
+        .AddRuntimeInstrumentation()
+        .AddMeter("ValuationService")
+        .AddPrometheusExporter()
+        .AddOtlpExporter(opt =>
+        {
+            opt.Endpoint = new Uri(builder.Configuration["OTEL_EXPORTER_OTLP_ENDPOINT"] ?? "http://localhost:4317");
+        }));
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+app.MapControllers();
+app.MapHealthChecks("/health");
+
+if (app.Environment.IsDevelopment() || app.Environment.IsEnvironment("Container"))
+{
+    app.MapOpenApi();
+    app.MapScalarApiReference("/scalar", options =>
+    {
+        options.Title = "Valuation Service API";
+        options.Theme = ScalarTheme.Saturn;
+        options.Layout = ScalarLayout.Modern;
+        options.HideClientButton = true;
+        options.Servers = [new ScalarServer("https://localhost:8443")];
+    });
+}
+else
 {
     app.MapOpenApi();
 }
 
-app.UseHttpsRedirection();
-
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
-
-app.MapGet("/weatherforecast", () =>
-{
-    var forecast =  Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-})
-.WithName("GetWeatherForecast");
+app.UseOpenTelemetryPrometheusScrapingEndpoint();
 
 app.Run();
-
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}

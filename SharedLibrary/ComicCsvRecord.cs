@@ -5,10 +5,10 @@ namespace SharedLibrary.Models
 {
     public record ComicCsvRecord
     {
-        [Name("Publisher Name")]
+        [Name("Publisher")]
         public string PublisherName { get; init; }
 
-        [Name("Series Name")]
+        [Name("Series")]
         public string SeriesName { get; init; }
 
         [Name("Full Title")]
@@ -24,12 +24,12 @@ namespace SharedLibrary.Models
         {
             if (string.IsNullOrWhiteSpace(PublisherName))
             {
-                error = "PublisherName is required.";
+                error = "Publisher is required.";
                 return false;
             }
             if (string.IsNullOrWhiteSpace(SeriesName))
             {
-                error = "SeriesName is required.";
+                error = "Series is required.";
                 return false;
             }
             if (string.IsNullOrWhiteSpace(FullTitle))
@@ -42,13 +42,14 @@ namespace SharedLibrary.Models
                 error = "ReleaseDate is required.";
                 return false;
             }
-            string[] acceptedFormats = ["yyyy-MM-dd", "MM/dd/yyyy", "M/d/yyyy"];
-            if (!DateTime.TryParseExact
-                    (ReleaseDate,
-                    "yyyy-MM-dd",
+            string[] acceptedFormats = { "yyyy-MM-dd", "MM/dd/yyyy", "M/d/yyyy", "dd-MMM-yy" };
+
+            if (!DateTime.TryParseExact(
+                    ReleaseDate,
+                    acceptedFormats, // Pass the array here
                     CultureInfo.InvariantCulture,
                     DateTimeStyles.None,
-                    out _))
+                    out DateTime parsedDate))
             {
                 error = $"ReleaseDate '{ReleaseDate}' is not in a recognized format (YYYY-MM-DD or MM/DD/YYYY or M/D/YYYY).";
                 return false;

@@ -17,31 +17,50 @@
     # Jaeger Tracing UI
     # ============================
     @jaeger path /jaeger*
-    handle @jaeger {        
+    handle @jaeger {
         reverse_proxy jaeger:16686
     }
 
     # ============================
     # Unified Metrics (OTel Collector)
     # ============================
-    # This replaces the broken 'ingestion/custom-metrics' logic.
-    # It exposes the Collector's unified port (8889) to your browser/Prometheus.
     @metrics path /metrics*
     handle @metrics {
         reverse_proxy otel-collector:8889
     }
 
     # ============================
+    # ValuationService
+    # ============================
+    # API: /api/valuation/status -> coinflip-parade-valuationservice-1:5283/api/valuation/status
+    @valuation_api path /api/valuation/*
+    handle @valuation_api {
+        reverse_proxy coinflip-parade-valuationservice-1:5283
+    }
+
+    # Health: /valuation/health -> coinflip-parade-valuationservice-1:5283/health
+    handle_path /valuation/* {
+        reverse_proxy coinflip-parade-valuationservice-1:5283
+    }
+
+    # OpenAPI: /openapi/valuation/v1.json -> coinflip-parade-valuationservice-1:5283/openapi/v1.json
+    @valuation_openapi path /openapi/valuation/v1.json
+    handle @valuation_openapi {
+        rewrite * /openapi/v1.json
+        reverse_proxy coinflip-parade-valuationservice-1:5283
+    }
+
+    # ============================
     # IngestionService
     # ============================
     @ingestion_api path /api/*
-    @ingestion_health path /ingestion/health
-    @ingestion_ready path /ingestion/ready
-    @ingestion_live path /ingestion/live
-
     handle @ingestion_api {
         reverse_proxy ingestion:5283
     }
+
+    @ingestion_health path /ingestion/health
+    @ingestion_ready path /ingestion/ready
+    @ingestion_live path /ingestion/live
     handle @ingestion_health {
         reverse_proxy ingestion:5283
     }
@@ -58,7 +77,6 @@
     @persistence_health path /persistence/health
     @persistence_ready path /persistence/ready
     @persistence_live path /persistence/live
-
     handle @persistence_health {
         reverse_proxy persistenceservice:5067
     }
@@ -72,16 +90,18 @@
     # ============================
     # Scalar UI + OpenAPI
     # ============================
-    @scalar_assets path_regexp scalar_assets ^/scalar/(?:scalar\.js|scalar\.aspnetcore\.js)$
-    @scalar_ui path /scalar/v1*
     @openapi_spec path /openapi/v1.json
 
-    handle @scalar_assets {
+    handle_path /scalar/valuation/* {
+        rewrite /v1/openapi/v1.json /openapi/v1.json
+        rewrite * /scalar{path}
+        reverse_proxy coinflip-parade-valuationservice-1:5283
+    }
+
+    handle /scalar/* {
         reverse_proxy ingestion:5283
     }
-    handle @scalar_ui {
-        reverse_proxy ingestion:5283
-    }
+
     handle @openapi_spec {
         reverse_proxy ingestion:5283
     }
