@@ -16,7 +16,7 @@ public class ComicCsvIngestorTests
         var ingestor = new ComicCsvIngestor(mockProducer.Object);
 
         // Create a valid CSV file
-        var csvContent = "Publisher Name,Series Name,Full Title,Release Date,In Collection\n" +
+        var csvContent = "Publisher,Series,Full Title,Release Date,In Collection\n" +
                          "Marvel,Spider-Man,The Amazing Spider-Man,2024-01-01,Yes";
         var tempFile = Path.GetTempFileName();
         await File.WriteAllTextAsync(tempFile, csvContent);
@@ -44,7 +44,7 @@ public class ComicCsvIngestorTests
         var ingestor = new ComicCsvIngestor(mockProducer.Object);
 
         // Missing required Release Date
-        var csvContent = "Publisher Name,Series Name,Full Title,Release Date,In Collection\n" +
+        var csvContent = "Publisher,Series,Full Title,Release Date,In Collection\n" +
                          "Marvel,Spider-Man,The Amazing Spider-Man,,Yes";
         var tempFile = Path.GetTempFileName();
         await File.WriteAllTextAsync(tempFile, csvContent);

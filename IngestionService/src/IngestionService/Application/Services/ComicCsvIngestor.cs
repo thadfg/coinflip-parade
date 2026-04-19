@@ -67,10 +67,7 @@ public class ComicCsvIngestor
             foreach (var record in records)
             {
                 var correlationId = Guid.NewGuid().ToString();
-                var comicId = GenerateComicId(record.PublisherName, record.SeriesName, record.FullTitle, record.ReleaseDate).ToString();
-                var comicIdStr = comicId;
                 
-
                 // Validation Phase
                 if (!record.IsValid(out var validationError))
                 {
@@ -79,6 +76,9 @@ public class ComicCsvIngestor
                     RecordMetric(IngestionFailure, importIdStr, service, trigger);
                     continue;
                 }
+
+                var comicId = GenerateComicId(record.PublisherName, record.SeriesName, record.FullTitle, record.ReleaseDate!).ToString();
+                var comicIdStr = comicId;
 
                 // Processing Phase
                 try
@@ -152,7 +152,8 @@ public class ComicCsvIngestor
         if (string.IsNullOrWhiteSpace(date))
             throw new ArgumentException("Release date is required.", nameof(date));
 
-        if (!DateTime.TryParse(date, CultureInfo.InvariantCulture, DateTimeStyles.None, out var parsedDate))
+        string[] acceptedFormats = { "yyyy-MM-dd", "MM/dd/yyyy", "M/d/yyyy", "dd-MMM-yy" };
+        if (!DateTime.TryParseExact(date, acceptedFormats, CultureInfo.InvariantCulture, DateTimeStyles.None, out var parsedDate))
             throw new FormatException($"Invalid release date format: '{date}'");
 
         var normalizedInput =
