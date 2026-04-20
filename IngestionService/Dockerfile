@@ -14,7 +14,7 @@ WORKDIR /src
 # Copy NuGet config
 COPY ${NUGET_CONFIG} /src/NuGet.config
 
-# Copy the ENTIRE IngestionService project tree
+# Copy the ENTIRE project trees for both IngestionService and SharedLibrary
 COPY IngestionService/ /src/IngestionService/
 
 # Move into the project folder
@@ -24,7 +24,7 @@ WORKDIR /src/IngestionService/src/IngestionService
 RUN dotnet restore "IngestionService.csproj" --configfile /src/NuGet.config
 
 # Publish
-RUN dotnet publish "IngestionService.csproj" -c Release -o /out
+RUN dotnet publish "IngestionService.csproj" -c Release -o /out --no-restore
 
 
 FROM base AS final
