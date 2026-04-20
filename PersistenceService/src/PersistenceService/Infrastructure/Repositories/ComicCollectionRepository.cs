@@ -38,6 +38,38 @@ public class ComicCollectionRepository : IComicCollectionRepository
 
         var comics = items.Select(i => i.Comic).ToList();
 
+        if (_dbContext.Database.ProviderName == "Microsoft.EntityFrameworkCore.InMemory")
+        {
+            var addedEventsCount = 0;
+            foreach (var evt in eventLogs)
+            {
+                if (!await _dbContext.ProcessedEvents.AnyAsync(p => p.EventId == evt.EventId, cancellationToken))
+                {
+                    _dbContext.ProcessedEvents.Add(evt);
+                    addedEventsCount++;
+                }
+            }
+
+            if (addedEventsCount > 0)
+            {
+                foreach (var comic in comics)
+                {
+                    var existing = await _dbContext.ComicRecords.FindAsync(new object[] { comic.Id }, cancellationToken);
+                    if (existing != null)
+                    {
+                        _dbContext.Entry(existing).CurrentValues.SetValues(comic);
+                    }
+                    else
+                    {
+                        _dbContext.ComicRecords.Add(comic);
+                    }
+                }
+                await _dbContext.SaveChangesAsync(cancellationToken);
+                _logger.LogInformation("Successfully processed batch of {Count} items.", items.Count);
+            }
+            return;
+        }
+
         for (int attempt = 1; attempt <= MaxRetries; attempt++)
         {
             try

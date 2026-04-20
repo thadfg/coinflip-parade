@@ -26,14 +26,16 @@ public static class ComicRecordMapper
         return new ComicRecordEntity
         {
             Id = comicId,
-            PublisherName = dto.PublisherName,
-            SeriesName = dto.SeriesName,
-            FullTitle = dto.FullTitle,
+            Series = dto.SeriesName,
+            Issue = "Unknown", // Placeholder as DTO might not have it explicitly separated yet
+            Publisher = dto.PublisherName,
             ReleaseDate = parsedReleaseDate,
-            InCollection = dto.InCollection,
-            Value = dto.Value,  // if Null that means the value has not been pulled yet not yet appraised.
+            Format = "Comic", // Default
+            Barcode = "Unknown", // Default
+            FullTitle = dto.FullTitle,
             CoverArtPath = dto.CoverArtPath ?? string.Empty,
-            ImportedAt = envelope.Timestamp
+            ImportedAt = envelope.Timestamp,
+            KeyStatus = dto.InCollection ?? string.Empty
         };
     }
 }
