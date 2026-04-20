@@ -43,7 +43,7 @@ namespace SharedLibrary.Models
                 error = "ReleaseDate is required.";
                 return false;
             }
-            string[] acceptedFormats = { "yyyy-MM-dd", "MM/dd/yyyy", "M/d/yyyy", "dd-MMM-yy" };
+            string[] acceptedFormats = { "yyyy-MM-dd", "MM/dd/yyyy", "M/d/yyyy", "dd-MMM-yy", "d-MMM-yy" };
 
             if (!DateTime.TryParseExact(
                     ReleaseDate?.Trim(),
@@ -52,7 +52,7 @@ namespace SharedLibrary.Models
                     DateTimeStyles.None,
                     out DateTime parsedDate))
             {
-                error = $"ReleaseDate '{ReleaseDate}' is not in a recognized format (YYYY-MM-DD or MM/DD/YYYY or M/D/YYYY).";
+                error = $"ReleaseDate '{ReleaseDate}' is not in a recognized format (YYYY-MM-DD, MM/DD/YYYY, M/D/YYYY, or D-MMM-YY).";
                 return false;
             }
             error = null;
