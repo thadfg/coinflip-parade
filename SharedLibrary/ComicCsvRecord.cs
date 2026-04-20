@@ -1,4 +1,5 @@
 ﻿using CsvHelper.Configuration.Attributes;
+using SharedLibrary.Constants;
 using System.Globalization;
 
 namespace SharedLibrary.Models
@@ -43,16 +44,14 @@ namespace SharedLibrary.Models
                 error = "ReleaseDate is required.";
                 return false;
             }
-            string[] acceptedFormats = { "yyyy-MM-dd", "MM/dd/yyyy", "M/d/yyyy", "dd-MMM-yy", "d-MMM-yy" };
-
             if (!DateTime.TryParseExact(
                     ReleaseDate?.Trim(),
-                    acceptedFormats, // Pass the array here
+                    DateFormats.AcceptedFormats, // Pass the array here
                     CultureInfo.InvariantCulture,
                     DateTimeStyles.None,
                     out DateTime parsedDate))
             {
-                error = $"ReleaseDate '{ReleaseDate}' is not in a recognized format (YYYY-MM-DD, MM/DD/YYYY, M/D/YYYY, or D-MMM-YY).";
+                error = $"ReleaseDate '{ReleaseDate}' is not in a recognized format ({DateFormats.DisplayFormats}).";
                 return false;
             }
             error = null;
