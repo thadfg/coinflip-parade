@@ -59,7 +59,12 @@ public class ComicCsvIngestor
         try
         {
             using var reader = new StreamReader(csvPath);
-            using var csv = new CsvReader(reader, CultureInfo.InvariantCulture);
+            var config = new CsvHelper.Configuration.CsvConfiguration(CultureInfo.InvariantCulture)
+            {
+                HeaderValidated = null,
+                MissingFieldFound = null
+            };
+            using var csv = new CsvReader(reader, config);
             var records = csv.GetRecords<ComicCsvRecord>().ToList();
             
             activity?.SetTag("record.count", records.Count);
