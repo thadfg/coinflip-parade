@@ -18,6 +18,7 @@ namespace SharedLibrary.Models
         public string? ReleaseDate { get; init; }
 
         [Name("In Collection")]
+        [Optional]
         public string? InCollection { get; init; }
 
         public bool IsValid(out string? error)
