@@ -6,13 +6,13 @@ namespace SharedLibrary.Models
     public record ComicCsvRecord
     {
         [Name("Publisher")]
-        public string PublisherName { get; init; }
+        public string? PublisherName { get; init; }
 
         [Name("Series")]
-        public string SeriesName { get; init; }
+        public string? SeriesName { get; init; }
 
         [Name("Full Title")]
-        public string FullTitle { get; init; }
+        public string? FullTitle { get; init; }
 
         [Name("Release Date")]
         public string? ReleaseDate { get; init; }
@@ -46,7 +46,7 @@ namespace SharedLibrary.Models
             string[] acceptedFormats = { "yyyy-MM-dd", "MM/dd/yyyy", "M/d/yyyy", "dd-MMM-yy" };
 
             if (!DateTime.TryParseExact(
-                    ReleaseDate,
+                    ReleaseDate?.Trim(),
                     acceptedFormats, // Pass the array here
                     CultureInfo.InvariantCulture,
                     DateTimeStyles.None,
