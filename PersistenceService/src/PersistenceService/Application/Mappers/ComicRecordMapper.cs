@@ -34,11 +34,11 @@ public static class ComicRecordMapper
         {
             Id = comicId,
             Series = dto.SeriesName,
-            Issue = "Unknown", // Placeholder as DTO might not have it explicitly separated yet
+            Issue = dto.IssueNumber, 
             Publisher = dto.PublisherName,
             ReleaseDate = parsedReleaseDate,
-            Format = "Comic", // Default
-            Barcode = "Unknown", // Default
+            Format =dto.Format, 
+            Barcode = dto.Barcode.ToString() ?? "0", 
             FullTitle = fullTitle,
             CoverArtPath = dto.CoverArtPath ?? string.Empty,
             ImportedAt = envelope.Timestamp,
