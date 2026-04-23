@@ -21,6 +21,24 @@ namespace SharedLibrary.Models
         [Name("In Collection")]
         [Optional]
         public string? InCollection { get; init; }
+        
+        [Name("Issue")]
+        public string? IssueNumber { get; init; }
+        
+        [Name("Variant Description")]
+        public string? VariantDescription { get; init; }
+        
+        [Name("Format")]
+        public string? Format { get; init; }
+        
+        [Name("Barcode")]
+        public long? Barcode { get; init; }
+        
+        [Name("Title")]
+        public string? Title { get; init; }
+        
+        [Name("Key")]
+        public string? Key { get; init; }
 
         public bool IsValid(out string? error)
         {
