@@ -45,3 +45,5 @@ catch (Exception ex)
     Console.WriteLine(ex.ToString()); // includes message, stack trace, and inner exceptions
     throw;
 }
+
+public partial class Program { }
