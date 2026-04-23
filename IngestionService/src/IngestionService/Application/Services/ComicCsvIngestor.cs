@@ -1,7 +1,7 @@
-﻿using CsvHelper;
+﻿using SharedLibrary.Constants;
+using CsvHelper;
 using Facet.Extensions;
 using IngestionService.Domain.Models;
-using SharedLibrary.Constants;
 using SharedLibrary.Extensions;
 using SharedLibrary.Facet;
 using SharedLibrary.Kafka;
@@ -88,7 +88,16 @@ public class ComicCsvIngestor
                 // Processing Phase
                 try
                 {
-                    var comicEvent = record.ToFacet<ComicCsvRecord, ComicCsvRecordDto>();
+                    // Normalize date to YYYY-MM-DD
+                    string normalizedDate = record.ReleaseDate!;
+                    if (DateTime.TryParseExact(record.ReleaseDate?.Trim(), DateFormats.AcceptedFormats, CultureInfo.InvariantCulture, DateTimeStyles.None, out var parsedDate))
+                    {
+                        normalizedDate = parsedDate.ToString("yyyy-MM-dd");
+                    }
+
+                    var comicEvent = record with { ReleaseDate = normalizedDate };
+                    var comicDto = comicEvent.ToFacet<ComicCsvRecord, ComicCsvRecordDto>();
+                    
                     var publisherKey = record.PublisherName.Normalize("-");
                     var seriesKey = record.SeriesName.Normalize("-");
                     var key = comicIdStr;
@@ -98,7 +107,7 @@ public class ComicCsvIngestor
                         
                         ImportId = importIdStr,
                         Timestamp = DateTime.UtcNow,
-                        Payload = comicEvent
+                        Payload = comicDto
                     };
 
                     // 2. Child Span: Specific to the Kafka Produce operation
@@ -157,8 +166,7 @@ public class ComicCsvIngestor
         if (string.IsNullOrWhiteSpace(date))
             throw new ArgumentException("Release date is required.", nameof(date));
 
-        string[] acceptedFormats = { "yyyy-MM-dd", "MM/dd/yyyy", "M/d/yyyy", "dd-MMM-yy" };
-        if (!DateTime.TryParseExact(date, acceptedFormats, CultureInfo.InvariantCulture, DateTimeStyles.None, out var parsedDate))
+        if (!DateTime.TryParseExact(date, DateFormats.AcceptedFormats, CultureInfo.InvariantCulture, DateTimeStyles.None, out var parsedDate))
             throw new FormatException($"Invalid release date format: '{date}'");
 
         var normalizedInput =

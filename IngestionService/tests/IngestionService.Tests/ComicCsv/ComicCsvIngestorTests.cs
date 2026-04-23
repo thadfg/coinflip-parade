@@ -63,4 +63,32 @@ public class ComicCsvIngestorTests
         // Cleanup
         File.Delete(tempFile);
     }
+
+    [Fact]
+    public async Task IngestAsync_ShortMonthYearDateFormat_NormalizesToIsoFormat()
+    {
+        // Arrange
+        var mockProducer = new Mock<IKafkaProducer>();
+        var ingestor = new ComicCsvIngestor(mockProducer.Object);
+
+        // Date format '8-Oct-25'
+        var csvContent = "Publisher,Series,Full Title,Release Date,In Collection\n" +
+                         "DC Comics,Absolute Batman,Abomination Part Five,8-Oct-25,Yes";
+        var tempFile = Path.GetTempFileName();
+        await File.WriteAllTextAsync(tempFile, csvContent);
+
+        // Act
+        await ingestor.IngestAsync(tempFile);
+
+        // Assert
+        mockProducer.Verify(p => p.ProduceAsync(
+            "comic-imported",
+            It.IsAny<string>(),
+            It.Is<KafkaEnvelope<ComicCsvRecordDto>>(e => e.Payload.ReleaseDate == "2025-10-08"),
+            It.IsAny<string>()),
+            Times.Once);
+
+        // Cleanup
+        File.Delete(tempFile);
+    }
 }
