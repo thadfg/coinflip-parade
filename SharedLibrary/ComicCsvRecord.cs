@@ -39,6 +39,8 @@ namespace SharedLibrary.Models
         
         [Name("Key")]
         public string? Key { get; init; }
+        
+        
 
         public bool IsValid(out string? error)
         {
@@ -50,11 +52,6 @@ namespace SharedLibrary.Models
             if (string.IsNullOrWhiteSpace(SeriesName))
             {
                 error = "Series is required.";
-                return false;
-            }
-            if (string.IsNullOrWhiteSpace(FullTitle))
-            {
-                error = "FullTitle is required.";
                 return false;
             }
             if (string.IsNullOrWhiteSpace(ReleaseDate))
