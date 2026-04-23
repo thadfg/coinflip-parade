@@ -158,10 +158,7 @@ public class ComicCsvIngestor
             throw new ArgumentException("Publisher is required.", nameof(publisher));
 
         if (string.IsNullOrWhiteSpace(series))
-            throw new ArgumentException("Series is required.", nameof(series));
-
-        /*if (string.IsNullOrWhiteSpace(title))
-            throw new ArgumentException("Title is required.", nameof(title));*/
+            throw new ArgumentException("Series is required.", nameof(series)); 
 
         if (string.IsNullOrWhiteSpace(date))
             throw new ArgumentException("Release date is required.", nameof(date));
