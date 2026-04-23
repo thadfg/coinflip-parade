@@ -40,7 +40,6 @@ namespace SharedLibrary.Models
         [Name("Key")]
         public string? Key { get; init; }
         
-        
 
         public bool IsValid(out string? error)
         {
