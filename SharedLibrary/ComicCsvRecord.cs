@@ -1,40 +1,56 @@
 ﻿using CsvHelper.Configuration.Attributes;
+using SharedLibrary.Constants;
 using System.Globalization;
 
 namespace SharedLibrary.Models
 {
     public record ComicCsvRecord
     {
-        [Name("Publisher Name")]
-        public string PublisherName { get; init; }
+        [Name("Publisher")]
+        public string? PublisherName { get; init; }
 
-        [Name("Series Name")]
-        public string SeriesName { get; init; }
+        [Name("Series")]
+        public string? SeriesName { get; init; }
 
         [Name("Full Title")]
-        public string FullTitle { get; init; }
+        public string? FullTitle { get; init; }
 
         [Name("Release Date")]
         public string? ReleaseDate { get; init; }
 
         [Name("In Collection")]
+        [Optional]
         public string? InCollection { get; init; }
+        
+        [Name("Issue")]
+        public string? IssueNumber { get; init; }
+        
+        [Name("Variant Description")]
+        public string? VariantDescription { get; init; }
+        
+        [Name("Format")]
+        public string? Format { get; init; }
+        
+        [Name("Barcode")]
+        public long? Barcode { get; init; }
+        
+        [Name("Title")]
+        public string? Title { get; init; }
+        
+        [Name("Key")]
+        public string? Key { get; init; }
+        
 
         public bool IsValid(out string? error)
         {
             if (string.IsNullOrWhiteSpace(PublisherName))
             {
-                error = "PublisherName is required.";
+                error = "Publisher is required.";
                 return false;
             }
             if (string.IsNullOrWhiteSpace(SeriesName))
             {
-                error = "SeriesName is required.";
-                return false;
-            }
-            if (string.IsNullOrWhiteSpace(FullTitle))
-            {
-                error = "FullTitle is required.";
+                error = "Series is required.";
                 return false;
             }
             if (string.IsNullOrWhiteSpace(ReleaseDate))
@@ -42,15 +58,14 @@ namespace SharedLibrary.Models
                 error = "ReleaseDate is required.";
                 return false;
             }
-            string[] acceptedFormats = ["yyyy-MM-dd", "MM/dd/yyyy", "M/d/yyyy"];
-            if (!DateTime.TryParseExact
-                    (ReleaseDate,
-                    "yyyy-MM-dd",
+            if (!DateTime.TryParseExact(
+                    ReleaseDate?.Trim(),
+                    DateFormats.AcceptedFormats, // Pass the array here
                     CultureInfo.InvariantCulture,
                     DateTimeStyles.None,
-                    out _))
+                    out DateTime parsedDate))
             {
-                error = $"ReleaseDate '{ReleaseDate}' is not in a recognized format (YYYY-MM-DD or MM/DD/YYYY or M/D/YYYY).";
+                error = $"ReleaseDate '{ReleaseDate}' is not in a recognized format ({DateFormats.DisplayFormats}).";
                 return false;
             }
             error = null;

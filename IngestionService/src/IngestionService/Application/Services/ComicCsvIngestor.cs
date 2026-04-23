@@ -1,7 +1,7 @@
-﻿using CsvHelper;
+﻿using SharedLibrary.Constants;
+using CsvHelper;
 using Facet.Extensions;
 using IngestionService.Domain.Models;
-using SharedLibrary.Constants;
 using SharedLibrary.Extensions;
 using SharedLibrary.Facet;
 using SharedLibrary.Kafka;
@@ -59,7 +59,12 @@ public class ComicCsvIngestor
         try
         {
             using var reader = new StreamReader(csvPath);
-            using var csv = new CsvReader(reader, CultureInfo.InvariantCulture);
+            var config = new CsvHelper.Configuration.CsvConfiguration(CultureInfo.InvariantCulture)
+            {
+                HeaderValidated = null,
+                MissingFieldFound = null
+            };
+            using var csv = new CsvReader(reader, config);
             var records = csv.GetRecords<ComicCsvRecord>().ToList();
             
             activity?.SetTag("record.count", records.Count);
@@ -67,10 +72,7 @@ public class ComicCsvIngestor
             foreach (var record in records)
             {
                 var correlationId = Guid.NewGuid().ToString();
-                var comicId = GenerateComicId(record.PublisherName, record.SeriesName, record.FullTitle, record.ReleaseDate).ToString();
-                var comicIdStr = comicId;
                 
-
                 // Validation Phase
                 if (!record.IsValid(out var validationError))
                 {
@@ -80,10 +82,22 @@ public class ComicCsvIngestor
                     continue;
                 }
 
+                var comicId = GenerateComicId(record.PublisherName, record.SeriesName, record.FullTitle, record.ReleaseDate!).ToString();
+                var comicIdStr = comicId;
+
                 // Processing Phase
                 try
                 {
-                    var comicEvent = record.ToFacet<ComicCsvRecord, ComicCsvRecordDto>();
+                    // Normalize date to YYYY-MM-DD
+                    string normalizedDate = record.ReleaseDate!;
+                    if (DateTime.TryParseExact(record.ReleaseDate?.Trim(), DateFormats.AcceptedFormats, CultureInfo.InvariantCulture, DateTimeStyles.None, out var parsedDate))
+                    {
+                        normalizedDate = parsedDate.ToString("yyyy-MM-dd");
+                    }
+
+                    var comicEvent = record with { ReleaseDate = normalizedDate };
+                    var comicDto = comicEvent.ToFacet<ComicCsvRecord, ComicCsvRecordDto>();
+                    
                     var publisherKey = record.PublisherName.Normalize("-");
                     var seriesKey = record.SeriesName.Normalize("-");
                     var key = comicIdStr;
@@ -93,7 +107,7 @@ public class ComicCsvIngestor
                         
                         ImportId = importIdStr,
                         Timestamp = DateTime.UtcNow,
-                        Payload = comicEvent
+                        Payload = comicDto
                     };
 
                     // 2. Child Span: Specific to the Kafka Produce operation
@@ -144,15 +158,12 @@ public class ComicCsvIngestor
             throw new ArgumentException("Publisher is required.", nameof(publisher));
 
         if (string.IsNullOrWhiteSpace(series))
-            throw new ArgumentException("Series is required.", nameof(series));
-
-        if (string.IsNullOrWhiteSpace(title))
-            throw new ArgumentException("Title is required.", nameof(title));
+            throw new ArgumentException("Series is required.", nameof(series)); 
 
         if (string.IsNullOrWhiteSpace(date))
             throw new ArgumentException("Release date is required.", nameof(date));
 
-        if (!DateTime.TryParse(date, CultureInfo.InvariantCulture, DateTimeStyles.None, out var parsedDate))
+        if (!DateTime.TryParseExact(date, DateFormats.AcceptedFormats, CultureInfo.InvariantCulture, DateTimeStyles.None, out var parsedDate))
             throw new FormatException($"Invalid release date format: '{date}'");
 
         var normalizedInput =

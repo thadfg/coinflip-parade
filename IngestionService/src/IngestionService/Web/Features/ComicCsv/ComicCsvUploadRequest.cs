@@ -4,5 +4,5 @@ namespace IngestionService.Web.Features.ComicCsv;
 
 public class ComicCsvUploadRequest
 {
-    public required IFormFile File { get; set; }
+    public IFormFile? File { get; set; }
 }

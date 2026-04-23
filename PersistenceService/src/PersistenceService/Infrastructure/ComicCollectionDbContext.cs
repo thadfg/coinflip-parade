@@ -16,9 +16,6 @@ public class ComicCollectionDbContext : DbContext
     {
         modelBuilder.HasDefaultSchema("comics");        
 
-        modelBuilder.Entity<ComicRecordEntity>()
-            .HasKey(c => c.Id);
-
         modelBuilder.Entity<ProcessedEvent>().HasKey(p =>  p.Id);
 
         modelBuilder.Entity<ProcessedEvent>()
@@ -28,19 +25,6 @@ public class ComicCollectionDbContext : DbContext
         modelBuilder.Entity<ProcessedEvent>()
             .Property(p => p.ProcessedAtUtc)
             .IsRequired();
-
-        
-
-        modelBuilder.Entity<ComicRecordEntity>()
-            .HasIndex(c => c.ReleaseDate);
-
-        modelBuilder.Entity<ComicRecordEntity>()
-            .HasIndex(c => c.ImportedAt);
-
-        // Optional: Add concurrency token if needed
-        modelBuilder.Entity<ComicRecordEntity>()
-            .Property(c => c.ImportedAt)
-            .IsConcurrencyToken();
 
         modelBuilder.ApplyConfiguration(new ComicRecordConfiguration());
     }

@@ -29,14 +29,49 @@ public class ComicCollectionRepository : IComicCollectionRepository
         var items = batch.ToList();
     
         // 1. Prepare the lists using your Entity names
-        var eventLogs = items.Select(i => new ProcessedEvent 
-        { 
-            Id = Guid.NewGuid(),
-            EventId = i.EventId, 
-            ProcessedAtUtc = DateTime.UtcNow 
-        }).ToList();
+        var eventLogs = items
+            .GroupBy(i => i.EventId)
+            .Select(g => g.First())
+            .Select(i => new ProcessedEvent 
+            { 
+                Id = Guid.NewGuid(),
+                EventId = i.EventId, 
+                ProcessedAtUtc = DateTime.UtcNow 
+            }).ToList();
 
         var comics = items.Select(i => i.Comic).ToList();
+
+        if (_dbContext.Database.ProviderName == "Microsoft.EntityFrameworkCore.InMemory")
+        {
+            var addedEventsCount = 0;
+            foreach (var evt in eventLogs)
+            {
+                if (!await _dbContext.ProcessedEvents.AnyAsync(p => p.EventId == evt.EventId, cancellationToken))
+                {
+                    _dbContext.ProcessedEvents.Add(evt);
+                    addedEventsCount++;
+                }
+            }
+
+            if (addedEventsCount > 0)
+            {
+                foreach (var comic in comics)
+                {
+                    var existing = await _dbContext.ComicRecords.FindAsync(new object[] { comic.Id }, cancellationToken);
+                    if (existing != null)
+                    {
+                        _dbContext.Entry(existing).CurrentValues.SetValues(comic);
+                    }
+                    else
+                    {
+                        _dbContext.ComicRecords.Add(comic);
+                    }
+                }
+                await _dbContext.SaveChangesAsync(cancellationToken);
+                _logger.LogInformation("Successfully processed batch of {Count} items.", items.Count);
+            }
+            return;
+        }
 
         for (int attempt = 1; attempt <= MaxRetries; attempt++)
         {
@@ -54,8 +89,15 @@ public class ComicCollectionRepository : IComicCollectionRepository
                 }, cancellationToken: cancellationToken);
 
                 // 3. Bulk Upsert ComicRecordEntity
+                // Deduplicate comics by Id before upserting to avoid Postgres error 21000:
+                // "ON CONFLICT DO UPDATE command cannot affect row a second time"
+                var uniqueComics = comics
+                    .GroupBy(c => c.Id)
+                    .Select(g => g.Last())
+                    .ToList();
+
                 // Matches your primary key on Id
-                await _dbContext.BulkInsertOrUpdateAsync(comics, new BulkConfig 
+                await _dbContext.BulkInsertOrUpdateAsync(uniqueComics, new BulkConfig 
                 { 
                     UpdateByProperties = new List<string> { nameof(ComicRecordEntity.Id) } 
                 }, cancellationToken: cancellationToken);

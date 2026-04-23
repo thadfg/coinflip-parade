@@ -18,6 +18,7 @@ public class ComicCollectionRepositoryTests
     {
         var options = new DbContextOptionsBuilder<ComicCollectionDbContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .ConfigureWarnings(x => x.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.InMemoryEventId.TransactionIgnoredWarning))
             .Options;
 
         return new ComicCollectionDbContext(options);
@@ -28,11 +29,15 @@ public class ComicCollectionRepositoryTests
         return new ComicRecordEntity
         {
             Id = id,
-            PublisherName = "Marvel",
-            SeriesName = "Spider-Man",
+            Publisher = "Marvel",
+            Series = "Spider-Man",
+            Issue = "1",
             FullTitle = "Amazing Spider-Man #1",
             ReleaseDate = new DateTime(1963, 3, 1),
-            ImportedAt = DateTime.UtcNow
+            Format = "Comic",
+            Barcode = "1234567890",
+            ImportedAt = DateTime.UtcNow,
+            KeyStatus = "New"
         };
     }
 
@@ -53,7 +58,7 @@ public class ComicCollectionRepositoryTests
         // Assert
         var persisted = await dbContext.ComicRecords.FindAsync(comic.Id);
         Assert.NotNull(persisted);
-        Assert.Equal("Marvel", persisted.PublisherName);
+        Assert.Equal("Marvel", persisted.Publisher);
 
         var processed = await dbContext.ProcessedEvents
             .SingleOrDefaultAsync(p => p.EventId == eventId);
@@ -74,7 +79,7 @@ public class ComicCollectionRepositoryTests
         await dbContext.SaveChangesAsync();
 
         var updated = CreateComic(comicId);
-        updated.PublisherName = "DC Comics";
+        updated.Publisher = "DC Comics";
         var eventId = Guid.NewGuid();
 
         // Act
@@ -82,7 +87,7 @@ public class ComicCollectionRepositoryTests
 
         // Assert
         var persisted = await dbContext.ComicRecords.FindAsync(comicId);
-        Assert.Equal("DC Comics", persisted.PublisherName);
+        Assert.Equal("DC Comics", persisted.Publisher);
     }
 
     [Fact]
@@ -129,7 +134,7 @@ public class ComicCollectionRepositoryTests
         logger.Verify(l => l.Log(
             LogLevel.Information,
             It.IsAny<EventId>(),
-            It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("Inserted new ComicRecord")),
+            It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("Successfully processed batch")),
             null,
             It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
             Times.Once);

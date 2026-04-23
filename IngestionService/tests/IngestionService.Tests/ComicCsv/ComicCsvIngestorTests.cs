@@ -16,7 +16,7 @@ public class ComicCsvIngestorTests
         var ingestor = new ComicCsvIngestor(mockProducer.Object);
 
         // Create a valid CSV file
-        var csvContent = "Publisher Name,Series Name,Full Title,Release Date,In Collection\n" +
+        var csvContent = "Publisher,Series,Full Title,Release Date,In Collection\n" +
                          "Marvel,Spider-Man,The Amazing Spider-Man,2024-01-01,Yes";
         var tempFile = Path.GetTempFileName();
         await File.WriteAllTextAsync(tempFile, csvContent);
@@ -44,7 +44,7 @@ public class ComicCsvIngestorTests
         var ingestor = new ComicCsvIngestor(mockProducer.Object);
 
         // Missing required Release Date
-        var csvContent = "Publisher Name,Series Name,Full Title,Release Date,In Collection\n" +
+        var csvContent = "Publisher,Series,Full Title,Release Date,In Collection\n" +
                          "Marvel,Spider-Man,The Amazing Spider-Man,,Yes";
         var tempFile = Path.GetTempFileName();
         await File.WriteAllTextAsync(tempFile, csvContent);
@@ -59,6 +59,34 @@ public class ComicCsvIngestorTests
             It.IsAny<DeadLetterEnvelope<ComicCsvRecord>>(),
             It.IsAny<string>()),
             Times.AtLeastOnce);
+
+        // Cleanup
+        File.Delete(tempFile);
+    }
+
+    [Fact]
+    public async Task IngestAsync_ShortMonthYearDateFormat_NormalizesToIsoFormat()
+    {
+        // Arrange
+        var mockProducer = new Mock<IKafkaProducer>();
+        var ingestor = new ComicCsvIngestor(mockProducer.Object);
+
+        // Date format '8-Oct-25'
+        var csvContent = "Publisher,Series,Full Title,Release Date,In Collection\n" +
+                         "DC Comics,Absolute Batman,Abomination Part Five,8-Oct-25,Yes";
+        var tempFile = Path.GetTempFileName();
+        await File.WriteAllTextAsync(tempFile, csvContent);
+
+        // Act
+        await ingestor.IngestAsync(tempFile);
+
+        // Assert
+        mockProducer.Verify(p => p.ProduceAsync(
+            "comic-imported",
+            It.IsAny<string>(),
+            It.Is<KafkaEnvelope<ComicCsvRecordDto>>(e => e.Payload.ReleaseDate == "2025-10-08"),
+            It.IsAny<string>()),
+            Times.Once);
 
         // Cleanup
         File.Delete(tempFile);

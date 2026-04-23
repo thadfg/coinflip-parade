@@ -11,30 +11,34 @@ public class ComicRecordConfiguration : IEntityTypeConfiguration<ComicRecordEnti
         builder.ToTable("comiccollection", "comics");
         builder.HasKey(c => c.Id);
         builder.Property(c => c.Id)
-               .HasColumnName("id")
+               .HasColumnName("Id")
                .HasColumnType("uuid");
-        builder.Property(c => c.PublisherName)
+        builder.Property(c => c.Series)
                .IsRequired()
-               .HasColumnName("publishername")
                .HasColumnType("text");
-        builder.Property(c => c.SeriesName)
+        builder.Property(c => c.Issue)
                .IsRequired()
-               .HasColumnName("seriesname")
                .HasColumnType("text");
-        builder.Property(c => c.FullTitle)
+        builder.Property(c => c.VariantDescription)
+               .HasColumnName("Variant Description")
+               .HasColumnType("text");
+        builder.Property(c => c.Publisher)
                .IsRequired()
-               .HasColumnName("fulltitle")
                .HasColumnType("text");
         builder.Property(c => c.ReleaseDate)
                .IsRequired()
-               .HasColumnName("releasedate")
+               .HasColumnName("Release Date")
                .HasColumnType("date");
-        builder.Property(c => c.InCollection)
-               .HasColumnName("incollection")
+        builder.Property(c => c.Format)
+               .IsRequired()
                .HasColumnType("text");
-        builder.Property(c => c.Value)
-               .HasColumnName("value")
-               .HasColumnType("numeric");
+        builder.Property(c => c.Barcode)
+               .IsRequired()
+               .HasMaxLength(20)
+               .HasColumnType("text");
+        builder.Property(c => c.FullTitle)
+               .HasColumnName("Full Title")
+               .HasColumnType("text");
         builder.Property(c => c.CoverArtPath)
                .HasColumnName("coverartpath")
                .HasColumnType("text");
@@ -43,5 +47,8 @@ public class ComicRecordConfiguration : IEntityTypeConfiguration<ComicRecordEnti
                .HasColumnName("importedat")
                .HasColumnType("timestamp with time zone")
                .HasDefaultValueSql("CURRENT_TIMESTAMP");
+        builder.Property(c => c.KeyStatus)
+               .HasColumnName("Key")
+               .HasColumnType("text");
     }
 }
