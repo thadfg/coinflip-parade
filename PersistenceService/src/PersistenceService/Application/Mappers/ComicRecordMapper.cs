@@ -24,8 +24,8 @@ public static class ComicRecordMapper
         dto.IssueNumber = dto.IssueNumber ?? "Unknown";
 
         var fullTitle = dto.FullTitle != null 
-            ? dto.SeriesName + dto.IssueNumber + dto.FullTitle 
-            : dto.SeriesName + dto.IssueNumber;
+            ? dto.SeriesName + " " + dto.IssueNumber + " " + dto.FullTitle 
+            : dto.SeriesName + " " + dto.IssueNumber;
 
         if (!DateTime.TryParse(dto.ReleaseDate, out var parsedReleaseDate))
             throw new FormatException($"Invalid ReleaseDate format: '{dto.ReleaseDate}'");
@@ -42,7 +42,7 @@ public static class ComicRecordMapper
             FullTitle = fullTitle,
             CoverArtPath = dto.CoverArtPath ?? string.Empty,
             ImportedAt = envelope.Timestamp,
-            KeyStatus = dto.InCollection ?? string.Empty
+            KeyStatus = dto.Key ?? string.Empty
         };
     }
 }
