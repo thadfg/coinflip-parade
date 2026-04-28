@@ -88,6 +88,20 @@
     }
 
     # ============================
+    # ReadingListService
+    # ============================
+    @readinglist_api path /api/collection/* /api/reading-list/*
+    handle @readinglist_api {
+        reverse_proxy readinglistservice:5000
+    }
+
+    # Pages
+    @readinglist_pages path /readinglist*
+    handle @readinglist_pages {
+        reverse_proxy readinglistservice:5000
+    }
+
+    # ============================
     # Scalar UI + OpenAPI
     # ============================
     @openapi_spec path /openapi/v1.json

@@ -25,8 +25,8 @@ public class ComicRepository : IComicRepository
     public async Task<List<ComicSearchResultDto>> SearchCollectionAsync(string? searchTerm)
     {
         var query = _context.ComicCollection
-            .AsNoTracking()
-            .Where(c => c.InCollection); // Mandatory filter
+            .AsNoTracking();
+            // .Where(c => c.InCollection); // Removed as InCollection is not in DB
 
         if (!string.IsNullOrWhiteSpace(searchTerm))
         {
@@ -34,8 +34,8 @@ public class ComicRepository : IComicRepository
             var formattedSearch = $"%{searchTerm}%";
 
             query = query.Where(c => 
-                EF.Functions.ILike(c.PublisherName, formattedSearch) ||
-                EF.Functions.ILike(c.SeriesName, formattedSearch) ||
+                EF.Functions.ILike(c.PublisherName ?? string.Empty, formattedSearch) ||
+                EF.Functions.ILike(c.SeriesName ?? string.Empty, formattedSearch) ||
                 EF.Functions.ILike(c.FullTitle, formattedSearch)
             );
         }
@@ -62,7 +62,7 @@ public class ComicRepository : IComicRepository
     {
         var comics = await _context.ComicCollection
             .AsNoTracking()
-            .Where(c => c.InCollection)
+            // .Where(c => c.InCollection)
             .Where(c => !EF.Functions.ILike(c.FullTitle, "%Annual%"))
             .Select(c => new ComicSearchResultDto
             {
