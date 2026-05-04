@@ -28,7 +28,9 @@
                 <td>@comic.PublisherName</td>
                 <td>@(comic.ReleaseDate?.ToShortDateString() ?? "N/A")</td>
                 <td>
-                    @await Html.PartialAsync("_ReadStatusToggle", comic)
+                    <span class="badge @(comic.IsRead ? "bg-success" : "bg-secondary")">
+                        @(comic.IsRead ? "Read" : "Unread")
+                    </span>
                 </td>
             </tr>
         }
@@ -41,7 +43,9 @@
                 <td>@comic.PublisherName</td>
                 <td>@(comic.ReleaseDate?.ToShortDateString() ?? "N/A")</td>
                 <td>
-                    @await Html.PartialAsync("_ReadStatusToggle", comic)
+                    <span class="badge @(comic.IsRead ? "bg-success" : "bg-secondary")">
+                        @(comic.IsRead ? "Read" : "Unread")
+                    </span>
                 </td>
             </tr>
         }
