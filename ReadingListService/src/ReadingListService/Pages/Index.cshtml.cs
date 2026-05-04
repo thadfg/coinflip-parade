@@ -16,14 +16,25 @@ public class IndexModel : PageModel
 
     public List<ComicSearchResultDto> Comics { get; set; } = new();
 
-    public async Task OnGetAsync()
+    public int CurrentPage { get; set; } = 1;
+    public string? SearchTerm { get; set; }
+    public string? SortBy { get; set; }
+    public bool SortDescending { get; set; }
+
+    public async Task OnGetAsync(string? sortBy = null, bool desc = false)
     {
-        Comics = await _repository.SearchCollectionAsync(null);
+        SortBy = sortBy;
+        SortDescending = desc;
+        Comics = await _repository.SearchCollectionAsync(null, 1, pageSize: 20, sortBy: sortBy, sortDescending: desc);
     }
 
-    public async Task<IActionResult> OnGetSearchAsync(string? term)
+    public async Task<IActionResult> OnGetSearchAsync(string? term, int page = 1, string? sortBy = null, bool desc = false)
     {
-        Comics = await _repository.SearchCollectionAsync(term);
-        return Partial("_ComicGrid", Comics);
+        SearchTerm = term;
+        CurrentPage = page;
+        SortBy = sortBy;
+        SortDescending = desc;
+        Comics = await _repository.SearchCollectionAsync(term, page, pageSize: 20, sortBy: sortBy, sortDescending: desc);
+        return Partial("_ComicTable", Comics);
     }
 }

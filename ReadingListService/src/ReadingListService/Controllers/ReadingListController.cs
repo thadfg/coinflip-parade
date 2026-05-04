@@ -6,7 +6,7 @@ namespace ReadingListService.Controllers;
 
 [ApiController]
 [Route("api")]
-public class ReadingListController : ControllerBase
+public class ReadingListController : Controller
 {
     private readonly IComicRepository _repository;
 
@@ -29,10 +29,26 @@ public class ReadingListController : ControllerBase
         return Ok(results);
     }
 
+    [HttpGet("reading-list/weekly-offset")]
+    public async Task<ActionResult<WeeklyReadingListViewDto>> GetWeeklyListByOffset([FromQuery] int? offset = null)
+    {
+        int actualOffset = offset ?? await _repository.GetFirstUnreadWeekOffsetAsync();
+        var result = await _repository.GetComicsByWeekOffsetAsync(actualOffset);
+        return Ok(result);
+    }
+
     [HttpPost("reading-list/mark-read/{comicId}")]
     public async Task<IActionResult> ToggleReadStatus(Guid comicId)
     {
-        await _repository.ToggleReadStatusAsync(comicId);
-        return NoContent();
+        var result = await _repository.ToggleReadStatusAsync(comicId);
+        
+        // If it's an HTMX request, return the partial for the button
+        if (Request.Headers.ContainsKey("HX-Request"))
+        {
+            return PartialView("~/Pages/Shared/_ReadStatusToggle.cshtml", result);
+        }
+
+        // For non-HTMX (like React), return JSON
+        return Json(result);
     }
 }

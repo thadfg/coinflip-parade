@@ -13,10 +13,20 @@ public class WeeklyModel : PageModel
         _repository = repository;
     }
 
-    public List<WeeklyReadingListViewDto> WeeklyGroups { get; set; } = new();
+    public WeeklyReadingListViewDto WeeklyData { get; set; } = new();
+    public int CurrentOffset { get; set; }
 
-    public async Task OnGetAsync()
+    public async Task OnGetAsync(int? week = null)
     {
-        WeeklyGroups = await _repository.GetWeeklyReadingListAsync();
+        if (week == null)
+        {
+            CurrentOffset = await _repository.GetFirstUnreadWeekOffsetAsync();
+        }
+        else
+        {
+            CurrentOffset = week.Value;
+        }
+        
+        WeeklyData = await _repository.GetComicsByWeekOffsetAsync(CurrentOffset);
     }
 }
