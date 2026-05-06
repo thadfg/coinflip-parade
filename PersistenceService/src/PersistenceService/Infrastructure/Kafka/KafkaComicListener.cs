@@ -25,6 +25,8 @@ public class KafkaComicListener : BackgroundService
     private readonly List<(ComicRecordEntity Comic, Guid EventId)> _comicRecordBuffer = new();
 
     private DateTime _lastFlushTime = DateTime.UtcNow;
+    private DateTime _lastLagUpdate = DateTime.MinValue;
+    private readonly TimeSpan _lagUpdateInterval = TimeSpan.FromSeconds(5);
 
     private readonly TimeSpan _flushInterval;
     private readonly TimeSpan _consumeTimeout;
@@ -133,7 +135,13 @@ public class KafkaComicListener : BackgroundService
             GroupId = _config["Kafka:GroupId"],
             AutoOffsetReset = AutoOffsetReset.Earliest,
             EnableAutoCommit = true,
-            EnablePartitionEof = true
+            EnablePartitionEof = true,
+            // Increase timeouts to prevent REQTMOUT issues during bursts or slow DB writes
+            SessionTimeoutMs = 30000,
+            SocketTimeoutMs = 60000,
+            MaxPollIntervalMs = 300000,
+            // Optimization: Reduce frequency of internal offset commits if AutoCommit is enabled
+            AutoCommitIntervalMs = 5000
         };
 
         return new ConsumerBuilder<string, string>(consumerConfig).Build();
@@ -225,6 +233,8 @@ public class KafkaComicListener : BackgroundService
 
     private void UpdateLagMetrics(ConsumeResult<string, string> result)
     {
+        if (DateTime.UtcNow - _lastLagUpdate < _lagUpdateInterval) return;
+        
         try
         {
             var watermark = _consumer!.QueryWatermarkOffsets(result.TopicPartition, TimeSpan.FromMilliseconds(500));
@@ -234,6 +244,8 @@ public class KafkaComicListener : BackgroundService
                 lag,
                 new KeyValuePair<string, object?>("topic", result.Topic),
                 new KeyValuePair<string, object?>("partition", result.Partition.ToString()));
+            
+            _lastLagUpdate = DateTime.UtcNow;
         }
         catch (Exception ex)
         {

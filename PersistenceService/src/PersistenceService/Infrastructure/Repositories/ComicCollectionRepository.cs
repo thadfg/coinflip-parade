@@ -21,6 +21,8 @@ public class ComicCollectionRepository : IComicCollectionRepository
     public ComicCollectionRepository(ComicCollectionDbContext dbContext, ILogger<ComicCollectionRepository> logger)
     {
         _dbContext = dbContext;
+        _dbContext.ChangeTracker.AutoDetectChangesEnabled = false;
+        _dbContext.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
         _logger = logger;
     }
 
@@ -85,7 +87,9 @@ public class ComicCollectionRepository : IComicCollectionRepository
                 { 
                     UpdateByProperties = new List<string> { nameof(ProcessedEvent.EventId) },
                     // This tells Postgres: if the EventId exists, don't do anything (ignore the row)
-                    OnConflictUpdateWhereSql = (table, column) => $"{table}.\"Timestamp\" < EXCLUDED.\"Timestamp\""
+                    OnConflictUpdateWhereSql = (table, column) => $"{table}.\"ProcessedAtUtc\" < EXCLUDED.\"ProcessedAtUtc\"",
+                    EnableShadowProperties = false,
+                    IncludeGraph = false
                 }, cancellationToken: cancellationToken);
 
                 // 3. Bulk Upsert ComicRecordEntity
@@ -99,7 +103,9 @@ public class ComicCollectionRepository : IComicCollectionRepository
                 // Matches your primary key on Id
                 await _dbContext.BulkInsertOrUpdateAsync(uniqueComics, new BulkConfig 
                 { 
-                    UpdateByProperties = new List<string> { nameof(ComicRecordEntity.Id) } 
+                    UpdateByProperties = new List<string> { nameof(ComicRecordEntity.Id) },
+                    EnableShadowProperties = false,
+                    IncludeGraph = false
                 }, cancellationToken: cancellationToken);
 
                 await tx.CommitAsync(cancellationToken);
