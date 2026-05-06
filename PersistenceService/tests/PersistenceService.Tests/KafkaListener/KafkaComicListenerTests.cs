@@ -7,6 +7,8 @@ using PersistenceService.Application.Interfaces;
 using PersistenceService.Domain.Entities;
 using PersistenceService.Infrastructure.Database;
 using PersistenceService.Infrastructure.Kafka;
+using PersistenceService.Config;
+using Microsoft.Extensions.Options;
 using SharedLibrary.Facet;
 using SharedLibrary.Models;
 using System.Text.Json;
@@ -88,6 +90,18 @@ namespace PersistenceService.Tests.KafkaListener
             mockConsumer.Setup(c => c.QueryWatermarkOffsets(It.IsAny<TopicPartition>(), It.IsAny<TimeSpan>()))
                 .Returns(new WatermarkOffsets(0, 10));
 
+            var kafkaOptions = new KafkaOptions
+            {
+                BootstrapServers = "localhost:9092",
+                GroupId = "test-group",
+                Topic = "test-topic",
+                BatchSize = 5,
+                FlushIntervalSeconds = 5,
+                ConsumeTimeoutMs = 10
+            };
+            var mockOptions = new Mock<IOptions<KafkaOptions>>();
+            mockOptions.Setup(o => o.Value).Returns(kafkaOptions);
+
             var services = new ServiceCollection();
             services.AddSingleton(mockEventRepo.Object);
             services.AddSingleton(mockComicRepo.Object);
@@ -95,7 +109,7 @@ namespace PersistenceService.Tests.KafkaListener
 
             var listener = new MockKafkaComicListener(
                 mockLogger.Object,
-                config,
+                mockOptions.Object,
                 mockKafkaLogHelper.Object,
                 provider,
                 mockConsumer.Object

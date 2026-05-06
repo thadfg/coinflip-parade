@@ -11,6 +11,8 @@ using PersistenceService.Infrastructure.Database;
 using PersistenceService.Infrastructure.Kafka;
 using PersistenceService.Infrastructure.Repositories;
 using PersistenceService.Tests.KafkaListener;
+using PersistenceService.Config;
+using Microsoft.Extensions.Options;
 using SharedLibrary.Facet;
 using SharedLibrary.Models;
 using System.Text.Json;
@@ -194,6 +196,10 @@ public class EventRepositoryTests
             .Setup(c => c.QueryWatermarkOffsets(It.IsAny<TopicPartition>(), It.IsAny<TimeSpan>()))
             .Returns(new WatermarkOffsets(0, 10));
 
+        var kafkaOptions = new KafkaOptions();
+        var mockOptions = new Mock<IOptions<KafkaOptions>>();
+        mockOptions.Setup(o => o.Value).Returns(kafkaOptions);
+
         var services = new ServiceCollection();
         services.AddSingleton(mockEventRepo.Object);
         services.AddSingleton(mockComicRepo.Object);
@@ -201,7 +207,7 @@ public class EventRepositoryTests
 
         var listener = new MockKafkaComicListener(
             mockLogger.Object,
-            config,
+            mockOptions.Object,
             mockKafkaLogHelper.Object,
             provider,
             mockConsumer.Object

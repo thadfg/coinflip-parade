@@ -12,6 +12,8 @@ using Microsoft.AspNetCore.Builder;
 using PersistenceService.Infrastructure.Database;
 using PersistenceService.Infrastructure.Observability.Metrics;
 using PersistenceService.Infrastructure.Telemetry;
+using PersistenceService.Config;
+using Microsoft.Extensions.Options;
 
 namespace PersistenceService.Startup;
 
@@ -30,6 +32,10 @@ public static class DependenciesConfig
         builder.AddCustomTelemetry();
         var env = builder.Environment.EnvironmentName;
         var config = builder.Configuration;
+
+        // Register Options
+        builder.Services.Configure<KafkaOptions>(config.GetSection("Kafka"));
+        builder.Services.Configure<RepositoryOptions>(config.GetSection("Repository"));
 
         // Add DbContext with PostgreSQL provider
         builder.Services.AddDbContext<EventDbContext>(options =>            
@@ -78,7 +84,8 @@ public static class DependenciesConfig
         builder.Services.AddSingleton<IKafkaLogHelper, KafkaLogHelper>();
 
         // Create the KafkaLoggerProvider with the same shared producer and add to logging pipeline.
-        var kafkaLoggerProvider = new KafkaLoggerProvider(sharedProducer, config);
+        var kafkaOptions = builder.Services.BuildServiceProvider().GetRequiredService<IOptions<KafkaOptions>>();
+        var kafkaLoggerProvider = new KafkaLoggerProvider(sharedProducer, kafkaOptions);
         builder.Logging.AddProvider(kafkaLoggerProvider);
 
         // Register provider for disposal when DI container is disposed (so it will be disposed with the app).
