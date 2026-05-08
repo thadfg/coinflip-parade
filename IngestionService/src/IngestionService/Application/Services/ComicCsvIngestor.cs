@@ -82,7 +82,7 @@ public class ComicCsvIngestor
                     continue;
                 }
 
-                var comicId = GenerateComicId(record.PublisherName, record.SeriesName, record.FullTitle, record.ReleaseDate!).ToString();
+                var comicId = GenerateComicId(record.PublisherName, record.SeriesName, record.Barcode).ToString();
                 var comicIdStr = comicId;
 
                 // Processing Phase
@@ -152,25 +152,21 @@ public class ComicCsvIngestor
     }
     
     // Example Logic for Ingestion Service
-    public Guid GenerateComicId(string publisher, string series, string title, string date)
+    public Guid GenerateComicId(string publisher, string series, long? barcode)
     {
         if (string.IsNullOrWhiteSpace(publisher))
             throw new ArgumentException("Publisher is required.", nameof(publisher));
 
         if (string.IsNullOrWhiteSpace(series))
             throw new ArgumentException("Series is required.", nameof(series)); 
-
-        if (string.IsNullOrWhiteSpace(date))
-            throw new ArgumentException("Release date is required.", nameof(date));
-
-        if (!DateTime.TryParseExact(date, DateFormats.AcceptedFormats, CultureInfo.InvariantCulture, DateTimeStyles.None, out var parsedDate))
-            throw new FormatException($"Invalid release date format: '{date}'");
+        
+        if (barcode == null)
+            throw new ArgumentException("UPC is required.", nameof(barcode));
 
         var normalizedInput =
             $"{publisher.Trim().ToLowerInvariant()}-" +
             $"{series.Trim().ToLowerInvariant()}-" +
-            $"{title.Trim().ToLowerInvariant()}-" +
-            $"{parsedDate:yyyyMMdd}";
+            $"{barcode.Value.ToString().ToLowerInvariant()}-";
 
         using var md5 = System.Security.Cryptography.MD5.Create();
         var hash = md5.ComputeHash(System.Text.Encoding.UTF8.GetBytes(normalizedInput));
