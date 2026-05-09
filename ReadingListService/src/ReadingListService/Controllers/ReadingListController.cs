@@ -16,9 +16,9 @@ public class ReadingListController : Controller
     }
 
     [HttpGet("collection/search")]
-    public async Task<ActionResult<List<ComicSearchResultDto>>> SearchCollection([FromQuery] string? term)
+    public async Task<ActionResult<List<ComicSearchResultDto>>> SearchCollection([FromQuery] string? term, [FromQuery] int page = 1, [FromQuery] int? pageSize = null, [FromQuery] string? sortBy = null, [FromQuery] bool sortDescending = false)
     {
-        var results = await _repository.SearchCollectionAsync(term);
+        var results = await _repository.SearchCollectionAsync(term, page, pageSize, sortBy, sortDescending);
         return Ok(results);
     }
 

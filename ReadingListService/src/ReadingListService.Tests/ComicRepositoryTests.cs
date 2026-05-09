@@ -1,13 +1,28 @@
 using Microsoft.EntityFrameworkCore;
 using ReadingListService.Data;
 using ReadingListService.Models;
+using ReadingListService.Options;
+using Microsoft.Extensions.Options;
 using System.Globalization;
 using Xunit;
+using Moq;
 
 namespace ReadingListService.Tests;
 
 public class ComicRepositoryTests
 {
+    private IOptions<SearchOptions> GetSearchOptions()
+    {
+        var options = new SearchOptions
+        {
+            DefaultPageSize = 50,
+            ExclusionPattern = "%Annual%"
+        };
+        var mock = new Mock<IOptions<SearchOptions>>();
+        mock.Setup(m => m.Value).Returns(options);
+        return mock.Object;
+    }
+
     private ReadingListDbContext GetDbContext(string dbName)
     {
         var options = new DbContextOptionsBuilder<ReadingListDbContext>()
@@ -40,7 +55,7 @@ public class ComicRepositoryTests
         );
         await context.SaveChangesAsync();
 
-        var repository = new ComicRepository(context);
+        var repository = new ComicRepository(context, GetSearchOptions());
 
         // Act & Assert
         // Offset 0 should be the 1990 week
@@ -70,7 +85,7 @@ public class ComicRepositoryTests
         context.ComicCollection.Add(new ComicRecord { Id = Guid.NewGuid(), FullTitle = "Sunday Comic", ReleaseDate = date });
         await context.SaveChangesAsync();
 
-        var repository = new ComicRepository(context);
+        var repository = new ComicRepository(context, GetSearchOptions());
 
         // Act
         var result = await repository.GetComicsByWeekOffsetAsync(0);
@@ -99,7 +114,7 @@ public class ComicRepositoryTests
         );
         await context.SaveChangesAsync();
 
-        var repository = new ComicRepository(context);
+        var repository = new ComicRepository(context, GetSearchOptions());
 
         // Act
         var week0 = await repository.GetComicsByWeekOffsetAsync(0);
@@ -126,7 +141,7 @@ public class ComicRepositoryTests
         context.ComicCollection.Add(new ComicRecord { Id = Guid.NewGuid(), FullTitle = "Comic", ReleaseDate = date });
         await context.SaveChangesAsync();
 
-        var repository = new ComicRepository(context);
+        var repository = new ComicRepository(context, GetSearchOptions());
 
         // Act
         var result = await repository.GetComicsByWeekOffsetAsync(0);
@@ -146,7 +161,7 @@ public class ComicRepositoryTests
             new ComicRecord { Id = Guid.NewGuid(), FullTitle = "C Comic", SeriesName = "S3" }
         );
         await context.SaveChangesAsync();
-        var repository = new ComicRepository(context);
+        var repository = new ComicRepository(context, GetSearchOptions());
 
         // Act
         var resultsAsc = await repository.SearchCollectionAsync(null, sortBy: "title", sortDescending: false);
@@ -180,7 +195,7 @@ public class ComicRepositoryTests
         );
         await context.SaveChangesAsync();
 
-        var repository = new ComicRepository(context);
+        var repository = new ComicRepository(context, GetSearchOptions());
 
         // Act
         var week0 = await repository.GetComicsByWeekOffsetAsync(0);
@@ -211,7 +226,7 @@ public class ComicRepositoryTests
         context.ReadingProgress.Add(new ReadingProgress { ComicId = id, IsRead = true });
         await context.SaveChangesAsync();
 
-        var repository = new ComicRepository(context);
+        var repository = new ComicRepository(context, GetSearchOptions());
 
         // Act
         var result = await repository.GetFirstUnreadWeekOffsetAsync();
@@ -237,7 +252,7 @@ public class ComicRepositoryTests
         );
         await context.SaveChangesAsync();
 
-        var repository = new ComicRepository(context);
+        var repository = new ComicRepository(context, GetSearchOptions());
 
         // Act
         var week0 = await repository.GetComicsByWeekOffsetAsync(0);
@@ -260,7 +275,7 @@ public class ComicRepositoryTests
         context.ComicCollection.Add(new ComicRecord { Id = Guid.NewGuid(), FullTitle = "Late Sunday Comic", ReleaseDate = sundayLate });
         await context.SaveChangesAsync();
 
-        var repository = new ComicRepository(context);
+        var repository = new ComicRepository(context, GetSearchOptions());
 
         // Act
         var result = await repository.GetComicsByWeekOffsetAsync(0);
@@ -286,7 +301,7 @@ public class ComicRepositoryTests
         );
         await context.SaveChangesAsync();
 
-        var repository = new ComicRepository(context);
+        var repository = new ComicRepository(context, GetSearchOptions());
 
         // Act
         var result0 = await repository.GetComicsByWeekOffsetAsync(0);

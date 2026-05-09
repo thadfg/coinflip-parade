@@ -1,6 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using ReadingListService.Data;
+using ReadingListService.Options;
 using System.Text.Json.Serialization;
+using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,6 +12,11 @@ builder.Services.AddControllers()
     {
         options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
     });
+
+builder.Services.Configure<ServiceOptions>(
+    builder.Configuration.GetSection(ServiceOptions.SectionName));
+builder.Services.Configure<SearchOptions>(
+    builder.Configuration.GetSection(SearchOptions.SectionName));
 
 builder.Services.AddDbContext<ReadingListDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("Default")));
@@ -33,14 +40,18 @@ if (app.Environment.IsDevelopment() || app.Environment.IsEnvironment("Container"
 }
 
 app.UseHttpsRedirection();
-app.UsePathBase("/readinglist");
+
+var serviceOptions = app.Services.GetRequiredService<IOptions<ServiceOptions>>().Value;
+app.UsePathBase(serviceOptions.PathBase);
+
 app.UseStaticFiles();
 app.UseRouting();
 app.UseAuthorization();
 
 app.MapControllers();
 app.MapRazorPages();
-app.MapHealthChecks("/api/reading-list/health");
+
+app.MapHealthChecks(serviceOptions.HealthCheckPath);
 
 // Apply migrations
 using (var scope = app.Services.CreateScope())

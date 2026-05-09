@@ -2,13 +2,15 @@ using Microsoft.EntityFrameworkCore;
 using ReadingListService.Data;
 using ReadingListService.Dtos;
 using ReadingListService.Models;
+using ReadingListService.Options;
+using Microsoft.Extensions.Options;
 using System.Globalization;
 
 namespace ReadingListService.Data;
 
 public interface IComicRepository
 {
-    Task<List<ComicSearchResultDto>> SearchCollectionAsync(string? searchTerm, int page = 1, int pageSize = 50, string? sortBy = null, bool sortDescending = false);
+    Task<List<ComicSearchResultDto>> SearchCollectionAsync(string? searchTerm, int page = 1, int? pageSize = null, string? sortBy = null, bool sortDescending = false);
     Task<List<WeeklyReadingListViewDto>> GetWeeklyReadingListAsync();
     Task<DateTime?> GetEarliestReleaseDateAsync();
     Task<int> GetFirstUnreadWeekOffsetAsync();
@@ -19,14 +21,17 @@ public interface IComicRepository
 public class ComicRepository : IComicRepository
 {
     private readonly ReadingListDbContext _context;
+    private readonly SearchOptions _searchOptions;
 
-    public ComicRepository(ReadingListDbContext context)
+    public ComicRepository(ReadingListDbContext context, IOptions<SearchOptions> searchOptions)
     {
         _context = context;
+        _searchOptions = searchOptions.Value;
     }
 
-    public async Task<List<ComicSearchResultDto>> SearchCollectionAsync(string? searchTerm, int page = 1, int pageSize = 50, string? sortBy = null, bool sortDescending = false)
+    public async Task<List<ComicSearchResultDto>> SearchCollectionAsync(string? searchTerm, int page = 1, int? pageSize = null, string? sortBy = null, bool sortDescending = false)
     {
+        int effectivePageSize = pageSize ?? _searchOptions.DefaultPageSize;
         var query = _context.ComicCollection
             .AsNoTracking();
 
@@ -70,8 +75,8 @@ public class ComicRepository : IComicRepository
         }
 
         return await projection
-            .Skip((page - 1) * pageSize)
-            .Take(pageSize)
+            .Skip((page - 1) * effectivePageSize)
+            .Take(effectivePageSize)
             .ToListAsync();
     }
 
@@ -80,7 +85,7 @@ public class ComicRepository : IComicRepository
         var comics = await _context.ComicCollection
             .AsNoTracking()
             // .Where(c => c.InCollection)
-            .Where(c => !EF.Functions.ILike(c.FullTitle, "%Annual%"))
+            .Where(c => !EF.Functions.ILike(c.FullTitle, _searchOptions.ExclusionPattern))
             .Select(c => new ComicSearchResultDto
             {
                 Id = c.Id,
