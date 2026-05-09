@@ -13,10 +13,11 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 
+builder.Services.Configure<McpOptions>(builder.Configuration.GetSection(McpOptions.Mcp));
+
 builder.Services.AddDbContext<ComicDbContext>(options =>
 {
-    var connectionString = builder.Configuration.GetConnectionString("Default") 
-                           ?? "Host=localhost;Port=5432;Database=comicdb;Username=comicadmin;Password=comicpass";
+    var connectionString = builder.Configuration.GetConnectionString("Default");
     options.UseNpgsql(connectionString);
 });
 
@@ -40,7 +41,7 @@ builder.Services.AddOpenTelemetry()
         .AddSource("ValuationService")
         .AddOtlpExporter(opt =>
         {
-            opt.Endpoint = new Uri(builder.Configuration["OTEL_EXPORTER_OTLP_ENDPOINT"] ?? "http://localhost:4317");
+            opt.Endpoint = new Uri(builder.Configuration["OpenTelemetry:OtlpEndpoint"] ?? "http://localhost:4317");
         }))
     .WithMetrics(metrics => metrics
         .SetResourceBuilder(otelResourceBuilder)
@@ -51,7 +52,7 @@ builder.Services.AddOpenTelemetry()
         .AddPrometheusExporter()
         .AddOtlpExporter(opt =>
         {
-            opt.Endpoint = new Uri(builder.Configuration["OTEL_EXPORTER_OTLP_ENDPOINT"] ?? "http://localhost:4317");
+            opt.Endpoint = new Uri(builder.Configuration["OpenTelemetry:OtlpEndpoint"] ?? "http://localhost:4317");
         }));
 
 var app = builder.Build();
@@ -68,7 +69,7 @@ if (app.Environment.IsDevelopment() || app.Environment.IsEnvironment("Container"
         options.Theme = ScalarTheme.Saturn;
         options.Layout = ScalarLayout.Modern;
         options.HideClientButton = true;
-        options.Servers = [new ScalarServer("https://localhost:8443")];
+        options.Servers = [new ScalarServer(builder.Configuration["Scalar:ServerUrl"] ?? "https://localhost:8443")];
     });
 }
 else

@@ -39,7 +39,7 @@ internal static class ValuationResponseParser
                 {
                     if (decimal.TryParse(match.Value, out decimal val))
                     {
-                        if (val == 2.0m || val > 1000000) continue;
+                        if (val == 2.0m || val == 4.0m || val > 1000000) continue;
                         return val;
                     }
                 }
@@ -48,12 +48,18 @@ internal static class ValuationResponseParser
             {
                 // Fallback for JSON without 'result' property
                 // Try to extract from the whole JSON string
+                // But first check if it looks like a log message we should ignore
+                if (responseJson.Contains("Executed DbCommand") || responseJson.Contains("Parameters=["))
+                {
+                    return null;
+                }
+
                 var matches = System.Text.RegularExpressions.Regex.Matches(responseJson, @"(\d+(\.\d+)?)");
                 foreach (System.Text.RegularExpressions.Match match in matches)
                 {
                     if (decimal.TryParse(match.Value, out decimal val))
                     {
-                        if (val == 2.0m || val > 1000000) continue;
+                        if (val == 2.0m || val == 4.0m || val > 1000000) continue;
                         return val;
                     }
                 }
@@ -62,9 +68,15 @@ internal static class ValuationResponseParser
         catch (JsonException)
         {
             // If it's not valid JSON, treat it as raw text
+            // But first check if it looks like a log message we should ignore
+            if (responseJson.Contains("Executed DbCommand") || responseJson.Contains("Parameters=["))
+            {
+                return null;
+            }
+
             if (decimal.TryParse(responseJson, out decimal directVal))
             {
-                if (directVal != 2.0m && directVal <= 1000000)
+                if (directVal != 2.0m && directVal != 4.0m && directVal <= 1000000)
                     return directVal;
             }
             
@@ -73,7 +85,7 @@ internal static class ValuationResponseParser
             {
                 if (decimal.TryParse(match.Value, out decimal val))
                 {
-                    if (val == 2.0m || val > 1000000) continue;
+                    if (val == 2.0m || val == 4.0m || val > 1000000) continue;
                     return val;
                 }
             }
