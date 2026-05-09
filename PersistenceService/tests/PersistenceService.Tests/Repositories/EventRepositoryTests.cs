@@ -31,7 +31,8 @@ public class EventRepositoryTests
 
         using var context = new EventDbContext(options);
         var logger = new Mock<ILogger<EventRepository>>();
-        var repo = new EventRepository(context, logger.Object);
+        var repoOptions = Options.Create(new RepositoryOptions());
+        var repo = new EventRepository(context, logger.Object, repoOptions);
 
         var entity = new EventEntity
         {
@@ -64,6 +65,8 @@ public class EventRepositoryTests
 
         using var context = new EventDbContext(options);
         var logger = new Mock<ILogger<EventRepository>>();
+        var repoOptions = Options.Create(new RepositoryOptions());
+        var repo = new EventRepository(context, logger.Object, repoOptions);
 
         var entity = new EventEntity
         {
@@ -73,9 +76,6 @@ public class EventRepositoryTests
             EventData = "{}",
             OccurredAt = DateTimeOffset.UtcNow
         };
-
-        var repo = new EventRepository(context, logger.Object);
-
         var callCount = 0;
         context.SavingChanges += (_, _) =>
         {
@@ -105,7 +105,8 @@ public class EventRepositoryTests
 
         using var context = new EventDbContext(options);
         var logger = new Mock<ILogger<EventRepository>>();
-        var repo = new EventRepository(context, logger.Object);
+        var repoOptions = Options.Create(new RepositoryOptions());
+        var repo = new EventRepository(context, logger.Object, repoOptions);
 
         var entity = new EventEntity
         {
@@ -233,7 +234,8 @@ public class EventRepositoryTests
 
         using var context = new EventDbContext(options);
         var logger = new Mock<ILogger<EventRepository>>();
-        var repo = new EventRepository(context, logger.Object);
+        var repoOptions = Options.Create(new RepositoryOptions());
+        var repo = new EventRepository(context, logger.Object, repoOptions);
 
         var entities = Enumerable.Range(0, 5).Select(i => new EventEntity
         {

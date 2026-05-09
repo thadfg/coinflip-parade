@@ -31,7 +31,7 @@ public class IntegrationTestEndToEndFlow
         repoOptions.Setup(o => o.Value).Returns(new RepositoryOptions());
 
         var comicRepo = new ComicCollectionRepository(comicDb, comicLogger.Object, repoOptions.Object);
-        var eventRepo = new EventRepository(eventDb, eventLogger.Object);
+        var eventRepo = new EventRepository(eventDb, eventLogger.Object, repoOptions.Object);
 
         var envelope = ComicEnvelopeBuilder.Build(Guid.NewGuid());
         var kafkaMessageKey = Guid.NewGuid().ToString();
