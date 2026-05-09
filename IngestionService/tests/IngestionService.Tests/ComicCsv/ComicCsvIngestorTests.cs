@@ -1,5 +1,7 @@
 using IngestionService.Application.Services;
 using IngestionService.Domain.Models;
+using IngestionService.Infrastructure.Settings;
+using Microsoft.Extensions.Options;
 using Moq;
 using SharedLibrary.Kafka;
 using Xunit;
@@ -13,7 +15,8 @@ public class ComicCsvIngestorTests
     {
         // Arrange
         var mockProducer = new Mock<IKafkaProducer>();
-        var ingestor = new ComicCsvIngestor(mockProducer.Object);
+        var options = Options.Create(new ComicCsvIngestorOptions());
+        var ingestor = new ComicCsvIngestor(mockProducer.Object, options);
 
         // Create a valid CSV file
         var csvContent = "Publisher,Series,Full Title,Release Date,In Collection,Barcode\n" +
@@ -41,7 +44,8 @@ public class ComicCsvIngestorTests
     {
         // Arrange
         var mockProducer = new Mock<IKafkaProducer>();
-        var ingestor = new ComicCsvIngestor(mockProducer.Object);
+        var options = Options.Create(new ComicCsvIngestorOptions());
+        var ingestor = new ComicCsvIngestor(mockProducer.Object, options);
 
         // Missing required Release Date
         var csvContent = "Publisher,Series,Full Title,Release Date,In Collection\n" +
@@ -69,7 +73,8 @@ public class ComicCsvIngestorTests
     {
         // Arrange
         var mockProducer = new Mock<IKafkaProducer>();
-        var ingestor = new ComicCsvIngestor(mockProducer.Object);
+        var options = Options.Create(new ComicCsvIngestorOptions());
+        var ingestor = new ComicCsvIngestor(mockProducer.Object, options);
 
         // Date format '8-Oct-25'
         var csvContent = "Publisher,Series,Full Title,Release Date,In Collection,Barcode\n" +
