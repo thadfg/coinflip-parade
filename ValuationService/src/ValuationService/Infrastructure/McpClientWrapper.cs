@@ -22,12 +22,16 @@ public class McpClientWrapper : IMcpClientWrapper
     public async Task<string> ExecuteResearch(string prompt)
     {
         bool isLinux = System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Linux);
+        string nodePath = isLinux ? _options.LinuxNodePath : _options.WindowsNodePath;
+        string npxCommand = isLinux ? _options.LinuxNpxCommand : _options.WindowsNpxCommand;
+        string nodeExecutable = isLinux ? _options.LinuxNodeExecutable : _options.WindowsNodeExecutable;
+
         var startInfo = new ProcessStartInfo
         {
-            FileName = isLinux ? "npx" : Path.Combine(_options.NodePath, "node.exe"),
+            FileName = isLinux ? npxCommand : Path.Combine(nodePath, nodeExecutable),
             Arguments = isLinux 
                 ? $"{_options.McpCommand} {string.Join(" ", _options.McpArgs)}"
-                : $"{Path.Combine(_options.NodePath, "npx.cmd")} {_options.McpCommand} {string.Join(" ", _options.McpArgs)}",
+                : $"{Path.Combine(nodePath, npxCommand)} {_options.McpCommand} {string.Join(" ", _options.McpArgs)}",
             RedirectStandardInput = true,
             RedirectStandardOutput = true,
             RedirectStandardError = true,
