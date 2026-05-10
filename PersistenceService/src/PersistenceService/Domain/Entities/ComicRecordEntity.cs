@@ -53,4 +53,7 @@ public class ComicRecordEntity
     /// </summary>
     [Column("Key")]
     public string KeyStatus { get; set; }
+
+    [Column("value")]
+    public decimal? Value { get; set; }
 }

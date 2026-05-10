@@ -50,5 +50,8 @@ public class ComicRecordConfiguration : IEntityTypeConfiguration<ComicRecordEnti
         builder.Property(c => c.KeyStatus)
                .HasColumnName("Key")
                .HasColumnType("text");
+        builder.Property(c => c.Value)
+               .HasColumnName("value")
+               .HasColumnType("decimal");
     }
 }
