@@ -4,6 +4,8 @@ using Moq;
 using PersistenceService.Domain.Entities;
 using PersistenceService.Infrastructure;
 using PersistenceService.Infrastructure.Repositories;
+using PersistenceService.Config;
+using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -41,13 +43,20 @@ public class ComicCollectionRepositoryTests
         };
     }
 
+    private Mock<IOptions<RepositoryOptions>> CreateOptions()
+    {
+        var options = new Mock<IOptions<RepositoryOptions>>();
+        options.Setup(o => o.Value).Returns(new RepositoryOptions());
+        return options;
+    }
+
     [Fact]
     public async Task UpsertBatchAsync_InsertsNewComic_WhenNotExists()
     {
         // Arrange
         var dbContext = CreateDbContext();
         var logger = new Mock<ILogger<ComicCollectionRepository>>();
-        var repo = new ComicCollectionRepository(dbContext, logger.Object);
+        var repo = new ComicCollectionRepository(dbContext, logger.Object, CreateOptions().Object);
 
         var comic = CreateComic(Guid.NewGuid());
         var eventId = Guid.NewGuid();
@@ -71,7 +80,7 @@ public class ComicCollectionRepositoryTests
         // Arrange
         var dbContext = CreateDbContext();
         var logger = new Mock<ILogger<ComicCollectionRepository>>();
-        var repo = new ComicCollectionRepository(dbContext, logger.Object);
+        var repo = new ComicCollectionRepository(dbContext, logger.Object, CreateOptions().Object);
 
         var comicId = Guid.NewGuid();
         var original = CreateComic(comicId);
@@ -96,7 +105,7 @@ public class ComicCollectionRepositoryTests
         // Arrange
         var dbContext = CreateDbContext();
         var logger = new Mock<ILogger<ComicCollectionRepository>>();
-        var repo = new ComicCollectionRepository(dbContext, logger.Object);
+        var repo = new ComicCollectionRepository(dbContext, logger.Object, CreateOptions().Object);
 
         var comic = CreateComic(Guid.NewGuid());
         var eventId = Guid.NewGuid();
@@ -122,7 +131,7 @@ public class ComicCollectionRepositoryTests
         // Arrange
         var dbContext = CreateDbContext();
         var logger = new Mock<ILogger<ComicCollectionRepository>>();
-        var repo = new ComicCollectionRepository(dbContext, logger.Object);
+        var repo = new ComicCollectionRepository(dbContext, logger.Object, CreateOptions().Object);
 
         var comic = CreateComic(Guid.NewGuid());
         var eventId = Guid.NewGuid();

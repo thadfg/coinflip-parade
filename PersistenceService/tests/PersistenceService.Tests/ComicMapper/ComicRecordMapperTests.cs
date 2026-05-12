@@ -18,7 +18,8 @@ public class ComicRecordMapperTests
             {
                 PublisherName = "Marvel",
                 SeriesName = "X-Men",
-                FullTitle = "X-Men #1",
+                IssueNumber = "1",
+                FullTitle = "The Uncanny X-Men",
                 ReleaseDate = "1991-10-01",
                 InCollection = "Yes",
                 Value = 9.99m,
@@ -31,7 +32,7 @@ public class ComicRecordMapperTests
         Assert.Equal(Guid.Parse(kafkaMessageKey), entity.Id);
         Assert.Equal("Marvel", entity.Publisher);
         Assert.Equal("X-Men", entity.Series);
-        Assert.Equal("X-Men #1", entity.FullTitle);
+        Assert.Equal("X-Men1The Uncanny X-Men", entity.FullTitle);
         Assert.Equal(new DateTime(1991, 10, 1), entity.ReleaseDate);
         Assert.Equal("Yes", entity.KeyStatus);
         Assert.Equal("/covers/xmen1.jpg", entity.CoverArtPath);
@@ -73,7 +74,8 @@ public class ComicRecordMapperTests
             Payload = new ComicCsvRecordDto
             {
                 PublisherName = "",
-                SeriesName = null,
+                SeriesName = "Series",
+                IssueNumber = "1",
                 FullTitle = "Untitled",
                 ReleaseDate = "0001-01-01",
                 InCollection = null,
@@ -85,7 +87,7 @@ public class ComicRecordMapperTests
         var entity = ComicRecordMapper.ToEntity(envelope, kafkaMessageKey);
 
         Assert.Equal(Guid.Parse(kafkaMessageKey), entity.Id);
-        Assert.Equal("Untitled", entity.FullTitle);
+        Assert.Equal("Series1Untitled", entity.FullTitle);
         Assert.Equal(DateTime.MinValue, entity.ReleaseDate);
         Assert.Equal(string.Empty, entity.KeyStatus);
         Assert.Equal("", entity.CoverArtPath);
@@ -108,5 +110,50 @@ public class ComicRecordMapperTests
         };
 
         Assert.Throws<FormatException>(() => ComicRecordMapper.ToEntity(envelope, "not-a-guid"));
+    }
+    [Fact]
+    public void ToEntity_FullTitlePopulated_MapsWithSeriesIssueAndFullTitle()
+    {
+        var kafkaMessageKey = Guid.NewGuid().ToString();
+        var envelope = new KafkaEnvelope<ComicCsvRecordDto>
+        {
+            ImportId = "import-005",
+            Timestamp = DateTime.UtcNow,
+            Payload = new ComicCsvRecordDto
+            {
+                PublisherName = "Marvel",
+                SeriesName = "X-Men",
+                IssueNumber = "1",
+                FullTitle = "The Uncanny X-Men",
+                ReleaseDate = "1991-10-01"
+            }
+        };
+
+        var entity = ComicRecordMapper.ToEntity(envelope, kafkaMessageKey);
+
+        Assert.Equal("X-Men1The Uncanny X-Men", entity.FullTitle);
+    }
+
+    [Fact]
+    public void ToEntity_FullTitleNull_MapsWithSeriesAndIssueOnly()
+    {
+        var kafkaMessageKey = Guid.NewGuid().ToString();
+        var envelope = new KafkaEnvelope<ComicCsvRecordDto>
+        {
+            ImportId = "import-006",
+            Timestamp = DateTime.UtcNow,
+            Payload = new ComicCsvRecordDto
+            {
+                PublisherName = "Marvel",
+                SeriesName = "X-Men",
+                IssueNumber = "1",
+                FullTitle = null,
+                ReleaseDate = "1991-10-01"
+            }
+        };
+
+        var entity = ComicRecordMapper.ToEntity(envelope, kafkaMessageKey);
+
+        Assert.Equal("X-Men1", entity.FullTitle);
     }
 }

@@ -11,11 +11,13 @@ using SharedLibrary.Models;
 using System.Text.Json;
 using System.Diagnostics.Metrics;
 using Polly;
+using Microsoft.Extensions.Options;
+using PersistenceService.Config;
 
 public class KafkaComicListener : BackgroundService
 {
     private readonly ILogger<KafkaComicListener> _logger;
-    private readonly IConfiguration _config;
+    private readonly KafkaOptions _options;
     private readonly IKafkaLogHelper _kafkaLogHelper;
     private readonly IServiceProvider _serviceProvider; 
 
@@ -25,13 +27,9 @@ public class KafkaComicListener : BackgroundService
     private readonly List<(ComicRecordEntity Comic, Guid EventId)> _comicRecordBuffer = new();
 
     private DateTime _lastFlushTime = DateTime.UtcNow;
+    private DateTime _lastLagUpdate = DateTime.MinValue;
 
-    private readonly TimeSpan _flushInterval;
-    private readonly TimeSpan _consumeTimeout;
-    private readonly int _consumeInitializeDelay;
-    private readonly TimeSpan _dbReadyDelay;
     private CancellationTokenSource? _internalCts;
-    private readonly int _batchSize;
 
     private static readonly Meter KafkaMeter = new("PersistenceService.Kafka", "1.0.0");
     
@@ -47,29 +45,16 @@ public class KafkaComicListener : BackgroundService
 
     public KafkaComicListener(
         ILogger<KafkaComicListener> logger,
-        IConfiguration config,
+        IOptions<KafkaOptions> options,
         IKafkaLogHelper kafkaLogHelper,
         IServiceProvider serviceProvider,                  
         IConsumer<string, string>? consumer = null)
     {
         _logger = logger;
-        _config = config;
+        _options = options.Value;
         _kafkaLogHelper = kafkaLogHelper;
         _consumer = consumer; 
         _serviceProvider = serviceProvider;               
-
-        _dbReadyDelay = TimeSpan.FromSeconds(
-            _config.GetValue<int>("KafkaListener:DatabaseReadyCheckDelaySeconds", 2));
-
-        _flushInterval = TimeSpan.FromSeconds(
-            _config.GetValue<int>("KafkaListener:FlushIntervalSeconds", 20));
-
-        _consumeTimeout = TimeSpan.FromMilliseconds(
-            _config.GetValue<int>("KafkaListener:ConsumeTimeoutMs", 10));
-
-        _consumeInitializeDelay = _config.GetValue<int>("KafkaListener:ConsumeInitializeDelay", 1000);
-
-         _batchSize = _config.GetValue<int>("KafkaListener:BatchSize",  10);
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -86,7 +71,7 @@ public class KafkaComicListener : BackgroundService
             while (!await dbReadyChecker.IsReadyAsync(linkedToken))
             {
                 _logger.LogInformation("Waiting for database to be ready...");
-                await Task.Delay(_dbReadyDelay, linkedToken);
+                await Task.Delay(TimeSpan.FromSeconds(_options.DatabaseReadyCheckDelaySeconds), linkedToken);
             }
         }
 
@@ -109,7 +94,7 @@ public class KafkaComicListener : BackgroundService
                 _logger.LogInformation("Initializing Kafka consumer...");
                 _consumer ??= CreateConsumer();
 
-                var topic = _config["Kafka:Topic"] ?? "comic-imported";
+                var topic = _options.Topic;
                 _logger.LogInformation("Subscribing to Kafka topic: {Topic}", topic);
                 _consumer.Subscribe(topic);
             });
@@ -129,11 +114,17 @@ public class KafkaComicListener : BackgroundService
     {
         var consumerConfig = new ConsumerConfig
         {
-            BootstrapServers = _config["Kafka:BootstrapServers"],
-            GroupId = _config["Kafka:GroupId"],
-            AutoOffsetReset = AutoOffsetReset.Earliest,
+            BootstrapServers = _options.BootstrapServers,
+            GroupId = _options.GroupId,
+            AutoOffsetReset = _options.AutoOffsetReset,
             EnableAutoCommit = true,
-            EnablePartitionEof = true
+            EnablePartitionEof = true,
+            // Increase timeouts to prevent REQTMOUT issues during bursts or slow DB writes
+            SessionTimeoutMs = _options.SessionTimeoutMs,
+            SocketTimeoutMs = _options.SocketTimeoutMs,
+            MaxPollIntervalMs = _options.MaxPollIntervalMs,
+            // Optimization: Reduce frequency of internal offset commits if AutoCommit is enabled
+            AutoCommitIntervalMs = _options.AutoCommitIntervalMs
         };
 
         return new ConsumerBuilder<string, string>(consumerConfig).Build();
@@ -150,11 +141,11 @@ public class KafkaComicListener : BackgroundService
                 if (_consumer == null)
                 {
                     _logger.LogWarning("Kafka consumer is not initialized.");
-                    await Task.Delay(_consumeInitializeDelay, stoppingToken);
+                    await Task.Delay(_options.ConsumeInitializeDelay, stoppingToken);
                     continue;
                 }
 
-                var result = _consumer.Consume(_consumeTimeout);
+                var result = _consumer.Consume(TimeSpan.FromMilliseconds(_options.ConsumeTimeoutMs));
 
                 if (result == null || result.IsPartitionEOF)
                 {
@@ -185,7 +176,7 @@ public class KafkaComicListener : BackgroundService
                 _comicRecordBuffer.Add((comic, eventEntity.Id));
                 _eventBuffer.Add(eventEntity);
 
-                if (_comicRecordBuffer.Count >= _batchSize || _eventBuffer.Count >= _batchSize)
+                if (_comicRecordBuffer.Count >= _options.BatchSize || _eventBuffer.Count >= _options.BatchSize)
                 {
                     await FlushBuffersAsync(stoppingToken);
                 }
@@ -225,6 +216,8 @@ public class KafkaComicListener : BackgroundService
 
     private void UpdateLagMetrics(ConsumeResult<string, string> result)
     {
+        if (DateTime.UtcNow - _lastLagUpdate < TimeSpan.FromSeconds(_options.LagUpdateIntervalSeconds)) return;
+        
         try
         {
             var watermark = _consumer!.QueryWatermarkOffsets(result.TopicPartition, TimeSpan.FromMilliseconds(500));
@@ -234,6 +227,8 @@ public class KafkaComicListener : BackgroundService
                 lag,
                 new KeyValuePair<string, object?>("topic", result.Topic),
                 new KeyValuePair<string, object?>("partition", result.Partition.ToString()));
+            
+            _lastLagUpdate = DateTime.UtcNow;
         }
         catch (Exception ex)
         {
@@ -270,7 +265,7 @@ public class KafkaComicListener : BackgroundService
 
     private async Task FlushIfNeededAsync(CancellationToken token)
     {
-        if ((DateTime.UtcNow - _lastFlushTime) >= _flushInterval)
+        if ((DateTime.UtcNow - _lastFlushTime) >= TimeSpan.FromSeconds(_options.FlushIntervalSeconds))
         {
             await FlushBuffersAsync(token);
         }

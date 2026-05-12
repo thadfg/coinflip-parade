@@ -9,17 +9,20 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
+using Microsoft.Extensions.Options;
+using PersistenceService.Config;
+
 public class EventRepository : IEventRepository
 {
     private readonly EventDbContext _dbContext;
     private readonly ILogger<EventRepository> _logger;
-    private const int MaxRetries = 3;
-    private const int DelayMilliseconds = 500;
+    private readonly RepositoryOptions _options;
 
-    public EventRepository(EventDbContext dbContext, ILogger<EventRepository> logger)
+    public EventRepository(EventDbContext dbContext, ILogger<EventRepository> logger, IOptions<RepositoryOptions> options)
     {
         _dbContext = dbContext;
         _logger = logger;
+        _options = options.Value;
     }
 
     public async Task SaveAsync(EventEntity entity, CancellationToken cancellationToken)
@@ -34,7 +37,7 @@ public class EventRepository : IEventRepository
 
     private async Task SaveInternalAsync(Action persistAction, CancellationToken cancellationToken)
     {
-        for (int attempt = 1; attempt <= MaxRetries; attempt++)
+        for (int attempt = 1; attempt <= _options.MaxRetries; attempt++)
         {
             try
             {
@@ -43,10 +46,10 @@ public class EventRepository : IEventRepository
                 _logger.LogInformation("Event(s) persisted successfully on attempt {Attempt}", attempt);
                 return;
             }
-            catch (DbUpdateException ex) when (attempt < MaxRetries)
+            catch (DbUpdateException ex) when (attempt < _options.MaxRetries)
             {
                 _logger.LogWarning(ex, "Attempt {Attempt} failed. Retrying...", attempt);
-                await Task.Delay(DelayMilliseconds * attempt, cancellationToken);
+                await Task.Delay(_options.DelayMilliseconds * attempt, cancellationToken);
             }
             catch (Exception ex)
             {

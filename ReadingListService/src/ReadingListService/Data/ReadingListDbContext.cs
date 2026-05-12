@@ -17,8 +17,24 @@ public class ReadingListDbContext : DbContext
     {
         base.OnModelCreating(modelBuilder);
 
+        modelBuilder.HasDefaultSchema("comics");
+
         modelBuilder.Entity<ComicRecord>(entity =>
         {
+            entity.ToTable("comiccollection", "comics");
+            
+            entity.Property(e => e.FullTitle).HasColumnName("Full Title");
+            entity.Property(e => e.SeriesName).HasColumnName("Series");
+            entity.Property(e => e.PublisherName).HasColumnName("Publisher");
+            entity.Property(e => e.IssueNumber).HasColumnName("Issue");
+            entity.Property(e => e.ReleaseDate).HasColumnName("Release Date");
+            entity.Property(e => e.VariantDescription).HasColumnName("Variant Description");
+            entity.Property(e => e.CoverArtPath).HasColumnName("coverartpath");
+            entity.Property(e => e.ImportedAt).HasColumnName("importedat");
+            entity.Property(e => e.Barcode).HasColumnName("Barcode");
+            entity.Property(e => e.Format).HasColumnName("Format");
+            entity.Property(e => e.Key).HasColumnName("Key");
+
             entity.HasOne(c => c.ReadingProgress)
                 .WithOne(p => p.Comic)
                 .HasForeignKey<ReadingProgress>(p => p.ComicId);
@@ -26,6 +42,7 @@ public class ReadingListDbContext : DbContext
 
         modelBuilder.Entity<ReadingProgress>(entity =>
         {
+            entity.ToTable("reading_progress", "comics");
             entity.HasKey(p => p.ComicId);
         });
     }

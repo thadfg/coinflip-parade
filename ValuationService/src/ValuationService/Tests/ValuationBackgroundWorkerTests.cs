@@ -8,6 +8,7 @@ using ValuationService.Infrastructure;
 using ValuationService.Service;
 using Xunit;
 using System.Diagnostics.Metrics;
+using Microsoft.Extensions.Options;
 
 namespace ValuationService.Tests;
 
@@ -29,7 +30,23 @@ public class ValuationBackgroundWorkerTests
         var meter = new Meter("ValuationService");
         meterFactory.Setup(x => x.Create(It.IsAny<MeterOptions>())).Returns(meter);
 
-        return new ValuationBackgroundWorker(provider, logger, mcpClient, controlService, meterFactory.Object);
+        var valuationOptions = new ValuationOptions { CutoffDays = 30, BatchSize = 10, DelayMinutes = 1 };
+        var options = Microsoft.Extensions.Options.Options.Create(valuationOptions);
+
+        var parserMock = new Mock<IValuationResponseParser>();
+        parserMock.Setup(p => p.ParseValueFromMcpResponse(It.IsAny<string>()))
+            .Returns((string s) => ValuationResponseParser_StaticFallback(s));
+
+        return new ValuationBackgroundWorker(provider, logger, mcpClient, parserMock.Object, controlService, meterFactory.Object, options);
+    }
+
+    private static decimal? ValuationResponseParser_StaticFallback(string json)
+    {
+        // Simple mock implementation for testing
+        if (json.Contains("123.45")) return 123.45m;
+        if (json.Contains("10.0")) return 10.0m;
+        if (json.Contains("100.0")) return 100.0m;
+        return null;
     }
 
     [Fact]

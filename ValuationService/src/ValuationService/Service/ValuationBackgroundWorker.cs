@@ -5,6 +5,7 @@ using System.Text.Json;
 using PersistenceService.Infrastructure;
 using System.Diagnostics;
 using System.Diagnostics.Metrics;
+using Microsoft.Extensions.Options;
 
 namespace ValuationService.Service;
 
@@ -13,7 +14,9 @@ public class ValuationBackgroundWorker : BackgroundService
     private readonly IServiceProvider _serviceProvider;
     private readonly ILogger<ValuationBackgroundWorker> _logger;
     private readonly IMcpClientWrapper _mcpClient;
+    private readonly IValuationResponseParser _parser;
     private readonly ValuationControlService _controlService;
+    private readonly ValuationOptions _options;
 
     private static readonly ActivitySource ActivitySource = new ActivitySource("ValuationService");
     private readonly Counter<long> _processedCount;
@@ -23,13 +26,17 @@ public class ValuationBackgroundWorker : BackgroundService
         IServiceProvider serviceProvider,
         ILogger<ValuationBackgroundWorker> logger,
         IMcpClientWrapper mcpClient,
+        IValuationResponseParser parser,
         ValuationControlService controlService,
-        IMeterFactory meterFactory)
+        IMeterFactory meterFactory,
+        IOptions<ValuationOptions> options)
     {
         _serviceProvider = serviceProvider;
         _logger = logger;
         _mcpClient = mcpClient;
+        _parser = parser;
         _controlService = controlService;
+        _options = options.Value;
 
         var meter = meterFactory.Create("ValuationService");
         _processedCount = meter.CreateCounter<long>("valuation_processed_count");
@@ -58,7 +65,7 @@ public class ValuationBackgroundWorker : BackgroundService
                 _logger.LogDebug("ValuationBackgroundWorker is paused.");
             }
 
-            await Task.Delay(TimeSpan.FromMinutes(1), stoppingToken);
+            await Task.Delay(TimeSpan.FromMinutes(_options.DelayMinutes), stoppingToken);
         }
     }
 
@@ -67,10 +74,10 @@ public class ValuationBackgroundWorker : BackgroundService
         using var scope = _serviceProvider.CreateScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<ComicDbContext>();
 
-        var cutoffDate = DateTime.UtcNow.AddDays(-30);
+        var cutoffDate = DateTime.UtcNow.AddDays(-_options.CutoffDays);
         var recordsToUpdate = await dbContext.ComicRecords
             .Where(r => r.Value == null || r.LastUpdatedUtc == null || r.LastUpdatedUtc < cutoffDate)
-            .Take(10) // Process in small batches
+            .Take(_options.BatchSize) // Process in small batches
             .ToListAsync(stoppingToken);
 
         _logger.LogInformation("Found {Count} records to update.", recordsToUpdate.Count);
@@ -89,7 +96,7 @@ public class ValuationBackgroundWorker : BackgroundService
             try
             {
                 string mcpResponse = await _mcpClient.ExecuteResearch(prompt);
-                decimal? value = ValuationResponseParser.ParseValueFromMcpResponse(mcpResponse);
+                decimal? value = _parser.ParseValueFromMcpResponse(mcpResponse);
 
                 if (value.HasValue)
                 {

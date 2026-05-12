@@ -4,6 +4,8 @@ using Microsoft.Extensions.Logging;
 using PersistenceService.Application.Interfaces;
 using PersistenceService.Infrastructure.Database;
 using PersistenceService.Infrastructure.Kafka;
+using PersistenceService.Config;
+using Microsoft.Extensions.Options;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -14,11 +16,11 @@ namespace PersistenceService.Tests.KafkaListener
     {
         public MockKafkaComicListener(
             ILogger<KafkaComicListener> logger,
-            IConfiguration config,
+            IOptions<KafkaOptions> options,
             IKafkaLogHelper kafkaLogHelper,
             IServiceProvider serviceProvider,
             IConsumer<string, string> consumer)
-            : base(logger, config, kafkaLogHelper, serviceProvider, consumer)
+            : base(logger, options, kafkaLogHelper, serviceProvider, consumer)
         {
         }
 

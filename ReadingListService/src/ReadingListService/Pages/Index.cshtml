@@ -4,20 +4,25 @@
     ViewData["Title"] = "Collection Search";
 }
 
-<div class="mb-4">
-    <input class="form-control form-control-lg" type="search" 
-           name="term" placeholder="Search your collection (Series, Title, Publisher)..."
-           hx-get="/?handler=Search"
-           hx-trigger="input changed delay:300ms, search"
-           hx-target="#search-results"
-           hx-indicator=".htmx-indicator">
+<div class="sticky-top bg-light py-3 mb-4 shadow-sm" style="top: 56px; z-index: 1020;">
+    <div class="container-fluid">
+        <input class="form-control form-control-lg" type="search" 
+               name="term" placeholder="Search your collection (Series, Title, Publisher)..."
+               hx-get="?handler=Search"
+               hx-include="[name='sortBy'], [name='desc']"
+               hx-trigger="input changed delay:300ms, search"
+               hx-target="#search-results"
+               hx-indicator=".htmx-indicator">
+        <input type="hidden" name="sortBy" value="@Model.SortBy" />
+        <input type="hidden" name="desc" value="@Model.SortDescending.ToString()" />
+    </div>
 </div>
 
 <div id="search-results">
-    <partial name="_ComicGrid" model="Model.Comics" />
+    @await Html.PartialAsync("_ComicTable", Model.Comics)
 </div>
 
-<div class="htmx-indicator text-center p-3">
+<div id="infinite-scroll-indicator" class="htmx-indicator text-center p-3">
     <div class="spinner-border text-primary" role="status">
         <span class="visually-hidden">Loading...</span>
     </div>

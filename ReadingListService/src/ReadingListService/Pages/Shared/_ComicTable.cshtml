@@ -1,0 +1,66 @@
+@using ReadingListService.Dtos
+@model List<ComicSearchResultDto>
+@{
+    var currentPage = Context.Request.Query.ContainsKey("page") ? int.Parse(Context.Request.Query["page"]!) : 1;
+    var searchTerm = Context.Request.Query["term"].ToString();
+    var sortBy = Context.Request.Query["sortBy"].ToString();
+    var sortDescending = Context.Request.Query["desc"].ToString() == "True";
+
+    string GetSortUrl(string field)
+    {
+        var isCurrentField = sortBy.Equals(field, StringComparison.OrdinalIgnoreCase);
+        var nextDesc = isCurrentField ? !sortDescending : false;
+        return $"?handler=Search&term={searchTerm}&page=1&sortBy={field}&desc={nextDesc}";
+    }
+
+    string GetSortIcon(string field)
+    {
+        if (!sortBy.Equals(field, StringComparison.OrdinalIgnoreCase)) return "↕";
+        return sortDescending ? "↓" : "↑";
+    }
+}
+
+@if (currentPage == 1)
+{
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>
+                        <button class="btn btn-link btn-sm text-decoration-none text-dark fw-bold p-0" 
+                                hx-get="@Html.Raw(GetSortUrl("title"))" hx-target="#search-results">
+                            Title @GetSortIcon("title")
+                        </button>
+                    </th>
+                    <th>
+                        <button class="btn btn-link btn-sm text-decoration-none text-dark fw-bold p-0" 
+                                hx-get="@Html.Raw(GetSortUrl("series"))" hx-target="#search-results">
+                            Series @GetSortIcon("series")
+                        </button>
+                    </th>
+                    <th>Issue</th>
+                    <th>
+                        <button class="btn btn-link btn-sm text-decoration-none text-dark fw-bold p-0" 
+                                hx-get="@Html.Raw(GetSortUrl("publisher"))" hx-target="#search-results">
+                            Publisher @GetSortIcon("publisher")
+                        </button>
+                    </th>
+                    <th>
+                        <button class="btn btn-link btn-sm text-decoration-none text-dark fw-bold p-0" 
+                                hx-get="@Html.Raw(GetSortUrl("releasedate"))" hx-target="#search-results">
+                            Release Date @GetSortIcon("releasedate")
+                        </button>
+                    </th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody id="comic-table-body">
+                @await Html.PartialAsync("_ComicTableRows", Model)
+            </tbody>
+        </table>
+    </div>
+}
+else
+{
+    @await Html.PartialAsync("_ComicTableRows", Model)
+}

@@ -1,5 +1,7 @@
 using IngestionService.Application.Services;
 using IngestionService.Domain.Models;
+using IngestionService.Infrastructure.Settings;
+using Microsoft.Extensions.Options;
 using Moq;
 using SharedLibrary.Kafka;
 using Xunit;
@@ -13,11 +15,12 @@ public class ComicCsvIngestorTests
     {
         // Arrange
         var mockProducer = new Mock<IKafkaProducer>();
-        var ingestor = new ComicCsvIngestor(mockProducer.Object);
+        var options = Options.Create(new ComicCsvIngestorOptions());
+        var ingestor = new ComicCsvIngestor(mockProducer.Object, options);
 
         // Create a valid CSV file
-        var csvContent = "Publisher,Series,Full Title,Release Date,In Collection\n" +
-                         "Marvel,Spider-Man,The Amazing Spider-Man,2024-01-01,Yes";
+        var csvContent = "Publisher,Series,Full Title,Release Date,In Collection,Barcode\n" +
+                         "Marvel,Spider-Man,The Amazing Spider-Man,2024-01-01,Yes, 178683654332345";
         var tempFile = Path.GetTempFileName();
         await File.WriteAllTextAsync(tempFile, csvContent);
 
@@ -41,7 +44,8 @@ public class ComicCsvIngestorTests
     {
         // Arrange
         var mockProducer = new Mock<IKafkaProducer>();
-        var ingestor = new ComicCsvIngestor(mockProducer.Object);
+        var options = Options.Create(new ComicCsvIngestorOptions());
+        var ingestor = new ComicCsvIngestor(mockProducer.Object, options);
 
         // Missing required Release Date
         var csvContent = "Publisher,Series,Full Title,Release Date,In Collection\n" +
@@ -69,11 +73,12 @@ public class ComicCsvIngestorTests
     {
         // Arrange
         var mockProducer = new Mock<IKafkaProducer>();
-        var ingestor = new ComicCsvIngestor(mockProducer.Object);
+        var options = Options.Create(new ComicCsvIngestorOptions());
+        var ingestor = new ComicCsvIngestor(mockProducer.Object, options);
 
         // Date format '8-Oct-25'
-        var csvContent = "Publisher,Series,Full Title,Release Date,In Collection\n" +
-                         "DC Comics,Absolute Batman,Abomination Part Five,8-Oct-25,Yes";
+        var csvContent = "Publisher,Series,Full Title,Release Date,In Collection,Barcode\n" +
+                         "DC Comics,Absolute Batman,Abomination Part Five,8-Oct-25,Yes, 1298298723457623";
         var tempFile = Path.GetTempFileName();
         await File.WriteAllTextAsync(tempFile, csvContent);
 

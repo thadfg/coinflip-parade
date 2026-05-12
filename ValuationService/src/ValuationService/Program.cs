@@ -13,14 +13,20 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 
+builder.Services.Configure<McpOptions>(builder.Configuration.GetSection(McpOptions.Mcp));
+builder.Services.Configure<OpenTelemetryOptions>(builder.Configuration.GetSection(OpenTelemetryOptions.OpenTelemetry));
+builder.Services.Configure<ValuationService.Infrastructure.ScalarOptions>(builder.Configuration.GetSection(ValuationService.Infrastructure.ScalarOptions.Scalar));
+builder.Services.Configure<ValuationOptions>(builder.Configuration.GetSection(ValuationOptions.Valuations));
+builder.Services.Configure<ParserOptions>(builder.Configuration.GetSection(ParserOptions.Parser));
+
 builder.Services.AddDbContext<ComicDbContext>(options =>
 {
-    var connectionString = builder.Configuration.GetConnectionString("Default") 
-                           ?? "Host=localhost;Port=5432;Database=comicdb;Username=comicadmin;Password=comicpass";
+    var connectionString = builder.Configuration.GetConnectionString("Default");
     options.UseNpgsql(connectionString);
 });
 
 builder.Services.AddSingleton<ValuationControlService>();
+builder.Services.AddSingleton<IValuationResponseParser, ValuationResponseParser>();
 builder.Services.AddSingleton<IMcpClientWrapper, McpClientWrapper>();
 builder.Services.AddHostedService<ValuationBackgroundWorker>();
 
@@ -29,8 +35,9 @@ builder.Services.AddHealthChecks()
     .AddDbContextCheck<ComicDbContext>();
 
 // OpenTelemetry
+var otelOptions = builder.Configuration.GetSection(OpenTelemetryOptions.OpenTelemetry).Get<OpenTelemetryOptions>() ?? new OpenTelemetryOptions();
 var otelResourceBuilder = ResourceBuilder.CreateDefault()
-    .AddService("valuation-service");
+    .AddService(otelOptions.ServiceName);
 
 builder.Services.AddOpenTelemetry()
     .WithTracing(tracing => tracing
@@ -40,7 +47,7 @@ builder.Services.AddOpenTelemetry()
         .AddSource("ValuationService")
         .AddOtlpExporter(opt =>
         {
-            opt.Endpoint = new Uri(builder.Configuration["OTEL_EXPORTER_OTLP_ENDPOINT"] ?? "http://localhost:4317");
+            opt.Endpoint = new Uri(otelOptions.OtlpEndpoint);
         }))
     .WithMetrics(metrics => metrics
         .SetResourceBuilder(otelResourceBuilder)
@@ -51,7 +58,7 @@ builder.Services.AddOpenTelemetry()
         .AddPrometheusExporter()
         .AddOtlpExporter(opt =>
         {
-            opt.Endpoint = new Uri(builder.Configuration["OTEL_EXPORTER_OTLP_ENDPOINT"] ?? "http://localhost:4317");
+            opt.Endpoint = new Uri(otelOptions.OtlpEndpoint);
         }));
 
 var app = builder.Build();
@@ -61,14 +68,17 @@ app.MapHealthChecks("/health");
 
 if (app.Environment.IsDevelopment() || app.Environment.IsEnvironment("Container"))
 {
+    var scalarOptions = builder.Configuration.GetSection(ValuationService.Infrastructure.ScalarOptions.Scalar).Get<ValuationService.Infrastructure.ScalarOptions>() ?? new ValuationService.Infrastructure.ScalarOptions();
     app.MapOpenApi();
     app.MapScalarApiReference("/scalar", options =>
     {
-        options.Title = "Valuation Service API";
-        options.Theme = ScalarTheme.Saturn;
-        options.Layout = ScalarLayout.Modern;
+        options.Title = scalarOptions.Title;
+        if (Enum.TryParse<ScalarTheme>(scalarOptions.Theme, true, out var theme))
+            options.Theme = theme;
+        if (Enum.TryParse<ScalarLayout>(scalarOptions.Layout, true, out var layout))
+            options.Layout = layout;
         options.HideClientButton = true;
-        options.Servers = [new ScalarServer("https://localhost:8443")];
+        options.Servers = [new ScalarServer(scalarOptions.ServerUrl)];
     });
 }
 else
