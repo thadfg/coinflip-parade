@@ -1,10 +1,24 @@
 using System.Text.Json;
+using Microsoft.Extensions.Options;
+using ValuationService.Infrastructure;
 
 namespace ValuationService.Service;
 
-internal static class ValuationResponseParser
+public interface IValuationResponseParser
 {
-    public static decimal? ParseValueFromMcpResponse(string responseJson)
+    decimal? ParseValueFromMcpResponse(string responseJson);
+}
+
+public class ValuationResponseParser : IValuationResponseParser
+{
+    private readonly ParserOptions _options;
+
+    public ValuationResponseParser(IOptions<ParserOptions> options)
+    {
+        _options = options.Value;
+    }
+
+    public decimal? ParseValueFromMcpResponse(string responseJson)
     {
         if (string.IsNullOrWhiteSpace(responseJson)) return null;
 
@@ -14,7 +28,7 @@ internal static class ValuationResponseParser
             if (doc.RootElement.ValueKind == JsonValueKind.Number)
             {
                 decimal directVal = doc.RootElement.GetDecimal();
-                if (directVal != 2.0m && directVal <= 1000000)
+                if (IsValidValue(directVal))
                     return directVal;
             }
 
@@ -30,7 +44,7 @@ internal static class ValuationResponseParser
                 // If it's just a number, return it
                 if (decimal.TryParse(text, out decimal directVal))
                 {
-                    if (directVal != 2.0m && directVal <= 1000000)
+                    if (IsValidValue(directVal))
                         return directVal;
                 }
 
@@ -39,8 +53,8 @@ internal static class ValuationResponseParser
                 {
                     if (decimal.TryParse(match.Value, out decimal val))
                     {
-                        if (val == 2.0m || val > 1000000) continue;
-                        return val;
+                        if (IsValidValue(val))
+                            return val;
                     }
                 }
             }
@@ -48,13 +62,19 @@ internal static class ValuationResponseParser
             {
                 // Fallback for JSON without 'result' property
                 // Try to extract from the whole JSON string
+                // But first check if it looks like a log message we should ignore
+                if (ShouldIgnore(responseJson))
+                {
+                    return null;
+                }
+
                 var matches = System.Text.RegularExpressions.Regex.Matches(responseJson, @"(\d+(\.\d+)?)");
                 foreach (System.Text.RegularExpressions.Match match in matches)
                 {
                     if (decimal.TryParse(match.Value, out decimal val))
                     {
-                        if (val == 2.0m || val > 1000000) continue;
-                        return val;
+                        if (IsValidValue(val))
+                            return val;
                     }
                 }
             }
@@ -62,9 +82,15 @@ internal static class ValuationResponseParser
         catch (JsonException)
         {
             // If it's not valid JSON, treat it as raw text
+            // But first check if it looks like a log message we should ignore
+            if (ShouldIgnore(responseJson))
+            {
+                return null;
+            }
+
             if (decimal.TryParse(responseJson, out decimal directVal))
             {
-                if (directVal != 2.0m && directVal <= 1000000)
+                if (IsValidValue(directVal))
                     return directVal;
             }
             
@@ -73,8 +99,8 @@ internal static class ValuationResponseParser
             {
                 if (decimal.TryParse(match.Value, out decimal val))
                 {
-                    if (val == 2.0m || val > 1000000) continue;
-                    return val;
+                    if (IsValidValue(val))
+                        return val;
                 }
             }
         }
@@ -83,5 +109,21 @@ internal static class ValuationResponseParser
         }
 
         return null;
+    }
+
+    private bool IsValidValue(decimal val)
+    {
+        if (val > _options.MaxValidValue) return false;
+        if (_options.IgnoredValues.Contains(val)) return false;
+        return true;
+    }
+
+    private bool ShouldIgnore(string response)
+    {
+        foreach (var marker in _options.IgnoredLogMarkers)
+        {
+            if (response.Contains(marker)) return true;
+        }
+        return false;
     }
 }

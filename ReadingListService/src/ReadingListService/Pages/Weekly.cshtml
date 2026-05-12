@@ -4,46 +4,182 @@
     ViewData["Title"] = "Weekly Reading List";
 }
 
-<div class="container">
-    <h2 class="mb-4">Weekly Reading List (Excluding Annuals)</h2>
+<div id="react-root"></div>
 
-    @if (Model.WeeklyGroups.Any())
-    {
-        @foreach (var group in Model.WeeklyGroups)
-        {
-            <div class="card mb-4 shadow-sm">
-                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">Week @group.WeekNumber, @group.Year</h5>
-                    <span class="badge bg-light text-dark">@group.Comics.Count Comics</span>
-                </div>
-                <div class="card-body">
-                    <div class="list-group list-group-flush">
-                        @foreach (var comic in group.Comics)
-                        {
-                            <div class="list-group-item d-flex justify-content-between align-items-center">
-                                <div>
-                                    <h6 class="mb-0">@comic.FullTitle</h6>
-                                    <small class="text-muted">@comic.PublisherName - @comic.SeriesName #@comic.IssueNumber</small>
-                                </div>
-                                <div class="form-check form-switch">
-                                    <input class="form-check-input" type="checkbox" role="switch" 
-                                           id="check-@comic.Id" 
-                                           @(comic.IsRead ? "checked" : "")
-                                           hx-post="/api/reading-list/mark-read/@comic.Id"
-                                           hx-swap="none">
-                                    <label class="form-check-label" for="check-@comic.Id">Read</label>
-                                </div>
+@section Scripts {
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@@babel/standalone/babel.min.js"></script>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        function WeeklyApp() {
+            const [weeklyData, setWeeklyData] = useState(@Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.WeeklyData)));
+            const [offset, setOffset] = useState(weeklyData.CurrentOffset);
+            const [loading, setLoading] = useState(false);
+
+            const fetchComics = async (newOffset) => {
+                if (newOffset === undefined || newOffset === null || newOffset < 0) return;
+                setLoading(true);
+                try {
+                    const url = `@Url.Content("~/api/reading-list/weekly-offset")` + `?offset=${newOffset}`;
+                    const response = await fetch(url);
+                    const data = await response.json();
+                    console.log('Received data:', data);
+                    setWeeklyData(data);
+                    setOffset(data.currentOffset ?? data.CurrentOffset);
+                    window.history.pushState({}, '', `?week=${data.currentOffset ?? data.CurrentOffset}`);
+                } catch (error) {
+                    console.error('Error fetching comics:', error);
+                    alert('Error fetching comics. Please try again.');
+                } finally {
+                    setLoading(false);
+                }
+            };
+
+            const toggleRead = async (comicId) => {
+                console.log('Toggling read status for:', comicId);
+                try {
+                    const url = `@Url.Content("~/api/reading-list/mark-read/")` + comicId;
+                    const response = await fetch(url, { method: 'POST' });
+                    const updatedComic = await response.json();
+                    console.log('Updated comic from server:', updatedComic);
+                    
+                    setWeeklyData(prevData => {
+                        const comics = prevData.Comics || prevData.comics || [];
+                        const oldComic = comics.find(c => (c.Id || c.id) === comicId);
+                        const wasRead = oldComic ? (oldComic.IsRead ?? oldComic.isRead) : false;
+                        const isNowRead = updatedComic.isRead ?? updatedComic.IsRead;
+                        
+                        const countChange = (isNowRead && !wasRead) ? 1 : (!isNowRead && wasRead) ? -1 : 0;
+                        console.log('Count change:', countChange);
+
+                        return {
+                            ...prevData,
+                            ReadComicsCount: (prevData.ReadComicsCount ?? prevData.readComicsCount ?? 0) + countChange,
+                            readComicsCount: (prevData.ReadComicsCount ?? prevData.readComicsCount ?? 0) + countChange,
+                            Comics: comics.map(c => 
+                                (c.Id || c.id) === comicId ? updatedComic : c
+                            ),
+                            comics: comics.map(c => 
+                                (c.Id || c.id) === comicId ? updatedComic : c
+                            )
+                        };
+                    });
+                } catch (error) {
+                    console.error('Error toggling read status:', error);
+                }
+            };
+
+            const comics = weeklyData.Comics || weeklyData.comics || [];
+
+            return (
+                <div className="container mt-4">
+                    <div className="sticky-top bg-light py-3 mb-4 shadow-sm" style={{ top: '56px', zIndex: 1020 }}>
+                        <div className="d-flex justify-content-between align-items-center mb-3">
+                            <div>
+                                <h2 className="mb-0">Weekly Reading List</h2>
+                                <h5 className="text-muted mb-0">
+                                    {(weeklyData.TotalWeeks ?? weeklyData.totalWeeks) > 0 
+                                        ? `Week ${weeklyData.WeekNumber ?? weeklyData.weekNumber}, ${weeklyData.Year ?? weeklyData.year}` 
+                                        : (loading ? 'Loading...' : 'No data available')}
+                                </h5>
                             </div>
-                        }
+                            <div>
+                                <button 
+                                    className="btn btn-outline-primary me-2" 
+                                    onClick={() => fetchComics(offset - 1)}
+                                    disabled={offset <= 0}
+                                    title={offset <= 0 ? "Previous Week is unavailable when at the earliest week" : ""}
+                                >
+                                    &larr; Previous Week
+                                </button>
+                                <span className="fw-bold mx-2">Offset: {offset ?? 'N/A'}</span>
+                                <button 
+                                    className="btn btn-outline-primary" 
+                                    onClick={() => fetchComics(offset + 1)}
+                                    disabled={offset >= ((weeklyData.TotalWeeks ?? weeklyData.totalWeeks) - 1)}
+                                >
+                                    Next Week &rarr;
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* Global Progress Bar */}
+                        <div className="px-1">
+                            {(() => {
+                                const total = weeklyData.TotalComicsInCollection ?? weeklyData.totalComicsInCollection ?? 0;
+                                const read = weeklyData.ReadComicsCount ?? weeklyData.readComicsCount ?? 0;
+                                const percentage = total > 0 ? Math.round((read / total) * 100) : 0;
+                                return (
+                                    <div>
+                                        <div className="d-flex justify-content-between small text-muted mb-1">
+                                            <span>Overall Collection Progress</span>
+                                            <span>{read} / {total} comics read ({percentage}%)</span>
+                                        </div>
+                                        <div className="progress" style={{ height: '10px' }}>
+                                            <div 
+                                                className="progress-bar progress-bar-striped progress-bar-animated bg-success" 
+                                                role="progressbar" 
+                                                style={{ width: `${percentage}%` }} 
+                                                aria-valuenow={percentage} 
+                                                aria-valuemin="0" 
+                                                aria-valuemax="100"
+                                            ></div>
+                                        </div>
+                                    </div>
+                                );
+                            })()}
+                        </div>
                     </div>
+
+                    {loading ? (
+                        <div className="text-center py-5">
+                            <div className="spinner-border text-primary" role="status">
+                                <span className="visually-hidden">Loading...</span>
+                            </div>
+                        </div>
+                    ) : comics.length === 0 ? (
+                        <div className="alert alert-info">No comics found for this week.</div>
+                    ) : (
+                        <table className="table table-hover shadow-sm bg-white rounded">
+                            <thead className="table-dark">
+                                <tr>
+                                    <th>Title</th>
+                                    <th>Publisher</th>
+                                    <th>Series</th>
+                                    <th>Issue</th>
+                                    <th>Release Date</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {comics.map(comic => (
+                                    <tr key={comic.Id || comic.id}>
+                                        <td>{comic.FullTitle || comic.fullTitle}</td>
+                                        <td>{comic.PublisherName || comic.publisherName}</td>
+                                        <td>{comic.SeriesName || comic.seriesName}</td>
+                                        <td>{comic.IssueNumber || comic.issueNumber}</td>
+                                        <td>{(comic.ReleaseDate || comic.releaseDate) ? new Date(comic.ReleaseDate || comic.releaseDate).toLocaleDateString() : 'N/A'}</td>
+                                        <td>
+                                            <button 
+                                                className={`btn btn-sm ${(comic.IsRead ?? comic.isRead) ? 'btn-success' : 'btn-outline-secondary'}`}
+                                                onClick={() => toggleRead(comic.Id || comic.id)}
+                                            >
+                                                {(comic.IsRead ?? comic.isRead) ? 'Read' : 'Mark Read'}
+                                            </button>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    )}
                 </div>
-            </div>
+            );
         }
-    }
-    else
-    {
-        <div class="alert alert-info">
-            Your weekly reading list is empty. Add comics with release dates to your collection to see them here.
-        </div>
-    }
-</div>
+
+        const root = ReactDOM.createRoot(document.getElementById('react-root'));
+        root.render(<WeeklyApp />);
+    </script>
+}

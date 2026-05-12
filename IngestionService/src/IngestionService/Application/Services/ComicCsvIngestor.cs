@@ -9,6 +9,8 @@ using SharedLibrary.Models;
 using System.Diagnostics;
 using System.Diagnostics.Metrics;
 using System.Globalization;
+using IngestionService.Infrastructure.Settings;
+using Microsoft.Extensions.Options;
 using OpenTelemetry.Trace;
 
 namespace IngestionService.Application.Services;
@@ -16,6 +18,7 @@ namespace IngestionService.Application.Services;
 public class ComicCsvIngestor
 {
     private readonly IKafkaProducer _producer;
+    private readonly ComicCsvIngestorOptions _options;
 
     // --- Metrics Setup ---
     private static readonly Meter Meter = new(MeterNames.ComicIngestion);
@@ -32,9 +35,10 @@ public class ComicCsvIngestor
     // --- Tracing Setup ---
     private static readonly ActivitySource ActivitySource = new("IngestionService.ComicCsvIngestor");
 
-    public ComicCsvIngestor(IKafkaProducer producer)
+    public ComicCsvIngestor(IKafkaProducer producer, IOptions<ComicCsvIngestorOptions> options)
     {
         _producer = producer;
+        _options = options.Value;
     }
 
     public async Task IngestAsync(string csvPath)
@@ -46,8 +50,8 @@ public class ComicCsvIngestor
         
         var importId = Guid.NewGuid();
         var importIdStr = importId.ToString();
-        var service = "ComicCsvIngestorService";
-        var trigger = "UserUpload";
+        var service = _options.ServiceName;
+        var trigger = _options.DefaultTrigger;
         
         activity?.SetTag("import.id", importIdStr);
         activity?.SetTag("file.path", csvPath);
@@ -82,7 +86,7 @@ public class ComicCsvIngestor
                     continue;
                 }
 
-                var comicId = GenerateComicId(record.PublisherName, record.SeriesName, record.FullTitle, record.ReleaseDate!).ToString();
+                var comicId = GenerateComicId(record.PublisherName, record.SeriesName, record.Barcode).ToString();
                 var comicIdStr = comicId;
 
                 // Processing Phase
@@ -113,12 +117,12 @@ public class ComicCsvIngestor
                     // 2. Child Span: Specific to the Kafka Produce operation
                     using (var childActivity = ActivitySource.StartActivity("Ingest.Record.Produce", ActivityKind.Producer))
                     {
-                        childActivity?.SetTag("messaging.destination", "comic-imported");
+                        childActivity?.SetTag("messaging.destination", _options.ImportedTopic);
                         childActivity?.SetTag("import.id", importIdStr);
                         childActivity?.SetTag("publisher", publisherKey);
                         childActivity?.AddBaggage("correlation.id", correlationId);
 
-                        await _producer.ProduceAsync("comic-imported", key, envelope, correlationId);
+                        await _producer.ProduceAsync(_options.ImportedTopic, key, envelope, correlationId);
                     }
 
                     successCount++;
@@ -152,25 +156,21 @@ public class ComicCsvIngestor
     }
     
     // Example Logic for Ingestion Service
-    public Guid GenerateComicId(string publisher, string series, string title, string date)
+    public Guid GenerateComicId(string publisher, string series, long? barcode)
     {
         if (string.IsNullOrWhiteSpace(publisher))
             throw new ArgumentException("Publisher is required.", nameof(publisher));
 
         if (string.IsNullOrWhiteSpace(series))
             throw new ArgumentException("Series is required.", nameof(series)); 
-
-        if (string.IsNullOrWhiteSpace(date))
-            throw new ArgumentException("Release date is required.", nameof(date));
-
-        if (!DateTime.TryParseExact(date, DateFormats.AcceptedFormats, CultureInfo.InvariantCulture, DateTimeStyles.None, out var parsedDate))
-            throw new FormatException($"Invalid release date format: '{date}'");
+        
+        if (barcode == null)
+            throw new ArgumentException("UPC is required.", nameof(barcode));
 
         var normalizedInput =
             $"{publisher.Trim().ToLowerInvariant()}-" +
             $"{series.Trim().ToLowerInvariant()}-" +
-            $"{title.Trim().ToLowerInvariant()}-" +
-            $"{parsedDate:yyyyMMdd}";
+            $"{barcode.Value.ToString().ToLowerInvariant()}-";
 
         using var md5 = System.Security.Cryptography.MD5.Create();
         var hash = md5.ComputeHash(System.Text.Encoding.UTF8.GetBytes(normalizedInput));
@@ -195,7 +195,7 @@ public class ComicCsvIngestor
         };
 
         var key = $"dead|{importId}|{correlationId}";
-        await _producer.ProduceAsync("comic-ingestion-dead-letter", key, deadLetter, correlationId);
+        await _producer.ProduceAsync(_options.DeadLetterTopic, key, deadLetter, correlationId);
     }
 
     private async Task FinalizeIngestion(string importId, DateTimeOffset started, int success, int failure)
@@ -208,11 +208,11 @@ public class ComicCsvIngestor
             TotalRecords = success + failure,
             SuccessfulRecords = success,
             FailedRecords = failure,
-            SourceSystem = "CsvImportService",
-            TriggeredBy = "UserUpload"
+            SourceSystem = _options.SourceSystem,
+            TriggeredBy = _options.DefaultTrigger
         };
 
-        await _producer.ProduceAsync("comic-ingestion-metrics", importId, metrics);
+        await _producer.ProduceAsync(_options.MetricsTopic, importId, metrics);
         _lastSuccessTimestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
     }
 

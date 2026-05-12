@@ -15,5 +15,9 @@ public class WeeklyReadingListViewDto
 {
     public int Year { get; set; }
     public int WeekNumber { get; set; }
+    public int TotalWeeks { get; set; }
+    public int CurrentOffset { get; set; }
+    public int TotalComicsInCollection { get; set; }
+    public int ReadComicsCount { get; set; }
     public List<ComicSearchResultDto> Comics { get; set; } = new();
 }

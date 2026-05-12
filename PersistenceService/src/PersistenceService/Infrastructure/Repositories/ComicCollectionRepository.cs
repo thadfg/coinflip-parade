@@ -8,6 +8,8 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EFCore.BulkExtensions;
+using Microsoft.Extensions.Options;
+using PersistenceService.Config;
 
 namespace PersistenceService.Infrastructure.Repositories;
 
@@ -15,13 +17,15 @@ public class ComicCollectionRepository : IComicCollectionRepository
 {
     private readonly ComicCollectionDbContext _dbContext;
     private readonly ILogger<ComicCollectionRepository> _logger;
-    private const int MaxRetries = 3;
-    private const int DelayMilliseconds = 500;
+    private readonly RepositoryOptions _options;
 
-    public ComicCollectionRepository(ComicCollectionDbContext dbContext, ILogger<ComicCollectionRepository> logger)
+    public ComicCollectionRepository(ComicCollectionDbContext dbContext, ILogger<ComicCollectionRepository> logger, IOptions<RepositoryOptions> options)
     {
         _dbContext = dbContext;
+        _dbContext.ChangeTracker.AutoDetectChangesEnabled = false;
+        _dbContext.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
         _logger = logger;
+        _options = options.Value;
     }
 
     public async Task UpsertBatchAsync(IEnumerable<(ComicRecordEntity Comic, Guid EventId)> batch, CancellationToken cancellationToken)
@@ -73,7 +77,7 @@ public class ComicCollectionRepository : IComicCollectionRepository
             return;
         }
 
-        for (int attempt = 1; attempt <= MaxRetries; attempt++)
+        for (int attempt = 1; attempt <= _options.MaxRetries; attempt++)
         {
             try
             {
@@ -85,7 +89,9 @@ public class ComicCollectionRepository : IComicCollectionRepository
                 { 
                     UpdateByProperties = new List<string> { nameof(ProcessedEvent.EventId) },
                     // This tells Postgres: if the EventId exists, don't do anything (ignore the row)
-                    OnConflictUpdateWhereSql = (table, column) => $"{table}.\"Timestamp\" < EXCLUDED.\"Timestamp\""
+                    OnConflictUpdateWhereSql = (table, column) => $"{table}.\"ProcessedAtUtc\" < EXCLUDED.\"ProcessedAtUtc\"",
+                    EnableShadowProperties = false,
+                    IncludeGraph = false
                 }, cancellationToken: cancellationToken);
 
                 // 3. Bulk Upsert ComicRecordEntity
@@ -99,17 +105,19 @@ public class ComicCollectionRepository : IComicCollectionRepository
                 // Matches your primary key on Id
                 await _dbContext.BulkInsertOrUpdateAsync(uniqueComics, new BulkConfig 
                 { 
-                    UpdateByProperties = new List<string> { nameof(ComicRecordEntity.Id) } 
+                    UpdateByProperties = new List<string> { nameof(ComicRecordEntity.Id) },
+                    EnableShadowProperties = false,
+                    IncludeGraph = false
                 }, cancellationToken: cancellationToken);
 
                 await tx.CommitAsync(cancellationToken);
                 _logger.LogInformation("Successfully processed batch of {Count} items.", items.Count);
                 return;
             }
-            catch (Exception ex) when (attempt < MaxRetries)
+            catch (Exception ex) when (attempt < _options.MaxRetries)
             {
                 _logger.LogWarning(ex, "Bulk upsert attempt {Attempt} failed. Retrying...", attempt);
-                await Task.Delay(DelayMilliseconds * attempt, cancellationToken);
+                await Task.Delay(_options.DelayMilliseconds * attempt, cancellationToken);
             }
             catch (Exception ex)
             {

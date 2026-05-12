@@ -12,6 +12,8 @@ using Microsoft.AspNetCore.Builder;
 using PersistenceService.Infrastructure.Database;
 using PersistenceService.Infrastructure.Observability.Metrics;
 using PersistenceService.Infrastructure.Telemetry;
+using PersistenceService.Config;
+using Microsoft.Extensions.Options;
 
 namespace PersistenceService.Startup;
 
@@ -31,6 +33,13 @@ public static class DependenciesConfig
         var env = builder.Environment.EnvironmentName;
         var config = builder.Configuration;
 
+        // Register Options
+        builder.Services.Configure<KafkaOptions>(config.GetSection("Kafka"));
+        builder.Services.Configure<RepositoryOptions>(config.GetSection("Repository"));
+
+        var kafkaOptionsValue = config.GetSection("Kafka").Get<KafkaOptions>() ?? new KafkaOptions();
+        var repositoryOptionsValue = config.GetSection("Repository").Get<RepositoryOptions>() ?? new RepositoryOptions();
+
         // Add DbContext with PostgreSQL provider
         builder.Services.AddDbContext<EventDbContext>(options =>            
             options.UseNpgsql(config.GetConnectionString("EventDb"), npgsqlOptions => 
@@ -39,8 +48,8 @@ public static class DependenciesConfig
         
                 // This enables the built-in Npgsql/EF Core strategy
                 npgsqlOptions.EnableRetryOnFailure(
-                    maxRetryCount: 5, 
-                    maxRetryDelay: TimeSpan.FromSeconds(30), 
+                    maxRetryCount: repositoryOptionsValue.DbMaxRetryCount, 
+                    maxRetryDelay: TimeSpan.FromSeconds(repositoryOptionsValue.DbMaxRetryDelaySeconds), 
                     errorCodesToAdd: null); 
             }));
 
@@ -51,8 +60,8 @@ public static class DependenciesConfig
         
                 // Enabling it here as well
                 npgsqlOptions.EnableRetryOnFailure(
-                    maxRetryCount: 5, 
-                    maxRetryDelay: TimeSpan.FromSeconds(30), 
+                    maxRetryCount: repositoryOptionsValue.DbMaxRetryCount, 
+                    maxRetryDelay: TimeSpan.FromSeconds(repositoryOptionsValue.DbMaxRetryDelaySeconds), 
                     errorCodesToAdd: null); 
             }));
 
@@ -65,7 +74,7 @@ public static class DependenciesConfig
         // Kafka producer registration for logging (singleton)
         var producerConfig = new ProducerConfig
         {
-            BootstrapServers = config["Kafka:BootstrapServers"]
+            BootstrapServers = kafkaOptionsValue.BootstrapServers
             // add additional producer settings here if needed (Acks, LingerMs, etc.)
         };
 
@@ -78,7 +87,8 @@ public static class DependenciesConfig
         builder.Services.AddSingleton<IKafkaLogHelper, KafkaLogHelper>();
 
         // Create the KafkaLoggerProvider with the same shared producer and add to logging pipeline.
-        var kafkaLoggerProvider = new KafkaLoggerProvider(sharedProducer, config);
+        var kafkaOptions = Options.Create(kafkaOptionsValue);
+        var kafkaLoggerProvider = new KafkaLoggerProvider(sharedProducer, kafkaOptions);
         builder.Logging.AddProvider(kafkaLoggerProvider);
 
         // Register provider for disposal when DI container is disposed (so it will be disposed with the app).

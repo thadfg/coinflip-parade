@@ -4,7 +4,9 @@ using PersistenceService.Application.Mappers;
 using PersistenceService.Infrastructure.Repositories;
 using PersistenceService.Tests.TestContexts;
 using PersistenceService.Tests.TestDataGenerators;
+using PersistenceService.Config;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,8 +27,11 @@ public class IntegrationTestEndToEndFlow
         var comicLogger = new Mock<ILogger<ComicCollectionRepository>>();
         var eventLogger = new Mock<ILogger<EventRepository>>();
 
-        var comicRepo = new ComicCollectionRepository(comicDb, comicLogger.Object);
-        var eventRepo = new EventRepository(eventDb, eventLogger.Object);
+        var repoOptions = new Mock<IOptions<RepositoryOptions>>();
+        repoOptions.Setup(o => o.Value).Returns(new RepositoryOptions());
+
+        var comicRepo = new ComicCollectionRepository(comicDb, comicLogger.Object, repoOptions.Object);
+        var eventRepo = new EventRepository(eventDb, eventLogger.Object, repoOptions.Object);
 
         var envelope = ComicEnvelopeBuilder.Build(Guid.NewGuid());
         var kafkaMessageKey = Guid.NewGuid().ToString();

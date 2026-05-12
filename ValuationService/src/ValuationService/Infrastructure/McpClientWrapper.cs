@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Microsoft.Extensions.Options;
 
 namespace ValuationService.Infrastructure;
 
@@ -11,36 +12,26 @@ public interface IMcpClientWrapper
 
 public class McpClientWrapper : IMcpClientWrapper
 {
-    private readonly string _nodePath;
-    private readonly string _mcpCommand;
-    private readonly string[] _mcpArgs;
+    private readonly McpOptions _options;
 
-    public McpClientWrapper()
+    public McpClientWrapper(IOptions<McpOptions> options)
     {
-        bool isLinux = System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Linux);
-        if (isLinux)
-        {
-            _nodePath = "/usr/bin";
-            _mcpCommand = "npx";
-            _mcpArgs = new[] { "-y", "@playwright/mcp@latest" };
-        }
-        else
-        {
-            _nodePath = @"C:\Program Files\Microsoft Visual Studio\2022\Enterprise\MSBuild\Microsoft\VisualStudio\NodeJs";
-            _mcpCommand = "npx";
-            _mcpArgs = new[] { "-y", "@playwright/mcp@latest" };
-        }
+        _options = options.Value;
     }
 
     public async Task<string> ExecuteResearch(string prompt)
     {
         bool isLinux = System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Linux);
+        string nodePath = isLinux ? _options.LinuxNodePath : _options.WindowsNodePath;
+        string npxCommand = isLinux ? _options.LinuxNpxCommand : _options.WindowsNpxCommand;
+        string nodeExecutable = isLinux ? _options.LinuxNodeExecutable : _options.WindowsNodeExecutable;
+
         var startInfo = new ProcessStartInfo
         {
-            FileName = isLinux ? "npx" : Path.Combine(_nodePath, "node.exe"),
+            FileName = isLinux ? npxCommand : Path.Combine(nodePath, nodeExecutable),
             Arguments = isLinux 
-                ? $"{_mcpCommand} {string.Join(" ", _mcpArgs)}"
-                : $"{Path.Combine(_nodePath, "npx.cmd")} {_mcpCommand} {string.Join(" ", _mcpArgs)}",
+                ? $"{_options.McpCommand} {string.Join(" ", _options.McpArgs)}"
+                : $"{Path.Combine(nodePath, npxCommand)} {_options.McpCommand} {string.Join(" ", _options.McpArgs)}",
             RedirectStandardInput = true,
             RedirectStandardOutput = true,
             RedirectStandardError = true,

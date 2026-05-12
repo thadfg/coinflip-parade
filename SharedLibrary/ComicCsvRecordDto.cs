@@ -8,6 +8,7 @@ namespace SharedLibrary.Facet
     {
         public decimal? Value { get; set; }
         public string? CoverArtPath { get; set; }
+        public DateTime? LastUpdatedUtc { get; set; }
     }
 }
 

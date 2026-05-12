@@ -40,7 +40,6 @@
     <Folder Include="Application\Validation\" />
     <Folder Include="Domain\Dto\" />
     <Folder Include="Domain\Events\" />
-    <Folder Include="Infrastructure\Settings\" />
     <Folder Include="Properties\PublishProfiles\" />
   </ItemGroup>
   

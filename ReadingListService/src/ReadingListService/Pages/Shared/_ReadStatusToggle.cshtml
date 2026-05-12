@@ -1,0 +1,8 @@
+@model ReadingListService.Dtos.ComicSearchResultDto
+
+<button class="btn btn-sm @(Model.IsRead ? "btn-success" : "btn-outline-secondary")"
+        hx-post="@Url.Content($"~/api/reading-list/mark-read/{Model.Id}")"
+        hx-swap="outerHTML"
+        hx-target="this">
+    @(Model.IsRead ? "Read" : "Mark Read")
+</button>

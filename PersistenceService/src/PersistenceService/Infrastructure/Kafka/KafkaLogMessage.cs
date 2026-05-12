@@ -8,6 +8,8 @@ using System.Diagnostics;
 using Confluent.Kafka;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using PersistenceService.Config;
 
 namespace PersistenceService.Infrastructure.Logging
 {
@@ -29,20 +31,16 @@ namespace PersistenceService.Infrastructure.Logging
     public sealed class KafkaLoggerProvider : ILoggerProvider
     {
         private readonly IProducer<Null, string> _producer;
-        private readonly string _topic;
+        private readonly KafkaOptions _options;
         private readonly Channel<KafkaLogMessage> _channel;
         private readonly CancellationTokenSource _cts = new();
         private readonly Task _background;
-        private readonly int _batchSize;
-        private readonly TimeSpan _flushInterval;
         private bool _disposed;
 
-        public KafkaLoggerProvider(IProducer<Null, string> producer, IConfiguration config, int batchSize = 50, TimeSpan? flushInterval = null)
+        public KafkaLoggerProvider(IProducer<Null, string> producer, IOptions<KafkaOptions> options)
         {
             _producer = producer ?? throw new ArgumentNullException(nameof(producer));
-            _topic = config["Kafka:LogTopic"] ?? "service-logs";
-            _batchSize = Math.Max(1, batchSize);
-            _flushInterval = flushInterval ?? TimeSpan.FromSeconds(2);
+            _options = options.Value;
 
             // Bounded channel to avoid unbounded memory growth, drop when full to avoid blocking app threads.
             _channel = Channel.CreateBounded<KafkaLogMessage>(new BoundedChannelOptions(10_000)
@@ -62,7 +60,7 @@ namespace PersistenceService.Infrastructure.Logging
         private async Task BackgroundLoopAsync(CancellationToken token)
         {
             var reader = _channel.Reader;
-            var batch = new List<KafkaLogMessage>(_batchSize);
+            var batch = new List<KafkaLogMessage>(_options.LogBatchSize);
 
             try
             {
@@ -76,7 +74,7 @@ namespace PersistenceService.Infrastructure.Logging
                     while (reader.TryRead(out var item))
                     {
                         batch.Add(item);
-                        if (batch.Count >= _batchSize) break;
+                        if (batch.Count >= _options.LogBatchSize) break;
                     }
 
                     if (batch.Count > 0)
@@ -87,7 +85,7 @@ namespace PersistenceService.Infrastructure.Logging
                             var payload = JsonSerializer.Serialize(entry);
                             var msg = new Message<Null, string> { Value = payload };
                             // ProduceAsync already returns Task<DeliveryResult<Null,string>>; no AsTask() needed.
-                            tasks.Add(_producer.ProduceAsync(_topic, msg, token));
+                            tasks.Add(_producer.ProduceAsync(_options.LogTopic, msg, token));
                         }
 
                         try
@@ -103,7 +101,7 @@ namespace PersistenceService.Infrastructure.Logging
                     }
 
                     // Wait a little to allow accumulation of logs when queue is slow-moving
-                    await Task.Delay(_flushInterval, token).ConfigureAwait(false);
+                    await Task.Delay(TimeSpan.FromSeconds(_options.LogFlushIntervalSeconds), token).ConfigureAwait(false);
                 }
             }
             catch (OperationCanceledException) { }
@@ -132,7 +130,7 @@ namespace PersistenceService.Infrastructure.Logging
             }
             catch { /* ignore */ }
 
-            // Do NOT dispose the producer here — DI owns the shared producer lifetime.
+            // Do NOT dispose the producer here ï¿½ DI owns the shared producer lifetime.
             _cts.Dispose();
         }
     }
