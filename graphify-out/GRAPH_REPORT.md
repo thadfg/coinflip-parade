@@ -1,15 +1,16 @@
-# Graph Report - coinflip-parade  (2026-08-23)
+# Graph Report - coinflip-parade  (2026-10-10)
 
 ## Corpus Check
-- cluster-only mode — file stats not available
+- 145 files · ~25,937 words
+- Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 830 nodes · 1311 edges · 49 communities (44 shown, 5 thin omitted)
+- 844 nodes · 1320 edges · 53 communities (47 shown, 6 thin omitted)
 - Extraction: 95% EXTRACTED · 5% INFERRED · 0% AMBIGUOUS · INFERRED: 66 edges (avg confidence: 0.8)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `b58fc1fa`
+- Built from commit: `36ec3107`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -44,7 +45,7 @@
 - http
 - IngestionService.Tests
 - SharedLibrary.Extensions
-- ReadingListService
+- ComicApp System Architecture
 - .ConfigureCustomKestrel
 - NullScope
 - .InitializeAsync
@@ -56,6 +57,11 @@
 - Weekly.cshtml
 - ReadingListService.Dtos.ComicSearchResultDto
 - ReadingListService.Pages.IndexModel
+- ReadingListService.Data
+- ReadingListController
+- IComicRepository
+- ReadingListService.Tests
+- SearchOptions
 
 ## God Nodes (most connected - your core abstractions)
 1. `KafkaComicListener` - 23 edges
@@ -84,15 +90,15 @@
 ## Import Cycles
 - None detected.
 
-## Communities (49 total, 5 thin omitted)
+## Communities (53 total, 6 thin omitted)
 
 ### Community 0 - "Task"
-Cohesion: 0.08
-Nodes (31): ActionResult, Controller, ReadingListService.Pages, ReadingListService.Data, ReadingListService.Controllers, ReadingListService.Dtos, PageModel, Guid (+23 more)
+Cohesion: 0.17
+Nodes (10): DateTime, Guid, List, Task, ComicRepository, DateTime, Guid, List (+2 more)
 
 ### Community 1 - "ValuationBackgroundWorker"
-Cohesion: 0.06
-Nodes (29): BackgroundService, ValuationService.Infrastructure, InlineData, ProcessStartInfo, Theory, Task, IMcpClientWrapper, McpClientWrapper (+21 more)
+Cohesion: 0.05
+Nodes (32): BackgroundService, ValuationService.Service, ValuationService.Controllers, ValuationService.Tests, ValuationService.Infrastructure, InlineData, ProcessStartInfo, Theory (+24 more)
 
 ### Community 2 - "PersistenceService.Domain.Entities"
 Cohesion: 0.07
@@ -115,8 +121,8 @@ Cohesion: 0.08
 Nodes (29): IEntityTypeConfiguration, CancellationToken, Comic, EventId, Guid, IEnumerable, Task, IComicCollectionRepository (+21 more)
 
 ### Community 7 - ".Start"
-Cohesion: 0.10
-Nodes (18): ControllerBase, ValuationService.Service, ValuationService.Controllers, ValuationService.Tests, HttpGet, HttpPost, IActionResult, ValuationController (+10 more)
+Cohesion: 0.12
+Nodes (15): ControllerBase, HttpGet, HttpPost, IActionResult, ValuationController, bool, ValuationControlService, Fact (+7 more)
 
 ### Community 8 - "EventEntity"
 Cohesion: 0.11
@@ -139,8 +145,8 @@ Cohesion: 0.13
 Nodes (16): double, Histogram, ActivitySource, Counter, DateTimeOffset, Guid, Meter, ObservableGauge (+8 more)
 
 ### Community 13 - "ComicRepositoryTests"
-Cohesion: 0.16
-Nodes (12): ReadingListService.Options, ReadingListService.Tests, string, SearchOptions, string, ServiceOptions, Fact, IOptions (+4 more)
+Cohesion: 0.45
+Nodes (4): Fact, IOptions, Task, ComicRepositoryTests
 
 ### Community 14 - "ValuationService"
 Cohesion: 0.10
@@ -168,15 +174,15 @@ Nodes (15): EFCore.BulkExtensions.PostgreSql (9.0.*), PersistenceService, Conflu
 
 ### Community 20 - "ReadingListDbContext"
 Cohesion: 0.18
-Nodes (10): ReadingListService.Models, DbSet, ModelBuilder, ReadingListDbContext, DateTime, Guid, ComicRecord, DateTime (+2 more)
+Nodes (9): DbSet, ModelBuilder, ReadingListDbContext, DateTime, Guid, ComicRecord, DateTime, Guid (+1 more)
 
 ### Community 21 - "PersistenceService.Tests"
-Cohesion: 0.25
-Nodes (8): NUnit (4.4.0), PersistenceService.Tests, coverlet.collector (6.0.2), Microsoft.EntityFrameworkCore.InMemory (9.0.9), Microsoft.NET.Test.Sdk (17.12.0), Moq (4.20.72), xunit (2.9.2), xunit.runner.visualstudio (2.8.2)
+Cohesion: 0.14
+Nodes (14): NUnit (4.4.0), PersistenceService.Tests, coverlet.collector (6.0.2), Microsoft.EntityFrameworkCore.InMemory (9.0.9), Microsoft.NET.Test.Sdk (17.12.0), Moq (4.20.72), xunit (2.9.2), xunit.runner.visualstudio (2.8.2) (+6 more)
 
 ### Community 22 - "ReadingListService.Tests"
-Cohesion: 0.17
-Nodes (13): ReadingListService.Tests, coverlet.collector (6.0.2), Microsoft.EntityFrameworkCore.InMemory (9.0.0), Microsoft.NET.Test.Sdk (17.12.0), Moq (4.20.72), xunit (2.9.2), xunit.runner.visualstudio (2.8.2), net9.0 (+5 more)
+Cohesion: 0.14
+Nodes (14): Microsoft.NET.Sdk.Web, ReadingListService, Microsoft.AspNetCore.OpenApi (9.0.0), Microsoft.EntityFrameworkCore (9.0.0), Microsoft.EntityFrameworkCore.Design (9.0.0), Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore (9.0.0), Npgsql.EntityFrameworkCore.PostgreSQL (9.0.0), ReadingListService.Tests (+6 more)
 
 ### Community 23 - "KafkaLogHelper"
 Cohesion: 0.18
@@ -199,16 +205,16 @@ Cohesion: 0.20
 Nodes (9): ASPNETCORE_ENVIRONMENT, applicationUrl, commandName, dotnetRunMessages, environmentVariables, launchBrowser, profiles, http (+1 more)
 
 ### Community 28 - "IngestionService.Tests"
-Cohesion: 0.20
+Cohesion: 0.18
 Nodes (10): IngestionService.Tests, coverlet.collector (6.0.4), Microsoft.NET.Test.Sdk (17.14.1), Moq (4.20.72), OpenTelemetry.Instrumentation.Http (1.15.0), OpenTelemetry.Instrumentation.Runtime (1.15.0), xunit (2.4.2), xunit.runner.visualstudio (2.4.5) (+2 more)
 
 ### Community 29 - "SharedLibrary.Extensions"
 Cohesion: 0.22
 Nodes (5): SharedLibrary.Extensions, StringExtensions, Guid, TelemetryExtensions, TagList
 
-### Community 31 - "ReadingListService"
-Cohesion: 0.29
-Nodes (7): Microsoft.NET.Sdk.Web, ReadingListService, Microsoft.AspNetCore.OpenApi (9.0.0), Microsoft.EntityFrameworkCore (9.0.0), Microsoft.EntityFrameworkCore.Design (9.0.0), Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore (9.0.0), Npgsql.EntityFrameworkCore.PostgreSQL (9.0.0)
+### Community 31 - "ComicApp System Architecture"
+Cohesion: 0.09
+Nodes (22): 10. Architectural Benefits & System Characteristics, 1. Executive Summary, 2. High-Level Architecture Diagram, 3.1 IngestionService, 3.2 PersistenceService, 3.3 ReadingListService, 3.4 ValuationService, 3.5 SharedLibrary (+14 more)
 
 ### Community 32 - ".ConfigureCustomKestrel"
 Cohesion: 0.40
@@ -234,25 +240,41 @@ Nodes (3): ComicSearchResultDto, List<ComicSearchResultDto>, ReadingListService.
 Cohesion: 0.67
 Nodes (3): { chromium }, getEbayAveragePrice(), title
 
+### Community 48 - "ReadingListService.Data"
+Cohesion: 0.19
+Nodes (8): ReadingListService.Options, ReadingListService.Pages, ReadingListService.Models, ReadingListService.Data, ReadingListService.Controllers, ReadingListService.Dtos, string, ServiceOptions
+
+### Community 49 - "ReadingListController"
+Cohesion: 0.26
+Nodes (9): ActionResult, Controller, Guid, HttpGet, HttpPost, IActionResult, List, Task (+1 more)
+
+### Community 50 - "IComicRepository"
+Cohesion: 0.22
+Nodes (8): PageModel, IComicRepository, IActionResult, List, Task, IndexModel, Task, WeeklyModel
+
+### Community 51 - "ReadingListService.Tests"
+Cohesion: 0.40
+Nodes (3): ReadingListService.Tests, Fact, UnitTest1
+
 ## Knowledge Gaps
-- **131 isolated node(s):** `KafkaSettings`, `Program`, `ReadingListService.Controllers`, `Microsoft.EntityFrameworkCore.Relational (9.0.0)`, `ModelContextProtocol (1.2.0)` (+126 more)
+- **148 isolated node(s):** `1. Executive Summary`, `2. High-Level Architecture Diagram`, `3.1 IngestionService`, `3.2 PersistenceService`, `3.3 ReadingListService` (+143 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **5 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **6 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `SharedLibrary.Models` connect `PersistenceService.Domain.Entities` to `.ToEntity`, `KafkaProducer`?**
-  _High betweenness centrality (0.181) - this node is a cross-community bridge._
-- **Why does `ReadingListDbContext` connect `ReadingListDbContext` to `Task`, `ComicCollectionDbContext`, `ComicRepositoryTests`?**
-  _High betweenness centrality (0.157) - this node is a cross-community bridge._
-- **Why does `ComicRepository` connect `Task` to `ReadingListDbContext`, `ComicRepositoryTests`?**
-  _High betweenness centrality (0.090) - this node is a cross-community bridge._
-- **What connects `KafkaSettings`, `Program`, `ReadingListService.Controllers` to the rest of the system?**
-  _131 weakly-connected nodes found - possible documentation gaps or missing edges._
-- **Should `Task` be split into smaller, more focused modules?**
-  _Cohesion score 0.07547169811320754 - nodes in this community are weakly interconnected._
+- **Why does `SharedLibrary.Models` connect `PersistenceService.Domain.Entities` to `.ToEntity`, `ValuationBackgroundWorker`, `KafkaProducer`?**
+  _High betweenness centrality (0.166) - this node is a cross-community bridge._
+- **Why does `ReadingListDbContext` connect `ReadingListDbContext` to `Task`, `ReadingListService.Data`, `ComicCollectionDbContext`, `ComicRepositoryTests`?**
+  _High betweenness centrality (0.150) - this node is a cross-community bridge._
+- **Why does `ComicRepository` connect `Task` to `ComicRepositoryTests`, `ReadingListService.Data`, `IComicRepository`, `ReadingListDbContext`, `SearchOptions`?**
+  _High betweenness centrality (0.086) - this node is a cross-community bridge._
+- **What connects `1. Executive Summary`, `2. High-Level Architecture Diagram`, `3.1 IngestionService` to the rest of the system?**
+  _148 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `ValuationBackgroundWorker` be split into smaller, more focused modules?**
-  _Cohesion score 0.06009783368273934 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.0546448087431694 - nodes in this community are weakly interconnected._
 - **Should `PersistenceService.Domain.Entities` be split into smaller, more focused modules?**
-  _Cohesion score 0.0711864406779661 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.07247223845704266 - nodes in this community are weakly interconnected._
+- **Should `KafkaProducer` be split into smaller, more focused modules?**
+  _Cohesion score 0.044444444444444446 - nodes in this community are weakly interconnected._

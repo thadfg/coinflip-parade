@@ -4,25 +4,6 @@
   "graph": {},
   "nodes": [
     {
-      "id": "readinglistservice_src_readinglistservice_controllers_readinglistcontroller_readinglistservice_controllers_readinglistcontroller",
-      "label": "ReadingListController",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 0,
-      "community_name": "Task",
-      "file_type": "code",
-      "metadata": {
-        "namespace": "ReadingListService.Controllers",
-        "scope_chain": [
-          "s99"
-        ]
-      },
-      "norm_label": "readinglistcontroller",
-      "source_file": "ReadingListService/src/ReadingListService/Controllers/ReadingListController.cs",
-      "source_location": "L7"
-    },
-    {
       "id": "readinglistservice_src_readinglistservice_data_comicrepository_readinglistservice_data_comicrepository",
       "label": "ComicRepository",
       "_callable": true,
@@ -40,25 +21,6 @@
       "norm_label": "comicrepository",
       "source_file": "ReadingListService/src/ReadingListService/Data/ComicRepository.cs",
       "source_location": "L21"
-    },
-    {
-      "id": "readinglistservice_src_readinglistservice_data_comicrepository_readinglistservice_data_icomicrepository",
-      "label": "IComicRepository",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 0,
-      "community_name": "Task",
-      "file_type": "code",
-      "metadata": {
-        "namespace": "ReadingListService.Data",
-        "scope_chain": [
-          "s239"
-        ]
-      },
-      "norm_label": "icomicrepository",
-      "source_file": "ReadingListService/src/ReadingListService/Data/ComicRepository.cs",
-      "source_location": "L11"
     },
     {
       "id": "readinglistservice_src_readinglistservice_dtos_comicdtos_readinglistservice_dtos_comicsearchresultdto",
@@ -97,44 +59,6 @@
       "norm_label": "weeklyreadinglistviewdto",
       "source_file": "ReadingListService/src/ReadingListService/Dtos/ComicDtos.cs",
       "source_location": "L14"
-    },
-    {
-      "id": "readinglistservice_src_readinglistservice_pages_index_cshtml_readinglistservice_pages_indexmodel",
-      "label": "IndexModel",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 0,
-      "community_name": "Task",
-      "file_type": "code",
-      "metadata": {
-        "namespace": "ReadingListService.Pages",
-        "scope_chain": [
-          "s143"
-        ]
-      },
-      "norm_label": "indexmodel",
-      "source_file": "ReadingListService/src/ReadingListService/Pages/Index.cshtml.cs",
-      "source_location": "L8"
-    },
-    {
-      "id": "readinglistservice_src_readinglistservice_pages_weekly_cshtml_readinglistservice_pages_weeklymodel",
-      "label": "WeeklyModel",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 0,
-      "community_name": "Task",
-      "file_type": "code",
-      "metadata": {
-        "namespace": "ReadingListService.Pages",
-        "scope_chain": [
-          "s110"
-        ]
-      },
-      "norm_label": "weeklymodel",
-      "source_file": "ReadingListService/src/ReadingListService/Pages/Weekly.cshtml.cs",
-      "source_location": "L7"
     },
     {
       "id": "valuationservice_src_valuationservice_infrastructure_mcpclientwrapper_valuationservice_infrastructure_imcpclientwrapper",
@@ -602,44 +526,6 @@
       "source_location": "L11"
     },
     {
-      "id": "readinglistservice_src_readinglistservice_options_searchoptions_readinglistservice_options_searchoptions",
-      "label": "SearchOptions",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 13,
-      "community_name": "ComicRepositoryTests",
-      "file_type": "code",
-      "metadata": {
-        "namespace": "ReadingListService.Options",
-        "scope_chain": [
-          "s0"
-        ]
-      },
-      "norm_label": "searchoptions",
-      "source_file": "ReadingListService/src/ReadingListService/Options/SearchOptions.cs",
-      "source_location": "L3"
-    },
-    {
-      "id": "readinglistservice_src_readinglistservice_options_serviceoptions_readinglistservice_options_serviceoptions",
-      "label": "ServiceOptions",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 13,
-      "community_name": "ComicRepositoryTests",
-      "file_type": "code",
-      "metadata": {
-        "namespace": "ReadingListService.Options",
-        "scope_chain": [
-          "s0"
-        ]
-      },
-      "norm_label": "serviceoptions",
-      "source_file": "ReadingListService/src/ReadingListService/Options/ServiceOptions.cs",
-      "source_location": "L3"
-    },
-    {
       "id": "readinglistservice_src_readinglistservice_tests_comicrepositorytests_readinglistservice_tests_comicrepositorytests",
       "label": "ComicRepositoryTests",
       "_callable": true,
@@ -657,25 +543,6 @@
       "norm_label": "comicrepositorytests",
       "source_file": "ReadingListService/src/ReadingListService.Tests/ComicRepositoryTests.cs",
       "source_location": "L12"
-    },
-    {
-      "id": "readinglistservice_src_readinglistservice_tests_unittest1_readinglistservice_tests_unittest1",
-      "label": "UnitTest1",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 13,
-      "community_name": "ComicRepositoryTests",
-      "file_type": "code",
-      "metadata": {
-        "namespace": "ReadingListService.Tests",
-        "scope_chain": [
-          "s3"
-        ]
-      },
-      "norm_label": "unittest1",
-      "source_file": "ReadingListService/src/ReadingListService.Tests/UnitTest1.cs",
-      "source_location": "L3"
     },
     {
       "id": "ingestionservice_src_ingestionservice_domain_models_batchingestionmetrics_ingestionservice_domain_models_batchingestionmetrics",
@@ -1370,6 +1237,44 @@
       "source_location": "L9"
     },
     {
+      "id": "readinglistservice_src_readinglistservice_options_serviceoptions_readinglistservice_options_serviceoptions",
+      "label": "ServiceOptions",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 48,
+      "community_name": "ReadingListService.Data",
+      "file_type": "code",
+      "metadata": {
+        "namespace": "ReadingListService.Options",
+        "scope_chain": [
+          "s0"
+        ]
+      },
+      "norm_label": "serviceoptions",
+      "source_file": "ReadingListService/src/ReadingListService/Options/ServiceOptions.cs",
+      "source_location": "L3"
+    },
+    {
+      "id": "readinglistservice_src_readinglistservice_controllers_readinglistcontroller_readinglistservice_controllers_readinglistcontroller",
+      "label": "ReadingListController",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 49,
+      "community_name": "ReadingListController",
+      "file_type": "code",
+      "metadata": {
+        "namespace": "ReadingListService.Controllers",
+        "scope_chain": [
+          "s99"
+        ]
+      },
+      "norm_label": "readinglistcontroller",
+      "source_file": "ReadingListService/src/ReadingListService/Controllers/ReadingListController.cs",
+      "source_location": "L7"
+    },
+    {
       "id": "persistenceservice_src_persistenceservice_infrastructure_kafka_ikafkaloghelper_persistenceservice_infrastructure_kafka_ikafkaloghelper",
       "label": "IKafkaLogHelper",
       "_callable": true,
@@ -1451,6 +1356,101 @@
       "norm_label": "mockkafkaloghelper",
       "source_file": "PersistenceService/tests/PersistenceService.Tests/KafkaListener/MockKafkaLogHelper.cs",
       "source_location": "L6"
+    },
+    {
+      "id": "readinglistservice_src_readinglistservice_data_comicrepository_readinglistservice_data_icomicrepository",
+      "label": "IComicRepository",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 50,
+      "community_name": "IComicRepository",
+      "file_type": "code",
+      "metadata": {
+        "namespace": "ReadingListService.Data",
+        "scope_chain": [
+          "s239"
+        ]
+      },
+      "norm_label": "icomicrepository",
+      "source_file": "ReadingListService/src/ReadingListService/Data/ComicRepository.cs",
+      "source_location": "L11"
+    },
+    {
+      "id": "readinglistservice_src_readinglistservice_pages_index_cshtml_readinglistservice_pages_indexmodel",
+      "label": "IndexModel",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 50,
+      "community_name": "IComicRepository",
+      "file_type": "code",
+      "metadata": {
+        "namespace": "ReadingListService.Pages",
+        "scope_chain": [
+          "s143"
+        ]
+      },
+      "norm_label": "indexmodel",
+      "source_file": "ReadingListService/src/ReadingListService/Pages/Index.cshtml.cs",
+      "source_location": "L8"
+    },
+    {
+      "id": "readinglistservice_src_readinglistservice_pages_weekly_cshtml_readinglistservice_pages_weeklymodel",
+      "label": "WeeklyModel",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 50,
+      "community_name": "IComicRepository",
+      "file_type": "code",
+      "metadata": {
+        "namespace": "ReadingListService.Pages",
+        "scope_chain": [
+          "s110"
+        ]
+      },
+      "norm_label": "weeklymodel",
+      "source_file": "ReadingListService/src/ReadingListService/Pages/Weekly.cshtml.cs",
+      "source_location": "L7"
+    },
+    {
+      "id": "readinglistservice_src_readinglistservice_tests_unittest1_readinglistservice_tests_unittest1",
+      "label": "UnitTest1",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 51,
+      "community_name": "ReadingListService.Tests",
+      "file_type": "code",
+      "metadata": {
+        "namespace": "ReadingListService.Tests",
+        "scope_chain": [
+          "s3"
+        ]
+      },
+      "norm_label": "unittest1",
+      "source_file": "ReadingListService/src/ReadingListService.Tests/UnitTest1.cs",
+      "source_location": "L3"
+    },
+    {
+      "id": "readinglistservice_src_readinglistservice_options_searchoptions_readinglistservice_options_searchoptions",
+      "label": "SearchOptions",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 52,
+      "community_name": "SearchOptions",
+      "file_type": "code",
+      "metadata": {
+        "namespace": "ReadingListService.Options",
+        "scope_chain": [
+          "s0"
+        ]
+      },
+      "norm_label": "searchoptions",
+      "source_file": "ReadingListService/src/ReadingListService/Options/SearchOptions.cs",
+      "source_location": "L3"
     },
     {
       "id": "persistenceservice_src_persistenceservice_application_interfaces_icomiccollectionrepository_persistenceservice_application_interfaces_icomiccollectionrepository",
@@ -1862,78 +1862,6 @@
       "source_location": "L5"
     },
     {
-      "id": "readinglistservice_src_readinglistservice_controllers_readinglistcontroller_readinglistservice_controllers_readinglistcontroller_getweeklylist",
-      "label": ".GetWeeklyList()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 0,
-      "community_name": "Task",
-      "file_type": "code",
-      "metadata": {
-        "namespace": "ReadingListService.Controllers",
-        "scope_chain": [
-          "s99"
-        ]
-      },
-      "norm_label": ".getweeklylist()",
-      "source_file": "ReadingListService/src/ReadingListService/Controllers/ReadingListController.cs",
-      "source_location": "L25"
-    },
-    {
-      "id": "readinglistservice_src_readinglistservice_controllers_readinglistcontroller_readinglistservice_controllers_readinglistcontroller_getweeklylistbyoffset",
-      "label": ".GetWeeklyListByOffset()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 0,
-      "community_name": "Task",
-      "file_type": "code",
-      "metadata": {
-        "namespace": "ReadingListService.Controllers",
-        "scope_chain": [
-          "s99"
-        ]
-      },
-      "norm_label": ".getweeklylistbyoffset()",
-      "source_file": "ReadingListService/src/ReadingListService/Controllers/ReadingListController.cs",
-      "source_location": "L32"
-    },
-    {
-      "id": "readinglistservice_src_readinglistservice_controllers_readinglistcontroller_readinglistservice_controllers_readinglistcontroller_searchcollection",
-      "label": ".SearchCollection()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 0,
-      "community_name": "Task",
-      "file_type": "code",
-      "metadata": {
-        "namespace": "ReadingListService.Controllers",
-        "scope_chain": [
-          "s99"
-        ]
-      },
-      "norm_label": ".searchcollection()",
-      "source_file": "ReadingListService/src/ReadingListService/Controllers/ReadingListController.cs",
-      "source_location": "L18"
-    },
-    {
-      "id": "readinglistservice_src_readinglistservice_controllers_readinglistcontroller_readinglistservice_controllers_readinglistcontroller_togglereadstatus",
-      "label": ".ToggleReadStatus()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 0,
-      "community_name": "Task",
-      "file_type": "code",
-      "metadata": {
-        "namespace": "ReadingListService.Controllers",
-        "scope_chain": [
-          "s99"
-        ]
-      },
-      "norm_label": ".togglereadstatus()",
-      "source_file": "ReadingListService/src/ReadingListService/Controllers/ReadingListController.cs",
-      "source_location": "L40"
-    },
-    {
       "id": "readinglistservice_src_readinglistservice_data_comicrepository_readinglistservice_data_comicrepository_getearliestreleasedateasync",
       "label": ".GetEarliestReleaseDateAsync()",
       "_callable": true,
@@ -2060,24 +1988,6 @@
       "source_location": "L15"
     },
     {
-      "id": "readinglistservice_src_readinglistservice_data_comicrepository_readinglistservice_data_icomicrepository_getfirstunreadweekoffsetasync",
-      "label": ".GetFirstUnreadWeekOffsetAsync()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 0,
-      "community_name": "Task",
-      "file_type": "code",
-      "metadata": {
-        "namespace": "ReadingListService.Data",
-        "scope_chain": [
-          "s239"
-        ]
-      },
-      "norm_label": ".getfirstunreadweekoffsetasync()",
-      "source_file": "ReadingListService/src/ReadingListService/Data/ComicRepository.cs",
-      "source_location": "L16"
-    },
-    {
       "id": "readinglistservice_src_readinglistservice_data_comicrepository_readinglistservice_data_icomicrepository_getweeklyreadinglistasync",
       "label": ".GetWeeklyReadingListAsync()",
       "_callable": true,
@@ -2096,24 +2006,6 @@
       "source_location": "L14"
     },
     {
-      "id": "readinglistservice_src_readinglistservice_data_comicrepository_readinglistservice_data_icomicrepository_searchcollectionasync",
-      "label": ".SearchCollectionAsync()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 0,
-      "community_name": "Task",
-      "file_type": "code",
-      "metadata": {
-        "namespace": "ReadingListService.Data",
-        "scope_chain": [
-          "s239"
-        ]
-      },
-      "norm_label": ".searchcollectionasync()",
-      "source_file": "ReadingListService/src/ReadingListService/Data/ComicRepository.cs",
-      "source_location": "L13"
-    },
-    {
       "id": "readinglistservice_src_readinglistservice_data_comicrepository_readinglistservice_data_icomicrepository_togglereadstatusasync",
       "label": ".ToggleReadStatusAsync()",
       "_callable": true,
@@ -2130,60 +2022,6 @@
       "norm_label": ".togglereadstatusasync()",
       "source_file": "ReadingListService/src/ReadingListService/Data/ComicRepository.cs",
       "source_location": "L18"
-    },
-    {
-      "id": "readinglistservice_src_readinglistservice_pages_index_cshtml_readinglistservice_pages_indexmodel_ongetasync",
-      "label": ".OnGetAsync()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 0,
-      "community_name": "Task",
-      "file_type": "code",
-      "metadata": {
-        "namespace": "ReadingListService.Pages",
-        "scope_chain": [
-          "s143"
-        ]
-      },
-      "norm_label": ".ongetasync()",
-      "source_file": "ReadingListService/src/ReadingListService/Pages/Index.cshtml.cs",
-      "source_location": "L24"
-    },
-    {
-      "id": "readinglistservice_src_readinglistservice_pages_index_cshtml_readinglistservice_pages_indexmodel_ongetsearchasync",
-      "label": ".OnGetSearchAsync()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 0,
-      "community_name": "Task",
-      "file_type": "code",
-      "metadata": {
-        "namespace": "ReadingListService.Pages",
-        "scope_chain": [
-          "s143"
-        ]
-      },
-      "norm_label": ".ongetsearchasync()",
-      "source_file": "ReadingListService/src/ReadingListService/Pages/Index.cshtml.cs",
-      "source_location": "L31"
-    },
-    {
-      "id": "readinglistservice_src_readinglistservice_pages_weekly_cshtml_readinglistservice_pages_weeklymodel_ongetasync",
-      "label": ".OnGetAsync()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 0,
-      "community_name": "Task",
-      "file_type": "code",
-      "metadata": {
-        "namespace": "ReadingListService.Pages",
-        "scope_chain": [
-          "s110"
-        ]
-      },
-      "norm_label": ".ongetasync()",
-      "source_file": "ReadingListService/src/ReadingListService/Pages/Weekly.cshtml.cs",
-      "source_location": "L19"
     },
     {
       "id": "valuationservice_src_valuationservice_infrastructure_mcpclientwrapper_valuationservice_infrastructure_imcpclientwrapper_executeresearch",
@@ -3242,24 +3080,6 @@
       "source_location": "L153"
     },
     {
-      "id": "readinglistservice_src_readinglistservice_tests_unittest1_readinglistservice_tests_unittest1_test1",
-      "label": ".Test1()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 13,
-      "community_name": "ComicRepositoryTests",
-      "file_type": "code",
-      "metadata": {
-        "namespace": "ReadingListService.Tests",
-        "scope_chain": [
-          "s3"
-        ]
-      },
-      "norm_label": ".test1()",
-      "source_file": "ReadingListService/src/ReadingListService.Tests/UnitTest1.cs",
-      "source_location": "L5"
-    },
-    {
       "id": "readinglistservice_src_readinglistservice_data_readinglistdbcontext_readinglistservice_data_readinglistdbcontext_onmodelcreating",
       "label": ".OnModelCreating()",
       "_callable": true,
@@ -3896,6 +3716,78 @@
       "source_location": "L17"
     },
     {
+      "id": "readinglistservice_src_readinglistservice_controllers_readinglistcontroller_readinglistservice_controllers_readinglistcontroller_getweeklylist",
+      "label": ".GetWeeklyList()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 49,
+      "community_name": "ReadingListController",
+      "file_type": "code",
+      "metadata": {
+        "namespace": "ReadingListService.Controllers",
+        "scope_chain": [
+          "s99"
+        ]
+      },
+      "norm_label": ".getweeklylist()",
+      "source_file": "ReadingListService/src/ReadingListService/Controllers/ReadingListController.cs",
+      "source_location": "L25"
+    },
+    {
+      "id": "readinglistservice_src_readinglistservice_controllers_readinglistcontroller_readinglistservice_controllers_readinglistcontroller_getweeklylistbyoffset",
+      "label": ".GetWeeklyListByOffset()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 49,
+      "community_name": "ReadingListController",
+      "file_type": "code",
+      "metadata": {
+        "namespace": "ReadingListService.Controllers",
+        "scope_chain": [
+          "s99"
+        ]
+      },
+      "norm_label": ".getweeklylistbyoffset()",
+      "source_file": "ReadingListService/src/ReadingListService/Controllers/ReadingListController.cs",
+      "source_location": "L32"
+    },
+    {
+      "id": "readinglistservice_src_readinglistservice_controllers_readinglistcontroller_readinglistservice_controllers_readinglistcontroller_searchcollection",
+      "label": ".SearchCollection()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 49,
+      "community_name": "ReadingListController",
+      "file_type": "code",
+      "metadata": {
+        "namespace": "ReadingListService.Controllers",
+        "scope_chain": [
+          "s99"
+        ]
+      },
+      "norm_label": ".searchcollection()",
+      "source_file": "ReadingListService/src/ReadingListService/Controllers/ReadingListController.cs",
+      "source_location": "L18"
+    },
+    {
+      "id": "readinglistservice_src_readinglistservice_controllers_readinglistcontroller_readinglistservice_controllers_readinglistcontroller_togglereadstatus",
+      "label": ".ToggleReadStatus()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 49,
+      "community_name": "ReadingListController",
+      "file_type": "code",
+      "metadata": {
+        "namespace": "ReadingListService.Controllers",
+        "scope_chain": [
+          "s99"
+        ]
+      },
+      "norm_label": ".togglereadstatus()",
+      "source_file": "ReadingListService/src/ReadingListService/Controllers/ReadingListController.cs",
+      "source_location": "L40"
+    },
+    {
       "id": "persistenceservice_src_persistenceservice_infrastructure_kafka_ikafkaloghelper_persistenceservice_infrastructure_kafka_ikafkaloghelper_logtokafkaasync",
       "label": ".LogToKafkaAsync()",
       "_callable": true,
@@ -4062,6 +3954,114 @@
       "norm_label": ".verifylogcalled()",
       "source_file": "PersistenceService/tests/PersistenceService.Tests/KafkaListener/MockKafkaLogHelper.cs",
       "source_location": "L25"
+    },
+    {
+      "id": "readinglistservice_src_readinglistservice_data_comicrepository_readinglistservice_data_icomicrepository_getfirstunreadweekoffsetasync",
+      "label": ".GetFirstUnreadWeekOffsetAsync()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 50,
+      "community_name": "IComicRepository",
+      "file_type": "code",
+      "metadata": {
+        "namespace": "ReadingListService.Data",
+        "scope_chain": [
+          "s239"
+        ]
+      },
+      "norm_label": ".getfirstunreadweekoffsetasync()",
+      "source_file": "ReadingListService/src/ReadingListService/Data/ComicRepository.cs",
+      "source_location": "L16"
+    },
+    {
+      "id": "readinglistservice_src_readinglistservice_data_comicrepository_readinglistservice_data_icomicrepository_searchcollectionasync",
+      "label": ".SearchCollectionAsync()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 50,
+      "community_name": "IComicRepository",
+      "file_type": "code",
+      "metadata": {
+        "namespace": "ReadingListService.Data",
+        "scope_chain": [
+          "s239"
+        ]
+      },
+      "norm_label": ".searchcollectionasync()",
+      "source_file": "ReadingListService/src/ReadingListService/Data/ComicRepository.cs",
+      "source_location": "L13"
+    },
+    {
+      "id": "readinglistservice_src_readinglistservice_pages_index_cshtml_readinglistservice_pages_indexmodel_ongetasync",
+      "label": ".OnGetAsync()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 50,
+      "community_name": "IComicRepository",
+      "file_type": "code",
+      "metadata": {
+        "namespace": "ReadingListService.Pages",
+        "scope_chain": [
+          "s143"
+        ]
+      },
+      "norm_label": ".ongetasync()",
+      "source_file": "ReadingListService/src/ReadingListService/Pages/Index.cshtml.cs",
+      "source_location": "L24"
+    },
+    {
+      "id": "readinglistservice_src_readinglistservice_pages_index_cshtml_readinglistservice_pages_indexmodel_ongetsearchasync",
+      "label": ".OnGetSearchAsync()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 50,
+      "community_name": "IComicRepository",
+      "file_type": "code",
+      "metadata": {
+        "namespace": "ReadingListService.Pages",
+        "scope_chain": [
+          "s143"
+        ]
+      },
+      "norm_label": ".ongetsearchasync()",
+      "source_file": "ReadingListService/src/ReadingListService/Pages/Index.cshtml.cs",
+      "source_location": "L31"
+    },
+    {
+      "id": "readinglistservice_src_readinglistservice_pages_weekly_cshtml_readinglistservice_pages_weeklymodel_ongetasync",
+      "label": ".OnGetAsync()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 50,
+      "community_name": "IComicRepository",
+      "file_type": "code",
+      "metadata": {
+        "namespace": "ReadingListService.Pages",
+        "scope_chain": [
+          "s110"
+        ]
+      },
+      "norm_label": ".ongetasync()",
+      "source_file": "ReadingListService/src/ReadingListService/Pages/Weekly.cshtml.cs",
+      "source_location": "L19"
+    },
+    {
+      "id": "readinglistservice_src_readinglistservice_tests_unittest1_readinglistservice_tests_unittest1_test1",
+      "label": ".Test1()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 51,
+      "community_name": "ReadingListService.Tests",
+      "file_type": "code",
+      "metadata": {
+        "namespace": "ReadingListService.Tests",
+        "scope_chain": [
+          "s3"
+        ]
+      },
+      "norm_label": ".test1()",
+      "source_file": "ReadingListService/src/ReadingListService.Tests/UnitTest1.cs",
+      "source_location": "L5"
     },
     {
       "id": "persistenceservice_src_persistenceservice_application_interfaces_icomiccollectionrepository_persistenceservice_application_interfaces_icomiccollectionrepository_upsertbatchasync",
@@ -4868,191 +4868,6 @@
       "source_location": "L13"
     },
     {
-      "id": "actionresult",
-      "label": "ActionResult",
-      "_origin": "ast",
-      "community": 0,
-      "community_name": "Task",
-      "file_type": "code",
-      "norm_label": "actionresult",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
-      "id": "controller",
-      "label": "Controller",
-      "_origin": "ast",
-      "community": 0,
-      "community_name": "Task",
-      "file_type": "code",
-      "norm_label": "controller",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
-      "id": "csharp_namespace:9bce787c742ea32c",
-      "label": "ReadingListService.Pages",
-      "_origin": "ast",
-      "community": 0,
-      "community_name": "Task",
-      "file_type": "code",
-      "metadata": {
-        "kind": "csharp_namespace",
-        "namespace": "ReadingListService.Pages"
-      },
-      "norm_label": "readinglistservice.pages",
-      "source_file": "ReadingListService/src/ReadingListService/Pages/Index.cshtml.cs",
-      "source_location": "L6",
-      "type": "namespace"
-    },
-    {
-      "id": "csharp_namespace:bd8a9be64419d400",
-      "label": "ReadingListService.Data",
-      "_origin": "ast",
-      "community": 0,
-      "community_name": "Task",
-      "file_type": "code",
-      "metadata": {
-        "kind": "csharp_namespace",
-        "namespace": "ReadingListService.Data"
-      },
-      "norm_label": "readinglistservice.data",
-      "source_file": "ReadingListService/src/ReadingListService/Data/ComicRepository.cs",
-      "source_location": "L9",
-      "type": "namespace"
-    },
-    {
-      "id": "csharp_namespace:e18dec83bb5930bf",
-      "label": "ReadingListService.Controllers",
-      "_origin": "ast",
-      "community": 0,
-      "community_name": "Task",
-      "file_type": "code",
-      "metadata": {
-        "kind": "csharp_namespace",
-        "namespace": "ReadingListService.Controllers"
-      },
-      "norm_label": "readinglistservice.controllers",
-      "source_file": "ReadingListService/src/ReadingListService/Controllers/ReadingListController.cs",
-      "source_location": "L5",
-      "type": "namespace"
-    },
-    {
-      "id": "csharp_namespace:f12bb0028768a0b3",
-      "label": "ReadingListService.Dtos",
-      "_origin": "ast",
-      "community": 0,
-      "community_name": "Task",
-      "file_type": "code",
-      "metadata": {
-        "kind": "csharp_namespace",
-        "namespace": "ReadingListService.Dtos"
-      },
-      "norm_label": "readinglistservice.dtos",
-      "source_file": "ReadingListService/src/ReadingListService/Dtos/ComicDtos.cs",
-      "source_location": "L1",
-      "type": "namespace"
-    },
-    {
-      "id": "pagemodel",
-      "label": "PageModel",
-      "_origin": "ast",
-      "community": 0,
-      "community_name": "Task",
-      "file_type": "code",
-      "norm_label": "pagemodel",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
-      "id": "readinglistservice_src_readinglistservice_controllers_readinglistcontroller",
-      "label": "ReadingListController.cs",
-      "_origin": "ast",
-      "community": 0,
-      "community_name": "Task",
-      "file_type": "code",
-      "norm_label": "readinglistcontroller.cs",
-      "source_file": "ReadingListService/src/ReadingListService/Controllers/ReadingListController.cs",
-      "source_location": "L1"
-    },
-    {
-      "id": "readinglistservice_src_readinglistservice_controllers_readinglistcontroller_cs_guid",
-      "label": "Guid",
-      "_origin": "ast",
-      "community": 0,
-      "community_name": "Task",
-      "file_type": "code",
-      "norm_label": "guid",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
-      "id": "readinglistservice_src_readinglistservice_controllers_readinglistcontroller_cs_httpget",
-      "label": "HttpGet",
-      "_origin": "ast",
-      "community": 0,
-      "community_name": "Task",
-      "file_type": "code",
-      "norm_label": "httpget",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
-      "id": "readinglistservice_src_readinglistservice_controllers_readinglistcontroller_cs_httppost",
-      "label": "HttpPost",
-      "_origin": "ast",
-      "community": 0,
-      "community_name": "Task",
-      "file_type": "code",
-      "norm_label": "httppost",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
-      "id": "readinglistservice_src_readinglistservice_controllers_readinglistcontroller_cs_iactionresult",
-      "label": "IActionResult",
-      "_origin": "ast",
-      "community": 0,
-      "community_name": "Task",
-      "file_type": "code",
-      "norm_label": "iactionresult",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
-      "id": "readinglistservice_src_readinglistservice_controllers_readinglistcontroller_cs_list",
-      "label": "List",
-      "_origin": "ast",
-      "community": 0,
-      "community_name": "Task",
-      "file_type": "code",
-      "norm_label": "list",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
-      "id": "readinglistservice_src_readinglistservice_controllers_readinglistcontroller_cs_task",
-      "label": "Task",
-      "_origin": "ast",
-      "community": 0,
-      "community_name": "Task",
-      "file_type": "code",
-      "norm_label": "task",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
-      "id": "readinglistservice_src_readinglistservice_data_comicrepository",
-      "label": "ComicRepository.cs",
-      "_origin": "ast",
-      "community": 0,
-      "community_name": "Task",
-      "file_type": "code",
-      "norm_label": "comicrepository.cs",
-      "source_file": "ReadingListService/src/ReadingListService/Data/ComicRepository.cs",
-      "source_location": "L1"
-    },
-    {
       "id": "readinglistservice_src_readinglistservice_data_comicrepository_cs_datetime",
       "label": "DateTime",
       "_origin": "ast",
@@ -5141,72 +4956,6 @@
       "source_location": ""
     },
     {
-      "id": "readinglistservice_src_readinglistservice_pages_index_cshtml",
-      "label": "Index.cshtml.cs",
-      "_origin": "ast",
-      "community": 0,
-      "community_name": "Task",
-      "file_type": "code",
-      "norm_label": "index.cshtml.cs",
-      "source_file": "ReadingListService/src/ReadingListService/Pages/Index.cshtml.cs",
-      "source_location": "L1"
-    },
-    {
-      "id": "readinglistservice_src_readinglistservice_pages_index_cshtml_cs_iactionresult",
-      "label": "IActionResult",
-      "_origin": "ast",
-      "community": 0,
-      "community_name": "Task",
-      "file_type": "code",
-      "norm_label": "iactionresult",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
-      "id": "readinglistservice_src_readinglistservice_pages_index_cshtml_cs_list",
-      "label": "List",
-      "_origin": "ast",
-      "community": 0,
-      "community_name": "Task",
-      "file_type": "code",
-      "norm_label": "list",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
-      "id": "readinglistservice_src_readinglistservice_pages_index_cshtml_cs_task",
-      "label": "Task",
-      "_origin": "ast",
-      "community": 0,
-      "community_name": "Task",
-      "file_type": "code",
-      "norm_label": "task",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
-      "id": "readinglistservice_src_readinglistservice_pages_weekly_cshtml",
-      "label": "Weekly.cshtml.cs",
-      "_origin": "ast",
-      "community": 0,
-      "community_name": "Task",
-      "file_type": "code",
-      "norm_label": "weekly.cshtml.cs",
-      "source_file": "ReadingListService/src/ReadingListService/Pages/Weekly.cshtml.cs",
-      "source_location": "L1"
-    },
-    {
-      "id": "readinglistservice_src_readinglistservice_pages_weekly_cshtml_cs_task",
-      "label": "Task",
-      "_origin": "ast",
-      "community": 0,
-      "community_name": "Task",
-      "file_type": "code",
-      "norm_label": "task",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
       "id": "backgroundservice",
       "label": "BackgroundService",
       "_origin": "ast",
@@ -5216,6 +4965,54 @@
       "norm_label": "backgroundservice",
       "source_file": "",
       "source_location": ""
+    },
+    {
+      "id": "csharp_namespace:00fe7b3358161526",
+      "label": "ValuationService.Service",
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "ValuationBackgroundWorker",
+      "file_type": "code",
+      "metadata": {
+        "kind": "csharp_namespace",
+        "namespace": "ValuationService.Service"
+      },
+      "norm_label": "valuationservice.service",
+      "source_file": "ValuationService/src/ValuationService/Service/ValuationBackgroundWorker.cs",
+      "source_location": "L10",
+      "type": "namespace"
+    },
+    {
+      "id": "csharp_namespace:809a33798421bcfe",
+      "label": "ValuationService.Controllers",
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "ValuationBackgroundWorker",
+      "file_type": "code",
+      "metadata": {
+        "kind": "csharp_namespace",
+        "namespace": "ValuationService.Controllers"
+      },
+      "norm_label": "valuationservice.controllers",
+      "source_file": "ValuationService/src/ValuationService/Controllers/ValuationController.cs",
+      "source_location": "L4",
+      "type": "namespace"
+    },
+    {
+      "id": "csharp_namespace:915ea7eded5b8571",
+      "label": "ValuationService.Tests",
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "ValuationBackgroundWorker",
+      "file_type": "code",
+      "metadata": {
+        "kind": "csharp_namespace",
+        "namespace": "ValuationService.Tests"
+      },
+      "norm_label": "valuationservice.tests",
+      "source_file": "ValuationService/src/ValuationService/Tests/ValuationBackgroundWorkerTests.cs",
+      "source_location": "L13",
+      "type": "namespace"
     },
     {
       "id": "csharp_namespace:f304973c081da8c2",
@@ -5265,6 +5062,17 @@
       "norm_label": "theory",
       "source_file": "",
       "source_location": ""
+    },
+    {
+      "id": "valuationservice_src_valuationservice_controllers_valuationcontroller",
+      "label": "ValuationController.cs",
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "ValuationBackgroundWorker",
+      "file_type": "code",
+      "norm_label": "valuationcontroller.cs",
+      "source_file": "ValuationService/src/ValuationService/Controllers/ValuationController.cs",
+      "source_location": "L1"
     },
     {
       "id": "valuationservice_src_valuationservice_infrastructure_mcpclientwrapper",
@@ -5474,6 +5282,39 @@
       "norm_label": "task",
       "source_file": "",
       "source_location": ""
+    },
+    {
+      "id": "valuationservice_src_valuationservice_tests_valuationbackgroundworkertests",
+      "label": "ValuationBackgroundWorkerTests.cs",
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "ValuationBackgroundWorker",
+      "file_type": "code",
+      "norm_label": "valuationbackgroundworkertests.cs",
+      "source_file": "ValuationService/src/ValuationService/Tests/ValuationBackgroundWorkerTests.cs",
+      "source_location": "L1"
+    },
+    {
+      "id": "valuationservice_src_valuationservice_tests_valuationcontrollertests",
+      "label": "ValuationControllerTests.cs",
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "ValuationBackgroundWorker",
+      "file_type": "code",
+      "norm_label": "valuationcontrollertests.cs",
+      "source_file": "ValuationService/src/ValuationService/Tests/ValuationControllerTests.cs",
+      "source_location": "L1"
+    },
+    {
+      "id": "valuationservice_src_valuationservice_tests_valuationresponseparsertests",
+      "label": "ValuationResponseParserTests.cs",
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "ValuationBackgroundWorker",
+      "file_type": "code",
+      "norm_label": "valuationresponseparsertests.cs",
+      "source_file": "ValuationService/src/ValuationService/Tests/ValuationResponseParserTests.cs",
+      "source_location": "L1"
     },
     {
       "id": "valuationservice_src_valuationservice_tests_valuationresponseparsertests_cs_fact",
@@ -5910,104 +5751,6 @@
       "source_location": ""
     },
     {
-      "id": "csharp_namespace:80ffd98692cfba64",
-      "label": "ReadingListService.Options",
-      "_origin": "ast",
-      "community": 13,
-      "community_name": "ComicRepositoryTests",
-      "file_type": "code",
-      "metadata": {
-        "kind": "csharp_namespace",
-        "namespace": "ReadingListService.Options"
-      },
-      "norm_label": "readinglistservice.options",
-      "source_file": "ReadingListService/src/ReadingListService/Options/SearchOptions.cs",
-      "source_location": "L1",
-      "type": "namespace"
-    },
-    {
-      "id": "csharp_namespace:dc6df1f2142b9981",
-      "label": "ReadingListService.Tests",
-      "_origin": "ast",
-      "community": 13,
-      "community_name": "ComicRepositoryTests",
-      "file_type": "code",
-      "metadata": {
-        "kind": "csharp_namespace",
-        "namespace": "ReadingListService.Tests"
-      },
-      "norm_label": "readinglistservice.tests",
-      "source_file": "ReadingListService/src/ReadingListService.Tests/ComicRepositoryTests.cs",
-      "source_location": "L10",
-      "type": "namespace"
-    },
-    {
-      "id": "readinglistservice_src_readinglistservice_options_searchoptions",
-      "label": "SearchOptions.cs",
-      "_origin": "ast",
-      "community": 13,
-      "community_name": "ComicRepositoryTests",
-      "file_type": "code",
-      "norm_label": "searchoptions.cs",
-      "source_file": "ReadingListService/src/ReadingListService/Options/SearchOptions.cs",
-      "source_location": "L1"
-    },
-    {
-      "id": "readinglistservice_src_readinglistservice_options_searchoptions_cs_string",
-      "label": "string",
-      "_origin": "ast",
-      "community": 13,
-      "community_name": "ComicRepositoryTests",
-      "file_type": "code",
-      "norm_label": "string",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
-      "id": "readinglistservice_src_readinglistservice_options_serviceoptions",
-      "label": "ServiceOptions.cs",
-      "_origin": "ast",
-      "community": 13,
-      "community_name": "ComicRepositoryTests",
-      "file_type": "code",
-      "norm_label": "serviceoptions.cs",
-      "source_file": "ReadingListService/src/ReadingListService/Options/ServiceOptions.cs",
-      "source_location": "L1"
-    },
-    {
-      "id": "readinglistservice_src_readinglistservice_options_serviceoptions_cs_string",
-      "label": "string",
-      "_origin": "ast",
-      "community": 13,
-      "community_name": "ComicRepositoryTests",
-      "file_type": "code",
-      "norm_label": "string",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
-      "id": "readinglistservice_src_readinglistservice_program",
-      "label": "ReadingListService/Program.cs",
-      "_origin": "ast",
-      "community": 13,
-      "community_name": "ComicRepositoryTests",
-      "file_type": "code",
-      "norm_label": "readinglistservice/program.cs",
-      "source_file": "ReadingListService/src/ReadingListService/Program.cs",
-      "source_location": "L1"
-    },
-    {
-      "id": "readinglistservice_src_readinglistservice_tests_comicrepositorytests",
-      "label": "ComicRepositoryTests.cs",
-      "_origin": "ast",
-      "community": 13,
-      "community_name": "ComicRepositoryTests",
-      "file_type": "code",
-      "norm_label": "comicrepositorytests.cs",
-      "source_file": "ReadingListService/src/ReadingListService.Tests/ComicRepositoryTests.cs",
-      "source_location": "L1"
-    },
-    {
       "id": "readinglistservice_src_readinglistservice_tests_comicrepositorytests_cs_fact",
       "label": "Fact",
       "_origin": "ast",
@@ -6037,28 +5780,6 @@
       "community_name": "ComicRepositoryTests",
       "file_type": "code",
       "norm_label": "task",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
-      "id": "readinglistservice_src_readinglistservice_tests_unittest1",
-      "label": "UnitTest1.cs",
-      "_origin": "ast",
-      "community": 13,
-      "community_name": "ComicRepositoryTests",
-      "file_type": "code",
-      "norm_label": "unittest1.cs",
-      "source_file": "ReadingListService/src/ReadingListService.Tests/UnitTest1.cs",
-      "source_location": "L1"
-    },
-    {
-      "id": "readinglistservice_src_readinglistservice_tests_unittest1_cs_fact",
-      "label": "Fact",
-      "_origin": "ast",
-      "community": 13,
-      "community_name": "ComicRepositoryTests",
-      "file_type": "code",
-      "norm_label": "fact",
       "source_file": "",
       "source_location": ""
     },
@@ -7906,44 +7627,6 @@
       "source_location": "L1"
     },
     {
-      "id": "valuationservice_src_valuationservice_tests_valuationbackgroundworkertests",
-      "label": "ValuationBackgroundWorkerTests.cs",
-      "_origin": "ast",
-      "community": 2,
-      "community_name": "PersistenceService.Domain.Entities",
-      "file_type": "code",
-      "norm_label": "valuationbackgroundworkertests.cs",
-      "source_file": "ValuationService/src/ValuationService/Tests/ValuationBackgroundWorkerTests.cs",
-      "source_location": "L1"
-    },
-    {
-      "id": "csharp_namespace:b2369d7b8b0f8469",
-      "label": "ReadingListService.Models",
-      "_origin": "ast",
-      "community": 20,
-      "community_name": "ReadingListDbContext",
-      "file_type": "code",
-      "metadata": {
-        "kind": "csharp_namespace",
-        "namespace": "ReadingListService.Models"
-      },
-      "norm_label": "readinglistservice.models",
-      "source_file": "ReadingListService/src/ReadingListService/Models/ComicRecord.cs",
-      "source_location": "L4",
-      "type": "namespace"
-    },
-    {
-      "id": "readinglistservice_src_readinglistservice_data_readinglistdbcontext",
-      "label": "ReadingListDbContext.cs",
-      "_origin": "ast",
-      "community": 20,
-      "community_name": "ReadingListDbContext",
-      "file_type": "code",
-      "norm_label": "readinglistdbcontext.cs",
-      "source_file": "ReadingListService/src/ReadingListService/Data/ReadingListDbContext.cs",
-      "source_location": "L1"
-    },
-    {
       "id": "readinglistservice_src_readinglistservice_data_readinglistdbcontext_cs_dbset",
       "label": "DbSet",
       "_origin": "ast",
@@ -8043,6 +7726,17 @@
       "source_location": null
     },
     {
+      "id": "persistenceservice_persistenceservice",
+      "label": "PersistenceService.sln",
+      "_origin": "ast",
+      "community": 21,
+      "community_name": "PersistenceService.Tests",
+      "file_type": "code",
+      "norm_label": "persistenceservice.sln",
+      "source_file": "PersistenceService/PersistenceService.sln",
+      "source_location": null
+    },
+    {
       "id": "persistenceservice_tests_persistenceservice_tests_persistenceservice_tests",
       "label": "PersistenceService.Tests",
       "_origin": "ast",
@@ -8117,6 +7811,149 @@
       "file_type": "code",
       "norm_label": "xunit.runner.visualstudio (2.8.2)",
       "source_file": "PersistenceService/tests/PersistenceService.Tests/PersistenceService.Tests.csproj",
+      "source_location": null
+    },
+    {
+      "id": "sharedlibrary_sharedlibrary_csproj_nuget_csvhelper",
+      "label": "CsvHelper (33.1.0)",
+      "_origin": "ast",
+      "community": 21,
+      "community_name": "PersistenceService.Tests",
+      "file_type": "code",
+      "norm_label": "csvhelper (33.1.0)",
+      "source_file": "SharedLibrary/SharedLibrary.csproj",
+      "source_location": null
+    },
+    {
+      "id": "sharedlibrary_sharedlibrary_csproj_nuget_facet",
+      "label": "Facet (2.5.0)",
+      "_origin": "ast",
+      "community": 21,
+      "community_name": "PersistenceService.Tests",
+      "file_type": "code",
+      "norm_label": "facet (2.5.0)",
+      "source_file": "SharedLibrary/SharedLibrary.csproj",
+      "source_location": null
+    },
+    {
+      "id": "sharedlibrary_sharedlibrary_csproj_nuget_facet_extensions_efcore",
+      "label": "Facet.Extensions.EFCore (2.5.0)",
+      "_origin": "ast",
+      "community": 21,
+      "community_name": "PersistenceService.Tests",
+      "file_type": "code",
+      "norm_label": "facet.extensions.efcore (2.5.0)",
+      "source_file": "SharedLibrary/SharedLibrary.csproj",
+      "source_location": null
+    },
+    {
+      "id": "sharedlibrary_sharedlibrary_csproj_sharedlibrary_sharedlibrary",
+      "label": "SharedLibrary",
+      "_origin": "ast",
+      "community": 21,
+      "community_name": "PersistenceService.Tests",
+      "file_type": "code",
+      "norm_label": "sharedlibrary",
+      "source_file": "SharedLibrary/SharedLibrary.csproj",
+      "source_location": null
+    },
+    {
+      "id": "sharedlibrary_sharedlibrary_csproj_framework_net9_0",
+      "label": "net9.0",
+      "_origin": "ast",
+      "community": 21,
+      "community_name": "PersistenceService.Tests",
+      "file_type": "concept",
+      "norm_label": "net9.0",
+      "source_file": "SharedLibrary/SharedLibrary.csproj",
+      "source_location": null
+    },
+    {
+      "id": "sharedlibrary_sharedlibrary_csproj_sdk_microsoft_net_sdk",
+      "label": "Microsoft.NET.Sdk",
+      "_origin": "ast",
+      "community": 21,
+      "community_name": "PersistenceService.Tests",
+      "file_type": "concept",
+      "norm_label": "microsoft.net.sdk",
+      "source_file": "SharedLibrary/SharedLibrary.csproj",
+      "source_location": null
+    },
+    {
+      "id": "readinglistservice_readinglistservice",
+      "label": "ReadingListService.sln",
+      "_origin": "ast",
+      "community": 22,
+      "community_name": "ReadingListService.Tests",
+      "file_type": "code",
+      "norm_label": "readinglistservice.sln",
+      "source_file": "ReadingListService/ReadingListService.sln",
+      "source_location": null
+    },
+    {
+      "id": "readinglistservice_src_readinglistservice_readinglistservice",
+      "label": "ReadingListService",
+      "_origin": "ast",
+      "community": 22,
+      "community_name": "ReadingListService.Tests",
+      "file_type": "code",
+      "norm_label": "readinglistservice",
+      "source_file": "ReadingListService/src/ReadingListService/ReadingListService.csproj",
+      "source_location": null
+    },
+    {
+      "id": "readinglistservice_src_readinglistservice_readinglistservice_csproj_nuget_microsoft_aspnetcore_openapi",
+      "label": "Microsoft.AspNetCore.OpenApi (9.0.0)",
+      "_origin": "ast",
+      "community": 22,
+      "community_name": "ReadingListService.Tests",
+      "file_type": "code",
+      "norm_label": "microsoft.aspnetcore.openapi (9.0.0)",
+      "source_file": "ReadingListService/src/ReadingListService/ReadingListService.csproj",
+      "source_location": null
+    },
+    {
+      "id": "readinglistservice_src_readinglistservice_readinglistservice_csproj_nuget_microsoft_entityframeworkcore",
+      "label": "Microsoft.EntityFrameworkCore (9.0.0)",
+      "_origin": "ast",
+      "community": 22,
+      "community_name": "ReadingListService.Tests",
+      "file_type": "code",
+      "norm_label": "microsoft.entityframeworkcore (9.0.0)",
+      "source_file": "ReadingListService/src/ReadingListService/ReadingListService.csproj",
+      "source_location": null
+    },
+    {
+      "id": "readinglistservice_src_readinglistservice_readinglistservice_csproj_nuget_microsoft_entityframeworkcore_design",
+      "label": "Microsoft.EntityFrameworkCore.Design (9.0.0)",
+      "_origin": "ast",
+      "community": 22,
+      "community_name": "ReadingListService.Tests",
+      "file_type": "code",
+      "norm_label": "microsoft.entityframeworkcore.design (9.0.0)",
+      "source_file": "ReadingListService/src/ReadingListService/ReadingListService.csproj",
+      "source_location": null
+    },
+    {
+      "id": "readinglistservice_src_readinglistservice_readinglistservice_csproj_nuget_microsoft_extensions_diagnostics_healthchecks_entityframeworkcore",
+      "label": "Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore (9.0.0)",
+      "_origin": "ast",
+      "community": 22,
+      "community_name": "ReadingListService.Tests",
+      "file_type": "code",
+      "norm_label": "microsoft.extensions.diagnostics.healthchecks.entityframeworkcore (9.0.0)",
+      "source_file": "ReadingListService/src/ReadingListService/ReadingListService.csproj",
+      "source_location": null
+    },
+    {
+      "id": "readinglistservice_src_readinglistservice_readinglistservice_csproj_nuget_npgsql_entityframeworkcore_postgresql",
+      "label": "Npgsql.EntityFrameworkCore.PostgreSQL (9.0.0)",
+      "_origin": "ast",
+      "community": 22,
+      "community_name": "ReadingListService.Tests",
+      "file_type": "code",
+      "norm_label": "npgsql.entityframeworkcore.postgresql (9.0.0)",
+      "source_file": "ReadingListService/src/ReadingListService/ReadingListService.csproj",
       "source_location": null
     },
     {
@@ -8197,69 +8034,14 @@
       "source_location": null
     },
     {
-      "id": "sharedlibrary_sharedlibrary_csproj_nuget_csvhelper",
-      "label": "CsvHelper (33.1.0)",
-      "_origin": "ast",
-      "community": 22,
-      "community_name": "ReadingListService.Tests",
-      "file_type": "code",
-      "norm_label": "csvhelper (33.1.0)",
-      "source_file": "SharedLibrary/SharedLibrary.csproj",
-      "source_location": null
-    },
-    {
-      "id": "sharedlibrary_sharedlibrary_csproj_nuget_facet",
-      "label": "Facet (2.5.0)",
-      "_origin": "ast",
-      "community": 22,
-      "community_name": "ReadingListService.Tests",
-      "file_type": "code",
-      "norm_label": "facet (2.5.0)",
-      "source_file": "SharedLibrary/SharedLibrary.csproj",
-      "source_location": null
-    },
-    {
-      "id": "sharedlibrary_sharedlibrary_csproj_nuget_facet_extensions_efcore",
-      "label": "Facet.Extensions.EFCore (2.5.0)",
-      "_origin": "ast",
-      "community": 22,
-      "community_name": "ReadingListService.Tests",
-      "file_type": "code",
-      "norm_label": "facet.extensions.efcore (2.5.0)",
-      "source_file": "SharedLibrary/SharedLibrary.csproj",
-      "source_location": null
-    },
-    {
-      "id": "sharedlibrary_sharedlibrary_csproj_sharedlibrary_sharedlibrary",
-      "label": "SharedLibrary",
-      "_origin": "ast",
-      "community": 22,
-      "community_name": "ReadingListService.Tests",
-      "file_type": "code",
-      "norm_label": "sharedlibrary",
-      "source_file": "SharedLibrary/SharedLibrary.csproj",
-      "source_location": null
-    },
-    {
-      "id": "sharedlibrary_sharedlibrary_csproj_framework_net9_0",
-      "label": "net9.0",
+      "id": "ingestionservice_src_ingestionservice_ingestionservice_csproj_sdk_microsoft_net_sdk_web",
+      "label": "Microsoft.NET.Sdk.Web",
       "_origin": "ast",
       "community": 22,
       "community_name": "ReadingListService.Tests",
       "file_type": "concept",
-      "norm_label": "net9.0",
-      "source_file": "SharedLibrary/SharedLibrary.csproj",
-      "source_location": null
-    },
-    {
-      "id": "sharedlibrary_sharedlibrary_csproj_sdk_microsoft_net_sdk",
-      "label": "Microsoft.NET.Sdk",
-      "_origin": "ast",
-      "community": 22,
-      "community_name": "ReadingListService.Tests",
-      "file_type": "concept",
-      "norm_label": "microsoft.net.sdk",
-      "source_file": "SharedLibrary/SharedLibrary.csproj",
+      "norm_label": "microsoft.net.sdk.web",
+      "source_file": "IngestionService/src/IngestionService/IngestionService.csproj",
       "source_location": null
     },
     {
@@ -8695,6 +8477,17 @@
       "norm_label": "$schema",
       "source_file": "IngestionService/src/IngestionService/Properties/launchSettings.json",
       "source_location": "L2"
+    },
+    {
+      "id": "ingestionservice_ingestionservice",
+      "label": "IngestionService.sln",
+      "_origin": "ast",
+      "community": 28,
+      "community_name": "IngestionService.Tests",
+      "file_type": "code",
+      "norm_label": "ingestionservice.sln",
+      "source_file": "IngestionService/IngestionService.sln",
+      "source_location": null
     },
     {
       "id": "ingestionservice_tests_ingestionservice_tests_ingestionservice_tests",
@@ -9190,72 +8983,6 @@
       "source_location": ""
     },
     {
-      "id": "constants",
-      "label": "Constants",
-      "_origin": "ast",
-      "community": 30,
-      "community_name": "SharedLibrary.sln",
-      "file_type": "code",
-      "norm_label": "constants",
-      "source_file": "Constants",
-      "source_location": null
-    },
-    {
-      "id": "events",
-      "label": "Events",
-      "_origin": "ast",
-      "community": 30,
-      "community_name": "SharedLibrary.sln",
-      "file_type": "code",
-      "norm_label": "events",
-      "source_file": "Events",
-      "source_location": null
-    },
-    {
-      "id": "extensions",
-      "label": "Extensions",
-      "_origin": "ast",
-      "community": 30,
-      "community_name": "SharedLibrary.sln",
-      "file_type": "code",
-      "norm_label": "extensions",
-      "source_file": "Extensions",
-      "source_location": null
-    },
-    {
-      "id": "facet",
-      "label": "Facet",
-      "_origin": "ast",
-      "community": 30,
-      "community_name": "SharedLibrary.sln",
-      "file_type": "code",
-      "norm_label": "facet",
-      "source_file": "Facet",
-      "source_location": null
-    },
-    {
-      "id": "kafka",
-      "label": "Kafka",
-      "_origin": "ast",
-      "community": 30,
-      "community_name": "SharedLibrary.sln",
-      "file_type": "code",
-      "norm_label": "kafka",
-      "source_file": "Kafka",
-      "source_location": null
-    },
-    {
-      "id": "models",
-      "label": "Models",
-      "_origin": "ast",
-      "community": 30,
-      "community_name": "SharedLibrary.sln",
-      "file_type": "code",
-      "norm_label": "models",
-      "source_file": "Models",
-      "source_location": null
-    },
-    {
       "id": "sharedlibrary_sharedlibrary_sln_sharedlibrary_sharedlibrary",
       "label": "SharedLibrary.sln",
       "_origin": "ast",
@@ -9267,92 +8994,280 @@
       "source_location": null
     },
     {
-      "id": "utilities",
-      "label": "Utilities",
-      "_origin": "ast",
-      "community": 30,
-      "community_name": "SharedLibrary.sln",
-      "file_type": "code",
-      "norm_label": "utilities",
-      "source_file": "Utilities",
-      "source_location": null
-    },
-    {
-      "id": "readinglistservice_src_readinglistservice_readinglistservice",
-      "label": "ReadingListService",
+      "id": "comicapparchitecture",
+      "label": "ComicAppArchitecture.md",
       "_origin": "ast",
       "community": 31,
-      "community_name": "ReadingListService",
-      "file_type": "code",
-      "norm_label": "readinglistservice",
-      "source_file": "ReadingListService/src/ReadingListService/ReadingListService.csproj",
-      "source_location": null
+      "community_name": "ComicApp System Architecture",
+      "file_type": "document",
+      "node_kind": "page",
+      "norm_label": "comicapparchitecture.md",
+      "source_file": "ComicAppArchitecture.md",
+      "source_location": "L1"
     },
     {
-      "id": "readinglistservice_src_readinglistservice_readinglistservice_csproj_nuget_microsoft_aspnetcore_openapi",
-      "label": "Microsoft.AspNetCore.OpenApi (9.0.0)",
+      "id": "comicapparchitecture_10_architectural_benefits_system_characteristics",
+      "label": "10. Architectural Benefits & System Characteristics",
       "_origin": "ast",
       "community": 31,
-      "community_name": "ReadingListService",
-      "file_type": "code",
-      "norm_label": "microsoft.aspnetcore.openapi (9.0.0)",
-      "source_file": "ReadingListService/src/ReadingListService/ReadingListService.csproj",
-      "source_location": null
+      "community_name": "ComicApp System Architecture",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "10. architectural benefits & system characteristics",
+      "source_file": "ComicAppArchitecture.md",
+      "source_location": "L244"
     },
     {
-      "id": "readinglistservice_src_readinglistservice_readinglistservice_csproj_nuget_microsoft_entityframeworkcore",
-      "label": "Microsoft.EntityFrameworkCore (9.0.0)",
+      "id": "comicapparchitecture_1_executive_summary",
+      "label": "1. Executive Summary",
       "_origin": "ast",
       "community": 31,
-      "community_name": "ReadingListService",
-      "file_type": "code",
-      "norm_label": "microsoft.entityframeworkcore (9.0.0)",
-      "source_file": "ReadingListService/src/ReadingListService/ReadingListService.csproj",
-      "source_location": null
+      "community_name": "ComicApp System Architecture",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "1. executive summary",
+      "source_file": "ComicAppArchitecture.md",
+      "source_location": "L3"
     },
     {
-      "id": "readinglistservice_src_readinglistservice_readinglistservice_csproj_nuget_microsoft_entityframeworkcore_design",
-      "label": "Microsoft.EntityFrameworkCore.Design (9.0.0)",
+      "id": "comicapparchitecture_2_high_level_architecture_diagram",
+      "label": "2. High-Level Architecture Diagram",
       "_origin": "ast",
       "community": 31,
-      "community_name": "ReadingListService",
-      "file_type": "code",
-      "norm_label": "microsoft.entityframeworkcore.design (9.0.0)",
-      "source_file": "ReadingListService/src/ReadingListService/ReadingListService.csproj",
-      "source_location": null
+      "community_name": "ComicApp System Architecture",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "2. high-level architecture diagram",
+      "source_file": "ComicAppArchitecture.md",
+      "source_location": "L11"
     },
     {
-      "id": "readinglistservice_src_readinglistservice_readinglistservice_csproj_nuget_microsoft_extensions_diagnostics_healthchecks_entityframeworkcore",
-      "label": "Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore (9.0.0)",
+      "id": "comicapparchitecture_3_1_ingestionservice",
+      "label": "3.1 IngestionService",
       "_origin": "ast",
       "community": 31,
-      "community_name": "ReadingListService",
-      "file_type": "code",
-      "norm_label": "microsoft.extensions.diagnostics.healthchecks.entityframeworkcore (9.0.0)",
-      "source_file": "ReadingListService/src/ReadingListService/ReadingListService.csproj",
-      "source_location": null
+      "community_name": "ComicApp System Architecture",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "3.1 ingestionservice",
+      "source_file": "ComicAppArchitecture.md",
+      "source_location": "L62"
     },
     {
-      "id": "readinglistservice_src_readinglistservice_readinglistservice_csproj_nuget_npgsql_entityframeworkcore_postgresql",
-      "label": "Npgsql.EntityFrameworkCore.PostgreSQL (9.0.0)",
+      "id": "comicapparchitecture_3_2_persistenceservice",
+      "label": "3.2 PersistenceService",
       "_origin": "ast",
       "community": 31,
-      "community_name": "ReadingListService",
-      "file_type": "code",
-      "norm_label": "npgsql.entityframeworkcore.postgresql (9.0.0)",
-      "source_file": "ReadingListService/src/ReadingListService/ReadingListService.csproj",
-      "source_location": null
+      "community_name": "ComicApp System Architecture",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "3.2 persistenceservice",
+      "source_file": "ComicAppArchitecture.md",
+      "source_location": "L72"
     },
     {
-      "id": "ingestionservice_src_ingestionservice_ingestionservice_csproj_sdk_microsoft_net_sdk_web",
-      "label": "Microsoft.NET.Sdk.Web",
+      "id": "comicapparchitecture_3_3_readinglistservice",
+      "label": "3.3 ReadingListService",
       "_origin": "ast",
       "community": 31,
-      "community_name": "ReadingListService",
-      "file_type": "concept",
-      "norm_label": "microsoft.net.sdk.web",
-      "source_file": "IngestionService/src/IngestionService/IngestionService.csproj",
-      "source_location": null
+      "community_name": "ComicApp System Architecture",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "3.3 readinglistservice",
+      "source_file": "ComicAppArchitecture.md",
+      "source_location": "L83"
+    },
+    {
+      "id": "comicapparchitecture_3_4_valuationservice",
+      "label": "3.4 ValuationService",
+      "_origin": "ast",
+      "community": 31,
+      "community_name": "ComicApp System Architecture",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "3.4 valuationservice",
+      "source_file": "ComicAppArchitecture.md",
+      "source_location": "L92"
+    },
+    {
+      "id": "comicapparchitecture_3_5_sharedlibrary",
+      "label": "3.5 SharedLibrary",
+      "_origin": "ast",
+      "community": 31,
+      "community_name": "ComicApp System Architecture",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "3.5 sharedlibrary",
+      "source_file": "ComicAppArchitecture.md",
+      "source_location": "L103"
+    },
+    {
+      "id": "comicapparchitecture_3_core_application_services_net_9",
+      "label": "3. Core Application Services (.NET 9)",
+      "_origin": "ast",
+      "community": 31,
+      "community_name": "ComicApp System Architecture",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "3. core application services (.net 9)",
+      "source_file": "ComicAppArchitecture.md",
+      "source_location": "L60"
+    },
+    {
+      "id": "comicapparchitecture_4_supporting_infrastructure_containers",
+      "label": "4. Supporting Infrastructure & Containers",
+      "_origin": "ast",
+      "community": 31,
+      "community_name": "ComicApp System Architecture",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "4. supporting infrastructure & containers",
+      "source_file": "ComicAppArchitecture.md",
+      "source_location": "L112"
+    },
+    {
+      "id": "comicapparchitecture_5_1_kafka_topics",
+      "label": "5.1 Kafka Topics",
+      "_origin": "ast",
+      "community": 31,
+      "community_name": "ComicApp System Architecture",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "5.1 kafka topics",
+      "source_file": "ComicAppArchitecture.md",
+      "source_location": "L133"
+    },
+    {
+      "id": "comicapparchitecture_5_2_consumer_configuration",
+      "label": "5.2 Consumer Configuration",
+      "_origin": "ast",
+      "community": 31,
+      "community_name": "ComicApp System Architecture",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "5.2 consumer configuration",
+      "source_file": "ComicAppArchitecture.md",
+      "source_location": "L140"
+    },
+    {
+      "id": "comicapparchitecture_5_event_driven_messaging_streaming_pipeline",
+      "label": "5. Event-Driven Messaging & Streaming Pipeline",
+      "_origin": "ast",
+      "community": 31,
+      "community_name": "ComicApp System Architecture",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "5. event-driven messaging & streaming pipeline",
+      "source_file": "ComicAppArchitecture.md",
+      "source_location": "L129"
+    },
+    {
+      "id": "comicapparchitecture_6_ingress_routing_gateway_topology_caddy",
+      "label": "6. Ingress Routing & Gateway Topology (Caddy)",
+      "_origin": "ast",
+      "community": 31,
+      "community_name": "ComicApp System Architecture",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "6. ingress routing & gateway topology (caddy)",
+      "source_file": "ComicAppArchitecture.md",
+      "source_location": "L147"
+    },
+    {
+      "id": "comicapparchitecture_7_1_prometheus_alerting_rules_prometheus_alerts_yml",
+      "label": "7.1 Prometheus Alerting Rules (`prometheus-alerts.yml`)",
+      "_origin": "ast",
+      "community": 31,
+      "community_name": "ComicApp System Architecture",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "7.1 prometheus alerting rules (`prometheus-alerts.yml`)",
+      "source_file": "ComicAppArchitecture.md",
+      "source_location": "L193"
+    },
+    {
+      "id": "comicapparchitecture_7_observability_telemetry_architecture",
+      "label": "7. Observability & Telemetry Architecture",
+      "_origin": "ast",
+      "community": 31,
+      "community_name": "ComicApp System Architecture",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "7. observability & telemetry architecture",
+      "source_file": "ComicAppArchitecture.md",
+      "source_location": "L176"
+    },
+    {
+      "id": "comicapparchitecture_8_persistence_data_storage_postgresql",
+      "label": "8. Persistence & Data Storage (PostgreSQL)",
+      "_origin": "ast",
+      "community": 31,
+      "community_name": "ComicApp System Architecture",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "8. persistence & data storage (postgresql)",
+      "source_file": "ComicAppArchitecture.md",
+      "source_location": "L206"
+    },
+    {
+      "id": "comicapparchitecture_9_1_comic_ingestion_persistence_flow",
+      "label": "9.1 Comic Ingestion & Persistence Flow",
+      "_origin": "ast",
+      "community": 31,
+      "community_name": "ComicApp System Architecture",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "9.1 comic ingestion & persistence flow",
+      "source_file": "ComicAppArchitecture.md",
+      "source_location": "L221"
+    },
+    {
+      "id": "comicapparchitecture_9_2_valuation_assessment_flow",
+      "label": "9.2 Valuation Assessment Flow",
+      "_origin": "ast",
+      "community": 31,
+      "community_name": "ComicApp System Architecture",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "9.2 valuation assessment flow",
+      "source_file": "ComicAppArchitecture.md",
+      "source_location": "L230"
+    },
+    {
+      "id": "comicapparchitecture_9_3_user_browsing_reading_list_management_flow",
+      "label": "9.3 User Browsing & Reading List Management Flow",
+      "_origin": "ast",
+      "community": 31,
+      "community_name": "ComicApp System Architecture",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "9.3 user browsing & reading list management flow",
+      "source_file": "ComicAppArchitecture.md",
+      "source_location": "L236"
+    },
+    {
+      "id": "comicapparchitecture_9_key_end_to_end_operational_workflows",
+      "label": "9. Key End-to-End Operational Workflows",
+      "_origin": "ast",
+      "community": 31,
+      "community_name": "ComicApp System Architecture",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "9. key end-to-end operational workflows",
+      "source_file": "ComicAppArchitecture.md",
+      "source_location": "L219"
+    },
+    {
+      "id": "comicapparchitecture_comicapp_system_architecture",
+      "label": "ComicApp System Architecture",
+      "_origin": "ast",
+      "community": 31,
+      "community_name": "ComicApp System Architecture",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "comicapp system architecture",
+      "source_file": "ComicAppArchitecture.md",
+      "source_location": "L1"
     },
     {
       "id": "ingestionservice_src_ingestionservice_startup_hostingconfig",
@@ -9993,59 +9908,287 @@
       "source_location": null
     },
     {
-      "id": "ingestionservice_ingestionservice",
-      "label": "IngestionService.sln",
+      "id": "csharp_namespace:80ffd98692cfba64",
+      "label": "ReadingListService.Options",
       "_origin": "ast",
       "community": 48,
-      "community_name": "IngestionService.sln",
+      "community_name": "ReadingListService.Data",
       "file_type": "code",
-      "norm_label": "ingestionservice.sln",
-      "source_file": "IngestionService/IngestionService.sln",
-      "source_location": null
+      "metadata": {
+        "kind": "csharp_namespace",
+        "namespace": "ReadingListService.Options"
+      },
+      "norm_label": "readinglistservice.options",
+      "source_file": "ReadingListService/src/ReadingListService/Options/SearchOptions.cs",
+      "source_location": "L1",
+      "type": "namespace"
     },
     {
-      "id": "persistenceservice_persistenceservice",
-      "label": "PersistenceService.sln",
+      "id": "csharp_namespace:9bce787c742ea32c",
+      "label": "ReadingListService.Pages",
       "_origin": "ast",
       "community": 48,
-      "community_name": "IngestionService.sln",
+      "community_name": "ReadingListService.Data",
       "file_type": "code",
-      "norm_label": "persistenceservice.sln",
-      "source_file": "PersistenceService/PersistenceService.sln",
-      "source_location": null
+      "metadata": {
+        "kind": "csharp_namespace",
+        "namespace": "ReadingListService.Pages"
+      },
+      "norm_label": "readinglistservice.pages",
+      "source_file": "ReadingListService/src/ReadingListService/Pages/Index.cshtml.cs",
+      "source_location": "L6",
+      "type": "namespace"
     },
     {
-      "id": "readinglistservice_readinglistservice",
-      "label": "ReadingListService.sln",
+      "id": "csharp_namespace:b2369d7b8b0f8469",
+      "label": "ReadingListService.Models",
       "_origin": "ast",
       "community": 48,
-      "community_name": "IngestionService.sln",
+      "community_name": "ReadingListService.Data",
       "file_type": "code",
-      "norm_label": "readinglistservice.sln",
-      "source_file": "ReadingListService/ReadingListService.sln",
-      "source_location": null
+      "metadata": {
+        "kind": "csharp_namespace",
+        "namespace": "ReadingListService.Models"
+      },
+      "norm_label": "readinglistservice.models",
+      "source_file": "ReadingListService/src/ReadingListService/Models/ComicRecord.cs",
+      "source_location": "L4",
+      "type": "namespace"
     },
     {
-      "id": "src",
-      "label": "src",
+      "id": "csharp_namespace:bd8a9be64419d400",
+      "label": "ReadingListService.Data",
       "_origin": "ast",
       "community": 48,
-      "community_name": "IngestionService.sln",
+      "community_name": "ReadingListService.Data",
       "file_type": "code",
-      "norm_label": "src",
-      "source_file": "src",
-      "source_location": null
+      "metadata": {
+        "kind": "csharp_namespace",
+        "namespace": "ReadingListService.Data"
+      },
+      "norm_label": "readinglistservice.data",
+      "source_file": "ReadingListService/src/ReadingListService/Data/ComicRepository.cs",
+      "source_location": "L9",
+      "type": "namespace"
     },
     {
-      "id": "tests",
-      "label": "tests",
+      "id": "csharp_namespace:e18dec83bb5930bf",
+      "label": "ReadingListService.Controllers",
       "_origin": "ast",
       "community": 48,
-      "community_name": "IngestionService.sln",
+      "community_name": "ReadingListService.Data",
       "file_type": "code",
-      "norm_label": "tests",
-      "source_file": "tests",
-      "source_location": null
+      "metadata": {
+        "kind": "csharp_namespace",
+        "namespace": "ReadingListService.Controllers"
+      },
+      "norm_label": "readinglistservice.controllers",
+      "source_file": "ReadingListService/src/ReadingListService/Controllers/ReadingListController.cs",
+      "source_location": "L5",
+      "type": "namespace"
+    },
+    {
+      "id": "csharp_namespace:f12bb0028768a0b3",
+      "label": "ReadingListService.Dtos",
+      "_origin": "ast",
+      "community": 48,
+      "community_name": "ReadingListService.Data",
+      "file_type": "code",
+      "metadata": {
+        "kind": "csharp_namespace",
+        "namespace": "ReadingListService.Dtos"
+      },
+      "norm_label": "readinglistservice.dtos",
+      "source_file": "ReadingListService/src/ReadingListService/Dtos/ComicDtos.cs",
+      "source_location": "L1",
+      "type": "namespace"
+    },
+    {
+      "id": "readinglistservice_src_readinglistservice_controllers_readinglistcontroller",
+      "label": "ReadingListController.cs",
+      "_origin": "ast",
+      "community": 48,
+      "community_name": "ReadingListService.Data",
+      "file_type": "code",
+      "norm_label": "readinglistcontroller.cs",
+      "source_file": "ReadingListService/src/ReadingListService/Controllers/ReadingListController.cs",
+      "source_location": "L1"
+    },
+    {
+      "id": "readinglistservice_src_readinglistservice_data_comicrepository",
+      "label": "ComicRepository.cs",
+      "_origin": "ast",
+      "community": 48,
+      "community_name": "ReadingListService.Data",
+      "file_type": "code",
+      "norm_label": "comicrepository.cs",
+      "source_file": "ReadingListService/src/ReadingListService/Data/ComicRepository.cs",
+      "source_location": "L1"
+    },
+    {
+      "id": "readinglistservice_src_readinglistservice_data_readinglistdbcontext",
+      "label": "ReadingListDbContext.cs",
+      "_origin": "ast",
+      "community": 48,
+      "community_name": "ReadingListService.Data",
+      "file_type": "code",
+      "norm_label": "readinglistdbcontext.cs",
+      "source_file": "ReadingListService/src/ReadingListService/Data/ReadingListDbContext.cs",
+      "source_location": "L1"
+    },
+    {
+      "id": "readinglistservice_src_readinglistservice_options_serviceoptions",
+      "label": "ServiceOptions.cs",
+      "_origin": "ast",
+      "community": 48,
+      "community_name": "ReadingListService.Data",
+      "file_type": "code",
+      "norm_label": "serviceoptions.cs",
+      "source_file": "ReadingListService/src/ReadingListService/Options/ServiceOptions.cs",
+      "source_location": "L1"
+    },
+    {
+      "id": "readinglistservice_src_readinglistservice_options_serviceoptions_cs_string",
+      "label": "string",
+      "_origin": "ast",
+      "community": 48,
+      "community_name": "ReadingListService.Data",
+      "file_type": "code",
+      "norm_label": "string",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "readinglistservice_src_readinglistservice_pages_index_cshtml",
+      "label": "Index.cshtml.cs",
+      "_origin": "ast",
+      "community": 48,
+      "community_name": "ReadingListService.Data",
+      "file_type": "code",
+      "norm_label": "index.cshtml.cs",
+      "source_file": "ReadingListService/src/ReadingListService/Pages/Index.cshtml.cs",
+      "source_location": "L1"
+    },
+    {
+      "id": "readinglistservice_src_readinglistservice_pages_weekly_cshtml",
+      "label": "Weekly.cshtml.cs",
+      "_origin": "ast",
+      "community": 48,
+      "community_name": "ReadingListService.Data",
+      "file_type": "code",
+      "norm_label": "weekly.cshtml.cs",
+      "source_file": "ReadingListService/src/ReadingListService/Pages/Weekly.cshtml.cs",
+      "source_location": "L1"
+    },
+    {
+      "id": "readinglistservice_src_readinglistservice_program",
+      "label": "ReadingListService/Program.cs",
+      "_origin": "ast",
+      "community": 48,
+      "community_name": "ReadingListService.Data",
+      "file_type": "code",
+      "norm_label": "readinglistservice/program.cs",
+      "source_file": "ReadingListService/src/ReadingListService/Program.cs",
+      "source_location": "L1"
+    },
+    {
+      "id": "readinglistservice_src_readinglistservice_tests_comicrepositorytests",
+      "label": "ComicRepositoryTests.cs",
+      "_origin": "ast",
+      "community": 48,
+      "community_name": "ReadingListService.Data",
+      "file_type": "code",
+      "norm_label": "comicrepositorytests.cs",
+      "source_file": "ReadingListService/src/ReadingListService.Tests/ComicRepositoryTests.cs",
+      "source_location": "L1"
+    },
+    {
+      "id": "actionresult",
+      "label": "ActionResult",
+      "_origin": "ast",
+      "community": 49,
+      "community_name": "ReadingListController",
+      "file_type": "code",
+      "norm_label": "actionresult",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "controller",
+      "label": "Controller",
+      "_origin": "ast",
+      "community": 49,
+      "community_name": "ReadingListController",
+      "file_type": "code",
+      "norm_label": "controller",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "readinglistservice_src_readinglistservice_controllers_readinglistcontroller_cs_guid",
+      "label": "Guid",
+      "_origin": "ast",
+      "community": 49,
+      "community_name": "ReadingListController",
+      "file_type": "code",
+      "norm_label": "guid",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "readinglistservice_src_readinglistservice_controllers_readinglistcontroller_cs_httpget",
+      "label": "HttpGet",
+      "_origin": "ast",
+      "community": 49,
+      "community_name": "ReadingListController",
+      "file_type": "code",
+      "norm_label": "httpget",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "readinglistservice_src_readinglistservice_controllers_readinglistcontroller_cs_httppost",
+      "label": "HttpPost",
+      "_origin": "ast",
+      "community": 49,
+      "community_name": "ReadingListController",
+      "file_type": "code",
+      "norm_label": "httppost",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "readinglistservice_src_readinglistservice_controllers_readinglistcontroller_cs_iactionresult",
+      "label": "IActionResult",
+      "_origin": "ast",
+      "community": 49,
+      "community_name": "ReadingListController",
+      "file_type": "code",
+      "norm_label": "iactionresult",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "readinglistservice_src_readinglistservice_controllers_readinglistcontroller_cs_list",
+      "label": "List",
+      "_origin": "ast",
+      "community": 49,
+      "community_name": "ReadingListController",
+      "file_type": "code",
+      "norm_label": "list",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "readinglistservice_src_readinglistservice_controllers_readinglistcontroller_cs_task",
+      "label": "Task",
+      "_origin": "ast",
+      "community": 49,
+      "community_name": "ReadingListController",
+      "file_type": "code",
+      "norm_label": "task",
+      "source_file": "",
+      "source_location": ""
     },
     {
       "id": "concurrentdictionary",
@@ -10297,6 +10440,121 @@
       "community_name": "KafkaComicListener",
       "file_type": "code",
       "norm_label": "times",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "pagemodel",
+      "label": "PageModel",
+      "_origin": "ast",
+      "community": 50,
+      "community_name": "IComicRepository",
+      "file_type": "code",
+      "norm_label": "pagemodel",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "readinglistservice_src_readinglistservice_pages_index_cshtml_cs_iactionresult",
+      "label": "IActionResult",
+      "_origin": "ast",
+      "community": 50,
+      "community_name": "IComicRepository",
+      "file_type": "code",
+      "norm_label": "iactionresult",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "readinglistservice_src_readinglistservice_pages_index_cshtml_cs_list",
+      "label": "List",
+      "_origin": "ast",
+      "community": 50,
+      "community_name": "IComicRepository",
+      "file_type": "code",
+      "norm_label": "list",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "readinglistservice_src_readinglistservice_pages_index_cshtml_cs_task",
+      "label": "Task",
+      "_origin": "ast",
+      "community": 50,
+      "community_name": "IComicRepository",
+      "file_type": "code",
+      "norm_label": "task",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "readinglistservice_src_readinglistservice_pages_weekly_cshtml_cs_task",
+      "label": "Task",
+      "_origin": "ast",
+      "community": 50,
+      "community_name": "IComicRepository",
+      "file_type": "code",
+      "norm_label": "task",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "csharp_namespace:dc6df1f2142b9981",
+      "label": "ReadingListService.Tests",
+      "_origin": "ast",
+      "community": 51,
+      "community_name": "ReadingListService.Tests",
+      "file_type": "code",
+      "metadata": {
+        "kind": "csharp_namespace",
+        "namespace": "ReadingListService.Tests"
+      },
+      "norm_label": "readinglistservice.tests",
+      "source_file": "ReadingListService/src/ReadingListService.Tests/ComicRepositoryTests.cs",
+      "source_location": "L10",
+      "type": "namespace"
+    },
+    {
+      "id": "readinglistservice_src_readinglistservice_tests_unittest1",
+      "label": "UnitTest1.cs",
+      "_origin": "ast",
+      "community": 51,
+      "community_name": "ReadingListService.Tests",
+      "file_type": "code",
+      "norm_label": "unittest1.cs",
+      "source_file": "ReadingListService/src/ReadingListService.Tests/UnitTest1.cs",
+      "source_location": "L1"
+    },
+    {
+      "id": "readinglistservice_src_readinglistservice_tests_unittest1_cs_fact",
+      "label": "Fact",
+      "_origin": "ast",
+      "community": 51,
+      "community_name": "ReadingListService.Tests",
+      "file_type": "code",
+      "norm_label": "fact",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "readinglistservice_src_readinglistservice_options_searchoptions",
+      "label": "SearchOptions.cs",
+      "_origin": "ast",
+      "community": 52,
+      "community_name": "SearchOptions",
+      "file_type": "code",
+      "norm_label": "searchoptions.cs",
+      "source_file": "ReadingListService/src/ReadingListService/Options/SearchOptions.cs",
+      "source_location": "L1"
+    },
+    {
+      "id": "readinglistservice_src_readinglistservice_options_searchoptions_cs_string",
+      "label": "string",
+      "_origin": "ast",
+      "community": 52,
+      "community_name": "SearchOptions",
+      "file_type": "code",
+      "norm_label": "string",
       "source_file": "",
       "source_location": ""
     },
@@ -10587,65 +10845,6 @@
       "source_location": ""
     },
     {
-      "id": "csharp_namespace:00fe7b3358161526",
-      "label": "ValuationService.Service",
-      "_origin": "ast",
-      "community": 7,
-      "community_name": ".Start",
-      "file_type": "code",
-      "metadata": {
-        "kind": "csharp_namespace",
-        "namespace": "ValuationService.Service"
-      },
-      "norm_label": "valuationservice.service",
-      "source_file": "ValuationService/src/ValuationService/Service/ValuationBackgroundWorker.cs",
-      "source_location": "L10",
-      "type": "namespace"
-    },
-    {
-      "id": "csharp_namespace:809a33798421bcfe",
-      "label": "ValuationService.Controllers",
-      "_origin": "ast",
-      "community": 7,
-      "community_name": ".Start",
-      "file_type": "code",
-      "metadata": {
-        "kind": "csharp_namespace",
-        "namespace": "ValuationService.Controllers"
-      },
-      "norm_label": "valuationservice.controllers",
-      "source_file": "ValuationService/src/ValuationService/Controllers/ValuationController.cs",
-      "source_location": "L4",
-      "type": "namespace"
-    },
-    {
-      "id": "csharp_namespace:915ea7eded5b8571",
-      "label": "ValuationService.Tests",
-      "_origin": "ast",
-      "community": 7,
-      "community_name": ".Start",
-      "file_type": "code",
-      "metadata": {
-        "kind": "csharp_namespace",
-        "namespace": "ValuationService.Tests"
-      },
-      "norm_label": "valuationservice.tests",
-      "source_file": "ValuationService/src/ValuationService/Tests/ValuationBackgroundWorkerTests.cs",
-      "source_location": "L13",
-      "type": "namespace"
-    },
-    {
-      "id": "valuationservice_src_valuationservice_controllers_valuationcontroller",
-      "label": "ValuationController.cs",
-      "_origin": "ast",
-      "community": 7,
-      "community_name": ".Start",
-      "file_type": "code",
-      "norm_label": "valuationcontroller.cs",
-      "source_file": "ValuationService/src/ValuationService/Controllers/ValuationController.cs",
-      "source_location": "L1"
-    },
-    {
       "id": "valuationservice_src_valuationservice_controllers_valuationcontroller_cs_httpget",
       "label": "HttpGet",
       "_origin": "ast",
@@ -10734,17 +10933,6 @@
       "source_location": ""
     },
     {
-      "id": "valuationservice_src_valuationservice_tests_valuationcontrollertests",
-      "label": "ValuationControllerTests.cs",
-      "_origin": "ast",
-      "community": 7,
-      "community_name": ".Start",
-      "file_type": "code",
-      "norm_label": "valuationcontrollertests.cs",
-      "source_file": "ValuationService/src/ValuationService/Tests/ValuationControllerTests.cs",
-      "source_location": "L1"
-    },
-    {
       "id": "valuationservice_src_valuationservice_tests_valuationcontrollertests_cs_fact",
       "label": "Fact",
       "_origin": "ast",
@@ -10776,17 +10964,6 @@
       "norm_label": "fact",
       "source_file": "",
       "source_location": ""
-    },
-    {
-      "id": "valuationservice_src_valuationservice_tests_valuationresponseparsertests",
-      "label": "ValuationResponseParserTests.cs",
-      "_origin": "ast",
-      "community": 7,
-      "community_name": ".Start",
-      "file_type": "code",
-      "norm_label": "valuationresponseparsertests.cs",
-      "source_file": "ValuationService/src/ValuationService/Tests/ValuationResponseParserTests.cs",
-      "source_location": "L1"
     },
     {
       "id": "action",
@@ -15926,23 +16103,6 @@
       },
       "source_file": "PersistenceService/src/PersistenceService/Infrastructure/Repositories/EventRepository.cs",
       "source_location": "L6",
-      "weight": 1.0
-    },
-    {
-      "source": "sharedlibrary_comiccsvrecorddto",
-      "target": "facet",
-      "relation": "imports",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "import",
-      "metadata": {
-        "using_kind": "namespace",
-        "target_fqn": "Facet",
-        "scope_kind": "file"
-      },
-      "source_file": "SharedLibrary/ComicCsvRecordDto.cs",
-      "source_location": "L1",
       "weight": 1.0
     },
     {
@@ -21673,6 +21833,248 @@
       "weight": 1.0
     },
     {
+      "source": "comicapparchitecture",
+      "target": "comicapparchitecture_comicapp_system_architecture",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "ComicAppArchitecture.md",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "comicapparchitecture_3_core_application_services_net_9",
+      "target": "comicapparchitecture_3_5_sharedlibrary",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "ComicAppArchitecture.md",
+      "source_location": "L103",
+      "weight": 1.0
+    },
+    {
+      "source": "comicapparchitecture_3_core_application_services_net_9",
+      "target": "comicapparchitecture_3_1_ingestionservice",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "ComicAppArchitecture.md",
+      "source_location": "L62",
+      "weight": 1.0
+    },
+    {
+      "source": "comicapparchitecture_3_core_application_services_net_9",
+      "target": "comicapparchitecture_3_2_persistenceservice",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "ComicAppArchitecture.md",
+      "source_location": "L72",
+      "weight": 1.0
+    },
+    {
+      "source": "comicapparchitecture_3_core_application_services_net_9",
+      "target": "comicapparchitecture_3_3_readinglistservice",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "ComicAppArchitecture.md",
+      "source_location": "L83",
+      "weight": 1.0
+    },
+    {
+      "source": "comicapparchitecture_3_core_application_services_net_9",
+      "target": "comicapparchitecture_3_4_valuationservice",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "ComicAppArchitecture.md",
+      "source_location": "L92",
+      "weight": 1.0
+    },
+    {
+      "source": "comicapparchitecture_5_event_driven_messaging_streaming_pipeline",
+      "target": "comicapparchitecture_5_1_kafka_topics",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "ComicAppArchitecture.md",
+      "source_location": "L133",
+      "weight": 1.0
+    },
+    {
+      "source": "comicapparchitecture_5_event_driven_messaging_streaming_pipeline",
+      "target": "comicapparchitecture_5_2_consumer_configuration",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "ComicAppArchitecture.md",
+      "source_location": "L140",
+      "weight": 1.0
+    },
+    {
+      "source": "comicapparchitecture_7_observability_telemetry_architecture",
+      "target": "comicapparchitecture_7_1_prometheus_alerting_rules_prometheus_alerts_yml",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "ComicAppArchitecture.md",
+      "source_location": "L193",
+      "weight": 1.0
+    },
+    {
+      "source": "comicapparchitecture_9_key_end_to_end_operational_workflows",
+      "target": "comicapparchitecture_9_1_comic_ingestion_persistence_flow",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "ComicAppArchitecture.md",
+      "source_location": "L221",
+      "weight": 1.0
+    },
+    {
+      "source": "comicapparchitecture_9_key_end_to_end_operational_workflows",
+      "target": "comicapparchitecture_9_2_valuation_assessment_flow",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "ComicAppArchitecture.md",
+      "source_location": "L230",
+      "weight": 1.0
+    },
+    {
+      "source": "comicapparchitecture_9_key_end_to_end_operational_workflows",
+      "target": "comicapparchitecture_9_3_user_browsing_reading_list_management_flow",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "ComicAppArchitecture.md",
+      "source_location": "L236",
+      "weight": 1.0
+    },
+    {
+      "source": "comicapparchitecture_comicapp_system_architecture",
+      "target": "comicapparchitecture_2_high_level_architecture_diagram",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "ComicAppArchitecture.md",
+      "source_location": "L11",
+      "weight": 1.0
+    },
+    {
+      "source": "comicapparchitecture_comicapp_system_architecture",
+      "target": "comicapparchitecture_4_supporting_infrastructure_containers",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "ComicAppArchitecture.md",
+      "source_location": "L112",
+      "weight": 1.0
+    },
+    {
+      "source": "comicapparchitecture_comicapp_system_architecture",
+      "target": "comicapparchitecture_5_event_driven_messaging_streaming_pipeline",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "ComicAppArchitecture.md",
+      "source_location": "L129",
+      "weight": 1.0
+    },
+    {
+      "source": "comicapparchitecture_comicapp_system_architecture",
+      "target": "comicapparchitecture_6_ingress_routing_gateway_topology_caddy",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "ComicAppArchitecture.md",
+      "source_location": "L147",
+      "weight": 1.0
+    },
+    {
+      "source": "comicapparchitecture_comicapp_system_architecture",
+      "target": "comicapparchitecture_7_observability_telemetry_architecture",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "ComicAppArchitecture.md",
+      "source_location": "L176",
+      "weight": 1.0
+    },
+    {
+      "source": "comicapparchitecture_comicapp_system_architecture",
+      "target": "comicapparchitecture_8_persistence_data_storage_postgresql",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "ComicAppArchitecture.md",
+      "source_location": "L206",
+      "weight": 1.0
+    },
+    {
+      "source": "comicapparchitecture_comicapp_system_architecture",
+      "target": "comicapparchitecture_9_key_end_to_end_operational_workflows",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "ComicAppArchitecture.md",
+      "source_location": "L219",
+      "weight": 1.0
+    },
+    {
+      "source": "comicapparchitecture_comicapp_system_architecture",
+      "target": "comicapparchitecture_10_architectural_benefits_system_characteristics",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "ComicAppArchitecture.md",
+      "source_location": "L244",
+      "weight": 1.0
+    },
+    {
+      "source": "comicapparchitecture_comicapp_system_architecture",
+      "target": "comicapparchitecture_1_executive_summary",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "ComicAppArchitecture.md",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "comicapparchitecture_comicapp_system_architecture",
+      "target": "comicapparchitecture_3_core_application_services_net_9",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "ComicAppArchitecture.md",
+      "source_location": "L60",
+      "weight": 1.0
+    },
+    {
       "source": "ingestionservice_ingestionservice",
       "target": "ingestionservice_src_ingestionservice_ingestionservice",
       "relation": "contains",
@@ -21685,26 +22087,6 @@
     {
       "source": "ingestionservice_ingestionservice",
       "target": "ingestionservice_tests_ingestionservice_tests_ingestionservice_tests",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "IngestionService/IngestionService.sln",
-      "weight": 1.0
-    },
-    {
-      "source": "ingestionservice_ingestionservice",
-      "target": "src",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "IngestionService/IngestionService.sln",
-      "weight": 1.0
-    },
-    {
-      "source": "ingestionservice_ingestionservice",
-      "target": "tests",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -22132,26 +22514,6 @@
     {
       "source": "persistenceservice_persistenceservice",
       "target": "persistenceservice_tests_persistenceservice_tests_persistenceservice_tests",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "PersistenceService/PersistenceService.sln",
-      "weight": 1.0
-    },
-    {
-      "source": "persistenceservice_persistenceservice",
-      "target": "src",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "PersistenceService/PersistenceService.sln",
-      "weight": 1.0
-    },
-    {
-      "source": "persistenceservice_persistenceservice",
-      "target": "tests",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -23203,16 +23565,6 @@
       "weight": 1.0
     },
     {
-      "source": "readinglistservice_readinglistservice",
-      "target": "src",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "ReadingListService/ReadingListService.sln",
-      "weight": 1.0
-    },
-    {
       "source": "readinglistservice_src_readinglistservice_controllers_readinglistcontroller",
       "target": "csharp_namespace:e18dec83bb5930bf",
       "relation": "contains",
@@ -23837,76 +24189,6 @@
       "confidence_score": 1.0,
       "source_file": "SharedLibrary/MeterNames.cs",
       "source_location": "L3",
-      "weight": 1.0
-    },
-    {
-      "source": "sharedlibrary_sharedlibrary_sln_sharedlibrary_sharedlibrary",
-      "target": "constants",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "SharedLibrary/SharedLibrary.sln",
-      "weight": 1.0
-    },
-    {
-      "source": "sharedlibrary_sharedlibrary_sln_sharedlibrary_sharedlibrary",
-      "target": "events",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "SharedLibrary/SharedLibrary.sln",
-      "weight": 1.0
-    },
-    {
-      "source": "sharedlibrary_sharedlibrary_sln_sharedlibrary_sharedlibrary",
-      "target": "extensions",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "SharedLibrary/SharedLibrary.sln",
-      "weight": 1.0
-    },
-    {
-      "source": "sharedlibrary_sharedlibrary_sln_sharedlibrary_sharedlibrary",
-      "target": "facet",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "SharedLibrary/SharedLibrary.sln",
-      "weight": 1.0
-    },
-    {
-      "source": "sharedlibrary_sharedlibrary_sln_sharedlibrary_sharedlibrary",
-      "target": "kafka",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "SharedLibrary/SharedLibrary.sln",
-      "weight": 1.0
-    },
-    {
-      "source": "sharedlibrary_sharedlibrary_sln_sharedlibrary_sharedlibrary",
-      "target": "models",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "SharedLibrary/SharedLibrary.sln",
-      "weight": 1.0
-    },
-    {
-      "source": "sharedlibrary_sharedlibrary_sln_sharedlibrary_sharedlibrary",
-      "target": "utilities",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "SharedLibrary/SharedLibrary.sln",
       "weight": 1.0
     },
     {
@@ -28342,5 +28624,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "b58fc1fa139f382b46442fe3953600f010326c9e"
+  "built_at_commit": "36ec3107400f583770272f4bc0ed3e2c0f823f1d"
 }
