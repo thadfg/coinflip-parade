@@ -1,0 +1,914 @@
+{
+  "IngestionService/IngestionService.sln": {
+    "mtime": 1756506356.7754292,
+    "seen": 1787491210.7254183,
+    "ast_hash": "5a2e6cca2ed53ef0ea9f79a7d32a00ce",
+    "semantic_hash": "5a2e6cca2ed53ef0ea9f79a7d32a00ce"
+  },
+  "IngestionService/src/IngestionService/Application/Services/ComicCsvIngestor.cs": {
+    "mtime": 1778329881.010134,
+    "seen": 1787491210.7254183,
+    "ast_hash": "53e2b4fb51753f110d56789f2ea15ddb",
+    "semantic_hash": "53e2b4fb51753f110d56789f2ea15ddb"
+  },
+  "IngestionService/src/IngestionService/Domain/Models/BatchIngestionMetrics.cs": {
+    "mtime": 1756506356.7754292,
+    "seen": 1787491210.7254183,
+    "ast_hash": "94ec19d7817932efa93c63fca9b017c3",
+    "semantic_hash": "94ec19d7817932efa93c63fca9b017c3"
+  },
+  "IngestionService/src/IngestionService/Infrastructure/Kafka/KafkaConfiguration.cs": {
+    "mtime": 1766569034.780321,
+    "seen": 1787491210.7254183,
+    "ast_hash": "6bd5937bdfd5bb64818072834cface05",
+    "semantic_hash": "6bd5937bdfd5bb64818072834cface05"
+  },
+  "IngestionService/src/IngestionService/Infrastructure/Kafka/KafkaProducer.cs": {
+    "mtime": 1776612476.3937874,
+    "seen": 1787491210.7254183,
+    "ast_hash": "46f64e90f4afe007b788592b0a49f04c",
+    "semantic_hash": "46f64e90f4afe007b788592b0a49f04c"
+  },
+  "IngestionService/src/IngestionService/Infrastructure/Kafka/KafkaSettings.cs": {
+    "mtime": 1756506356.7754292,
+    "seen": 1787491210.7254183,
+    "ast_hash": "d23835e01d241d1a08a8f98b47a36689",
+    "semantic_hash": "d23835e01d241d1a08a8f98b47a36689"
+  },
+  "IngestionService/src/IngestionService/Infrastructure/Logging/KafkaLoggerProvider.cs": {
+    "mtime": 1766762773.4943478,
+    "seen": 1787491210.7254183,
+    "ast_hash": "4bed032c0c7a3ad26461a09df107f496",
+    "semantic_hash": "4bed032c0c7a3ad26461a09df107f496"
+  },
+  "IngestionService/src/IngestionService/Infrastructure/Settings/ComicCsvIngestorOptions.cs": {
+    "mtime": 1778329855.4836671,
+    "seen": 1787491210.7254183,
+    "ast_hash": "c672ab8de7d5e5a96cea545fb2a40525",
+    "semantic_hash": "c672ab8de7d5e5a96cea545fb2a40525"
+  },
+  "IngestionService/src/IngestionService/Infrastructure/Telemetry/TelemetryConfigurationExtensions.cs": {
+    "mtime": 1772129550.5872586,
+    "seen": 1787491210.7254183,
+    "ast_hash": "f07749c2309715dc1f6d8fbda2f03b8f",
+    "semantic_hash": "f07749c2309715dc1f6d8fbda2f03b8f"
+  },
+  "IngestionService/src/IngestionService/IngestionService.csproj": {
+    "mtime": 1778329855.36268,
+    "seen": 1787491210.7254183,
+    "ast_hash": "4fc400d8be57178f4366e31aca5d8db8",
+    "semantic_hash": "4fc400d8be57178f4366e31aca5d8db8"
+  },
+  "IngestionService/src/IngestionService/Program.cs": {
+    "mtime": 1776973714.1176972,
+    "seen": 1787491210.7254183,
+    "ast_hash": "664a8d49ab72b214d43d2b7eafb256d6",
+    "semantic_hash": "664a8d49ab72b214d43d2b7eafb256d6"
+  },
+  "IngestionService/src/IngestionService/Properties/launchSettings.json": {
+    "mtime": 1766762936.8511093,
+    "seen": 1787491210.7254183,
+    "ast_hash": "49dd37f7ec8da8d829e5947d210fad48",
+    "semantic_hash": "49dd37f7ec8da8d829e5947d210fad48"
+  },
+  "IngestionService/src/IngestionService/Startup/DependenciesConfig.cs": {
+    "mtime": 1778329865.9744463,
+    "seen": 1787491210.7254183,
+    "ast_hash": "fdc3ff01347d7291e40b3bea47807aca",
+    "semantic_hash": "fdc3ff01347d7291e40b3bea47807aca"
+  },
+  "IngestionService/src/IngestionService/Startup/HostingConfig.cs": {
+    "mtime": 1767043086.7545996,
+    "seen": 1787491210.7254183,
+    "ast_hash": "0709981af624d9be9b59ab03a497d729",
+    "semantic_hash": "0709981af624d9be9b59ab03a497d729"
+  },
+  "IngestionService/src/IngestionService/Startup/OpenApiConfig.cs": {
+    "mtime": 1770340440.1404738,
+    "seen": 1787491210.7254183,
+    "ast_hash": "ae9ca3a480caa722727e647cee8c8287",
+    "semantic_hash": "ae9ca3a480caa722727e647cee8c8287"
+  },
+  "IngestionService/src/IngestionService/Web/Features/ComicCsv/ComicCsvIngestorEndpoints.cs": {
+    "mtime": 1776947725.2253652,
+    "seen": 1787491210.7254183,
+    "ast_hash": "5fb38a468039150ccd70ee2cfad4efff",
+    "semantic_hash": "5fb38a468039150ccd70ee2cfad4efff"
+  },
+  "IngestionService/src/IngestionService/Web/Features/ComicCsv/ComicCsvUploadRequest.cs": {
+    "mtime": 1776973714.1186965,
+    "seen": 1787491210.7254183,
+    "ast_hash": "8483f2722efd6e30550efdfb4bc95379",
+    "semantic_hash": "8483f2722efd6e30550efdfb4bc95379"
+  },
+  "IngestionService/src/IngestionService/appsettings.Container.json": {
+    "mtime": 1772082233.3861103,
+    "seen": 1787491210.7254183,
+    "ast_hash": "f8aa48851dc69cd9bf69e42887ef3090",
+    "semantic_hash": "f8aa48851dc69cd9bf69e42887ef3090"
+  },
+  "IngestionService/src/IngestionService/appsettings.json": {
+    "mtime": 1778329858.5910544,
+    "seen": 1787491210.7254183,
+    "ast_hash": "5a410cd3340dcfbe20f7f1f197280e02",
+    "semantic_hash": "5a410cd3340dcfbe20f7f1f197280e02"
+  },
+  "IngestionService/tests/IngestionService.Tests/ComicCsv/ComicCsvIngestorTests.cs": {
+    "mtime": 1778329885.9555564,
+    "seen": 1787491210.7254183,
+    "ast_hash": "996d9f0c26ed78634b14f81ee2d7a872",
+    "semantic_hash": "996d9f0c26ed78634b14f81ee2d7a872"
+  },
+  "IngestionService/tests/IngestionService.Tests/IngestionService.Tests.csproj": {
+    "mtime": 1776973714.1216962,
+    "seen": 1787491210.7254183,
+    "ast_hash": "cdabe84a34a6d090cca27a329444fc4a",
+    "semantic_hash": "cdabe84a34a6d090cca27a329444fc4a"
+  },
+  "Nodownloadrefresh.ps1": {
+    "mtime": 1778340081.095762,
+    "seen": 1787491210.7254183,
+    "ast_hash": "86cabfc581a254c1bae8ece14843f923",
+    "semantic_hash": "86cabfc581a254c1bae8ece14843f923"
+  },
+  "PersistenceService/PersistenceService.sln": {
+    "mtime": 1757563611.066145,
+    "seen": 1787491210.7254183,
+    "ast_hash": "eddeef6023916b88e8339c8086937238",
+    "semantic_hash": "eddeef6023916b88e8339c8086937238"
+  },
+  "PersistenceService/src/PersistenceService/Application/Interfaces/IComicCollectionRepository.cs": {
+    "mtime": 1767087467.169012,
+    "seen": 1787491210.7254183,
+    "ast_hash": "da314408a67b6b28d5850e6368d24243",
+    "semantic_hash": "da314408a67b6b28d5850e6368d24243"
+  },
+  "PersistenceService/src/PersistenceService/Application/Interfaces/IEventRepository.cs": {
+    "mtime": 1767087467.15891,
+    "seen": 1787491210.7254183,
+    "ast_hash": "cff5a968740661bc149aabf2d1c17b05",
+    "semantic_hash": "cff5a968740661bc149aabf2d1c17b05"
+  },
+  "PersistenceService/src/PersistenceService/Application/Mappers/ComicRecordMapper.cs": {
+    "mtime": 1777126538.2510169,
+    "seen": 1787491210.7254183,
+    "ast_hash": "10b3ac8f987af7a581274d884ce0ed10",
+    "semantic_hash": "10b3ac8f987af7a581274d884ce0ed10"
+  },
+  "PersistenceService/src/PersistenceService/Application/Mappers/EventEntityMapper.cs": {
+    "mtime": 1767086865.1794527,
+    "seen": 1787491210.7254183,
+    "ast_hash": "e97d49fc843c5f152f15c668da04999f",
+    "semantic_hash": "e97d49fc843c5f152f15c668da04999f"
+  },
+  "PersistenceService/src/PersistenceService/Config/KafkaOptions.cs": {
+    "mtime": 1778028266.1429415,
+    "seen": 1787491210.7254183,
+    "ast_hash": "847d12f6c1c43e1a646e12d4760771e4",
+    "semantic_hash": "847d12f6c1c43e1a646e12d4760771e4"
+  },
+  "PersistenceService/src/PersistenceService/Config/RepositoryOptions.cs": {
+    "mtime": 1778331552.4621446,
+    "seen": 1787491210.7254183,
+    "ast_hash": "a423c52096b0e3504b71a10395162ca8",
+    "semantic_hash": "a423c52096b0e3504b71a10395162ca8"
+  },
+  "PersistenceService/src/PersistenceService/Domain/Entities/ComicRecordEntity.cs": {
+    "mtime": 1778374231.2823515,
+    "seen": 1787491210.7254183,
+    "ast_hash": "e0e3b4eab0faf3a728331d1daa2341a4",
+    "semantic_hash": "e0e3b4eab0faf3a728331d1daa2341a4"
+  },
+  "PersistenceService/src/PersistenceService/Domain/Entities/EventEntity.cs": {
+    "mtime": 1767087923.8594398,
+    "seen": 1787491210.7254183,
+    "ast_hash": "08721ad8e973ea593087d5cc34119014",
+    "semantic_hash": "08721ad8e973ea593087d5cc34119014"
+  },
+  "PersistenceService/src/PersistenceService/Domain/Entities/ProcessedEvent.cs": {
+    "mtime": 1772335719.2385373,
+    "seen": 1787491210.7254183,
+    "ast_hash": "4ef36e0fcb22f809934375ebcf66c41e",
+    "semantic_hash": "4ef36e0fcb22f809934375ebcf66c41e"
+  },
+  "PersistenceService/src/PersistenceService/Infrastructure/ComicCollectionDbContext.cs": {
+    "mtime": 1776973714.1246958,
+    "seen": 1787491210.7254183,
+    "ast_hash": "797d286e38b1f605a0e617701eadfcc5",
+    "semantic_hash": "797d286e38b1f605a0e617701eadfcc5"
+  },
+  "PersistenceService/src/PersistenceService/Infrastructure/Configurations/ComicRecordConfiguration.cs": {
+    "mtime": 1778374235.208385,
+    "seen": 1787491210.7254183,
+    "ast_hash": "06bae04d260b01a14710e7e35cbb8c7d",
+    "semantic_hash": "06bae04d260b01a14710e7e35cbb8c7d"
+  },
+  "PersistenceService/src/PersistenceService/Infrastructure/Configurations/EventEntityConfiguration.cs": {
+    "mtime": 1757364125.684204,
+    "seen": 1787491210.7254183,
+    "ast_hash": "3baec57e2fd7a84271962ff0d914913e",
+    "semantic_hash": "3baec57e2fd7a84271962ff0d914913e"
+  },
+  "PersistenceService/src/PersistenceService/Infrastructure/Database/DatabaseReadyChecker.cs": {
+    "mtime": 1772064040.669767,
+    "seen": 1787491210.7254183,
+    "ast_hash": "5e42da95d77745ab6c6fe87f219e1b3d",
+    "semantic_hash": "5e42da95d77745ab6c6fe87f219e1b3d"
+  },
+  "PersistenceService/src/PersistenceService/Infrastructure/Database/DbInitializer.cs": {
+    "mtime": 1772980845.5924895,
+    "seen": 1787491210.7254183,
+    "ast_hash": "649a45a6ae2ef94bf2e17d06f1d357d5",
+    "semantic_hash": "649a45a6ae2ef94bf2e17d06f1d357d5"
+  },
+  "PersistenceService/src/PersistenceService/Infrastructure/Database/EndpointConfig.cs": {
+    "mtime": 1767230249.6026762,
+    "seen": 1787491210.7254183,
+    "ast_hash": "44bf0101f9e3a6322603acb997afd640",
+    "semantic_hash": "44bf0101f9e3a6322603acb997afd640"
+  },
+  "PersistenceService/src/PersistenceService/Infrastructure/Database/IDatabaseReadyChecker.cs": {
+    "mtime": 1767233174.9635818,
+    "seen": 1787491210.7254183,
+    "ast_hash": "82d3243c42e83c3fd447ce1bfcd8f688",
+    "semantic_hash": "82d3243c42e83c3fd447ce1bfcd8f688"
+  },
+  "PersistenceService/src/PersistenceService/Infrastructure/DesignTimeComicCollectionDbContextFactory.cs": {
+    "mtime": 1767201207.145038,
+    "seen": 1787491210.7254183,
+    "ast_hash": "e3566d3621739fc39990e81ed611d34b",
+    "semantic_hash": "e3566d3621739fc39990e81ed611d34b"
+  },
+  "PersistenceService/src/PersistenceService/Infrastructure/DesignTimeEventDbContextFactory.cs": {
+    "mtime": 1767201172.6415532,
+    "seen": 1787491210.7254183,
+    "ast_hash": "126cac983db2a403acf5e349680a499b",
+    "semantic_hash": "126cac983db2a403acf5e349680a499b"
+  },
+  "PersistenceService/src/PersistenceService/Infrastructure/EventDbContext .cs": {
+    "mtime": 1767225514.3909519,
+    "seen": 1787491210.7254183,
+    "ast_hash": "4418faf5481e2c886f869ee9ae17f52a",
+    "semantic_hash": "4418faf5481e2c886f869ee9ae17f52a"
+  },
+  "PersistenceService/src/PersistenceService/Infrastructure/Kafka/IKafkaLogHelper.cs": {
+    "mtime": 1767078146.7904818,
+    "seen": 1787491210.7254183,
+    "ast_hash": "ab9f857dff3a45e9882d51a0e72e3406",
+    "semantic_hash": "ab9f857dff3a45e9882d51a0e72e3406"
+  },
+  "PersistenceService/src/PersistenceService/Infrastructure/Kafka/KafkaComicListener.cs": {
+    "mtime": 1778028294.623387,
+    "seen": 1787491210.7254183,
+    "ast_hash": "8f616697526a44f8f524acca574c0449",
+    "semantic_hash": "8f616697526a44f8f524acca574c0449"
+  },
+  "PersistenceService/src/PersistenceService/Infrastructure/Kafka/KafkaLogHelper.cs": {
+    "mtime": 1763863140.6693199,
+    "seen": 1787491210.7254183,
+    "ast_hash": "d616c7f261d2b50e217baccf2486a130",
+    "semantic_hash": "d616c7f261d2b50e217baccf2486a130"
+  },
+  "PersistenceService/src/PersistenceService/Infrastructure/Kafka/KafkaLogMessage.cs": {
+    "mtime": 1778028302.9624846,
+    "seen": 1787491210.7254183,
+    "ast_hash": "fe5aa47fd28107c2531f0ec8dedf77fc",
+    "semantic_hash": "fe5aa47fd28107c2531f0ec8dedf77fc"
+  },
+  "PersistenceService/src/PersistenceService/Infrastructure/Logging/IKafkaLogSink.cs": {
+    "mtime": 1762902655.431273,
+    "seen": 1787491210.7254183,
+    "ast_hash": "36738a51c132af7d55eff06a16b21084",
+    "semantic_hash": "36738a51c132af7d55eff06a16b21084"
+  },
+  "PersistenceService/src/PersistenceService/Infrastructure/Logging/KafkaLogSink.cs": {
+    "mtime": 1762902655.4106789,
+    "seen": 1787491210.7254183,
+    "ast_hash": "7ada3a51d73edec2c2ac21728cebd390",
+    "semantic_hash": "7ada3a51d73edec2c2ac21728cebd390"
+  },
+  "PersistenceService/src/PersistenceService/Infrastructure/Observability/Metrics/ReadinessMetrics.cs": {
+    "mtime": 1772064040.669767,
+    "seen": 1787491210.7254183,
+    "ast_hash": "7ad310fdf26d57ef2abdd46e10b5094a",
+    "semantic_hash": "7ad310fdf26d57ef2abdd46e10b5094a"
+  },
+  "PersistenceService/src/PersistenceService/Infrastructure/Repositories/ComicCollectionRepository.cs": {
+    "mtime": 1778063987.6514828,
+    "seen": 1787491210.7254183,
+    "ast_hash": "2916c0e777dc8794dbbfcd7a7aac2a82",
+    "semantic_hash": "2916c0e777dc8794dbbfcd7a7aac2a82"
+  },
+  "PersistenceService/src/PersistenceService/Infrastructure/Repositories/EventRepository.cs": {
+    "mtime": 1778331546.5352066,
+    "seen": 1787491210.7254183,
+    "ast_hash": "da21b32dac2e331f84e1e52329a0743b",
+    "semantic_hash": "da21b32dac2e331f84e1e52329a0743b"
+  },
+  "PersistenceService/src/PersistenceService/Infrastructure/Telemetry/TelemetryConfigurationExtensions.cs": {
+    "mtime": 1772132653.7045362,
+    "seen": 1787491210.7254183,
+    "ast_hash": "6b558c4a6ef85bde2d9755dd0f931b8d",
+    "semantic_hash": "6b558c4a6ef85bde2d9755dd0f931b8d"
+  },
+  "PersistenceService/src/PersistenceService/PersistenceService.csproj": {
+    "mtime": 1776973714.128698,
+    "seen": 1787491210.7254183,
+    "ast_hash": "58580e4f8a70847a928909af1a71de52",
+    "semantic_hash": "58580e4f8a70847a928909af1a71de52"
+  },
+  "PersistenceService/src/PersistenceService/Program.cs": {
+    "mtime": 1772980350.9918714,
+    "seen": 1787491210.7254183,
+    "ast_hash": "1e2a40c6ef69b781c21b0b154acbd95a",
+    "semantic_hash": "1e2a40c6ef69b781c21b0b154acbd95a"
+  },
+  "PersistenceService/src/PersistenceService/Properties/launchSettings.json": {
+    "mtime": 1756502738.3520417,
+    "seen": 1787491210.7254183,
+    "ast_hash": "f07cb5e7ae0b68c5015077172a95cd87",
+    "semantic_hash": "f07cb5e7ae0b68c5015077172a95cd87"
+  },
+  "PersistenceService/src/PersistenceService/Startup/DependenciesConfig.cs": {
+    "mtime": 1778331565.7911105,
+    "seen": 1787491210.7254183,
+    "ast_hash": "5b9ff7b97f6089815a185c73e9144f50",
+    "semantic_hash": "5b9ff7b97f6089815a185c73e9144f50"
+  },
+  "PersistenceService/src/PersistenceService/appsettings.json": {
+    "mtime": 1778331555.078818,
+    "seen": 1787491210.7254183,
+    "ast_hash": "b22e3b139c8871a08ccb1c67df49686b",
+    "semantic_hash": "b22e3b139c8871a08ccb1c67df49686b"
+  },
+  "PersistenceService/tests/PersistenceService.Tests/ComicMapper/ComicRecordMapperTests.cs": {
+    "mtime": 1776973714.1296983,
+    "seen": 1787491210.7254183,
+    "ast_hash": "63266b3c483ad68374ad185cd2234a25",
+    "semantic_hash": "63266b3c483ad68374ad185cd2234a25"
+  },
+  "PersistenceService/tests/PersistenceService.Tests/Integration/IntegrationTestEndToEndFlow.cs": {
+    "mtime": 1778331644.848942,
+    "seen": 1787491210.7254183,
+    "ast_hash": "a6ccf3d80ad475f2c2b05510f75a4197",
+    "semantic_hash": "a6ccf3d80ad475f2c2b05510f75a4197"
+  },
+  "PersistenceService/tests/PersistenceService.Tests/KafkaListener/KafkaComicListenerTests.cs": {
+    "mtime": 1778028334.8657043,
+    "seen": 1787491210.7254183,
+    "ast_hash": "56deff9aa4d067b2528256d7c9776d77",
+    "semantic_hash": "56deff9aa4d067b2528256d7c9776d77"
+  },
+  "PersistenceService/tests/PersistenceService.Tests/KafkaListener/MockKafkaComicListener.cs": {
+    "mtime": 1778028341.7305412,
+    "seen": 1787491210.7254183,
+    "ast_hash": "8a965a014a74dc94a5b1bccf8549075c",
+    "semantic_hash": "8a965a014a74dc94a5b1bccf8549075c"
+  },
+  "PersistenceService/tests/PersistenceService.Tests/KafkaListener/MockKafkaLogHelper.cs": {
+    "mtime": 1762920627.3019438,
+    "seen": 1787491210.7254183,
+    "ast_hash": "81eadb343183514dccbca2a066997497",
+    "semantic_hash": "81eadb343183514dccbca2a066997497"
+  },
+  "PersistenceService/tests/PersistenceService.Tests/PersistenceService.Tests.csproj": {
+    "mtime": 1757997684.1705315,
+    "seen": 1787491210.7254183,
+    "ast_hash": "d94d9442f2f56daf638f66f9bd533806",
+    "semantic_hash": "d94d9442f2f56daf638f66f9bd533806"
+  },
+  "PersistenceService/tests/PersistenceService.Tests/Repositories/ComicCollectionRepositoryTests.cs": {
+    "mtime": 1778028327.408635,
+    "seen": 1787491210.7254183,
+    "ast_hash": "53d328ae7e98e43cf3b7bc39947e1dc8",
+    "semantic_hash": "53d328ae7e98e43cf3b7bc39947e1dc8"
+  },
+  "PersistenceService/tests/PersistenceService.Tests/Repositories/EventRepositoryTests.cs": {
+    "mtime": 1778331642.8455622,
+    "seen": 1787491210.7254183,
+    "ast_hash": "481a77deabb2c56bc4621045a725845a",
+    "semantic_hash": "481a77deabb2c56bc4621045a725845a"
+  },
+  "PersistenceService/tests/PersistenceService.Tests/TestContexts/InMemoryComicDbContext.cs": {
+    "mtime": 1757997551.8509598,
+    "seen": 1787491210.7254183,
+    "ast_hash": "8fdba2fa60362e9164e1e464cac423fb",
+    "semantic_hash": "8fdba2fa60362e9164e1e464cac423fb"
+  },
+  "PersistenceService/tests/PersistenceService.Tests/TestDataGenerators/ComicEnvelopeBuilder.cs": {
+    "mtime": 1757997263.3313198,
+    "seen": 1787491210.7254183,
+    "ast_hash": "dc244a1523841f4ef4f5497a6640c851",
+    "semantic_hash": "dc244a1523841f4ef4f5497a6640c851"
+  },
+  "PreserveVolumerefresh.ps1": {
+    "mtime": 1778337580.6198685,
+    "seen": 1787491210.7254183,
+    "ast_hash": "02efdb65ef9fd157ead9da5e2f437feb",
+    "semantic_hash": "02efdb65ef9fd157ead9da5e2f437feb"
+  },
+  "ReadingListService/ReadingListService.sln": {
+    "mtime": 1777844879.7891493,
+    "seen": 1787491210.7254183,
+    "ast_hash": "9d346f158309085584b102eef608f816",
+    "semantic_hash": "9d346f158309085584b102eef608f816"
+  },
+  "ReadingListService/src/ReadingListService.Tests/ComicRepositoryTests.cs": {
+    "mtime": 1778341830.6521657,
+    "seen": 1787491210.7254183,
+    "ast_hash": "af95bf7b09f1e09abf67d8fea20fc926",
+    "semantic_hash": "af95bf7b09f1e09abf67d8fea20fc926"
+  },
+  "ReadingListService/src/ReadingListService.Tests/ReadingListService.Tests.csproj": {
+    "mtime": 1777844889.5427723,
+    "seen": 1787491210.7254183,
+    "ast_hash": "635b40f39abd88a2474d6515d8d5f46f",
+    "semantic_hash": "635b40f39abd88a2474d6515d8d5f46f"
+  },
+  "ReadingListService/src/ReadingListService.Tests/UnitTest1.cs": {
+    "mtime": 1777844878.4232836,
+    "seen": 1787491210.7254183,
+    "ast_hash": "a9e01760af4644bf5e3e2c8bc4667af7",
+    "semantic_hash": "a9e01760af4644bf5e3e2c8bc4667af7"
+  },
+  "ReadingListService/src/ReadingListService/Controllers/ReadingListController.cs": {
+    "mtime": 1778341725.6445735,
+    "seen": 1787491210.7254183,
+    "ast_hash": "4ff29686a89b396e238569d6b427ccec",
+    "semantic_hash": "4ff29686a89b396e238569d6b427ccec"
+  },
+  "ReadingListService/src/ReadingListService/Data/ComicRepository.cs": {
+    "mtime": 1778341721.255777,
+    "seen": 1787491210.7254183,
+    "ast_hash": "711c9034641fc97283e70168a1222f62",
+    "semantic_hash": "711c9034641fc97283e70168a1222f62"
+  },
+  "ReadingListService/src/ReadingListService/Data/ReadingListDbContext.cs": {
+    "mtime": 1778087459.7793634,
+    "seen": 1787491210.7254183,
+    "ast_hash": "4d52b011a005c701f04e9aeebc5385ec",
+    "semantic_hash": "4d52b011a005c701f04e9aeebc5385ec"
+  },
+  "ReadingListService/src/ReadingListService/Dtos/ComicDtos.cs": {
+    "mtime": 1777857386.0725327,
+    "seen": 1787491210.7254183,
+    "ast_hash": "e77a302704850a8254e6044a6497debf",
+    "semantic_hash": "e77a302704850a8254e6044a6497debf"
+  },
+  "ReadingListService/src/ReadingListService/Models/ComicRecord.cs": {
+    "mtime": 1777341906.6624942,
+    "seen": 1787491210.7254183,
+    "ast_hash": "d1111cf0dc2afac44972b5a9d9249537",
+    "semantic_hash": "d1111cf0dc2afac44972b5a9d9249537"
+  },
+  "ReadingListService/src/ReadingListService/Models/ReadingProgress.cs": {
+    "mtime": 1777339901.0206485,
+    "seen": 1787491210.7254183,
+    "ast_hash": "bf905cf538a4d1bf3a7e929dcce2804f",
+    "semantic_hash": "bf905cf538a4d1bf3a7e929dcce2804f"
+  },
+  "ReadingListService/src/ReadingListService/Options/SearchOptions.cs": {
+    "mtime": 1778341706.7685368,
+    "seen": 1787491210.7254183,
+    "ast_hash": "37d21178dca4e9de80115bef23f269cc",
+    "semantic_hash": "37d21178dca4e9de80115bef23f269cc"
+  },
+  "ReadingListService/src/ReadingListService/Options/ServiceOptions.cs": {
+    "mtime": 1778341704.1336794,
+    "seen": 1787491210.7254183,
+    "ast_hash": "f17c8014a13b533caa3d415ca4df2d02",
+    "semantic_hash": "f17c8014a13b533caa3d415ca4df2d02"
+  },
+  "ReadingListService/src/ReadingListService/Pages/Index.cshtml": {
+    "mtime": 1777856161.2686276,
+    "seen": 1787491210.7254183,
+    "ast_hash": "f8088e7299c3cef929f8a5d3e6360ce8",
+    "semantic_hash": "f8088e7299c3cef929f8a5d3e6360ce8"
+  },
+  "ReadingListService/src/ReadingListService/Pages/Index.cshtml.cs": {
+    "mtime": 1777855253.4829168,
+    "seen": 1787491210.7254183,
+    "ast_hash": "296213866efd180aea638df5f76b9f7b",
+    "semantic_hash": "296213866efd180aea638df5f76b9f7b"
+  },
+  "ReadingListService/src/ReadingListService/Pages/Shared/_ComicTable.cshtml": {
+    "mtime": 1777855249.230021,
+    "seen": 1787491210.7254183,
+    "ast_hash": "77169abdd545c82e46107aaf1f17f6b1",
+    "semantic_hash": "77169abdd545c82e46107aaf1f17f6b1"
+  },
+  "ReadingListService/src/ReadingListService/Pages/Shared/_ComicTableRows.cshtml": {
+    "mtime": 1777858856.0704305,
+    "seen": 1787491210.7254183,
+    "ast_hash": "b57b2258f956d02866d996ee5ff838f4",
+    "semantic_hash": "b57b2258f956d02866d996ee5ff838f4"
+  },
+  "ReadingListService/src/ReadingListService/Pages/Shared/_Layout.cshtml": {
+    "mtime": 1777856169.778113,
+    "seen": 1787491210.7254183,
+    "ast_hash": "edff66ccdd9681b0369da5d2c71c5583",
+    "semantic_hash": "edff66ccdd9681b0369da5d2c71c5583"
+  },
+  "ReadingListService/src/ReadingListService/Pages/Shared/_ReadStatusToggle.cshtml": {
+    "mtime": 1777857562.6674337,
+    "seen": 1787491210.7254183,
+    "ast_hash": "8b347317c181486dbcf6829d9ec09313",
+    "semantic_hash": "8b347317c181486dbcf6829d9ec09313"
+  },
+  "ReadingListService/src/ReadingListService/Pages/Weekly.cshtml": {
+    "mtime": 1777858038.380303,
+    "seen": 1787491210.7254183,
+    "ast_hash": "d08b7bd96e0cd4a4db279a6ff0e8715e",
+    "semantic_hash": "d08b7bd96e0cd4a4db279a6ff0e8715e"
+  },
+  "ReadingListService/src/ReadingListService/Pages/Weekly.cshtml.cs": {
+    "mtime": 1777843195.2381911,
+    "seen": 1787491210.7254183,
+    "ast_hash": "8cdefc3aa3f9569ebfbb1e8c67311f83",
+    "semantic_hash": "8cdefc3aa3f9569ebfbb1e8c67311f83"
+  },
+  "ReadingListService/src/ReadingListService/Pages/_ViewImports.cshtml": {
+    "mtime": 1776973714.1436963,
+    "seen": 1787491210.7254183,
+    "ast_hash": "ad41e71b44328aa37e8c77bbcc3f920e",
+    "semantic_hash": "ad41e71b44328aa37e8c77bbcc3f920e"
+  },
+  "ReadingListService/src/ReadingListService/Pages/_ViewStart.cshtml": {
+    "mtime": 1776973714.1446962,
+    "seen": 1787491210.7254183,
+    "ast_hash": "27ceb987d0c24a8285d244f8fac35993",
+    "semantic_hash": "27ceb987d0c24a8285d244f8fac35993"
+  },
+  "ReadingListService/src/ReadingListService/Program.cs": {
+    "mtime": 1778341712.8111792,
+    "seen": 1787491210.7254183,
+    "ast_hash": "3c3b2a05635c35b8cc784fa56e0c2cdd",
+    "semantic_hash": "3c3b2a05635c35b8cc784fa56e0c2cdd"
+  },
+  "ReadingListService/src/ReadingListService/Properties/launchSettings.json": {
+    "mtime": 1756502738.3530416,
+    "seen": 1787491210.7254183,
+    "ast_hash": "b54dd41d2d25a1a88fac634b44e93756",
+    "semantic_hash": "b54dd41d2d25a1a88fac634b44e93756"
+  },
+  "ReadingListService/src/ReadingListService/ReadingListService.csproj": {
+    "mtime": 1777340293.8891523,
+    "seen": 1787491210.7254183,
+    "ast_hash": "e5b40e2b4c390223c384720e446dc8c6",
+    "semantic_hash": "e5b40e2b4c390223c384720e446dc8c6"
+  },
+  "ReadingListService/src/ReadingListService/appsettings.json": {
+    "mtime": 1778341709.6082945,
+    "seen": 1787491210.7254183,
+    "ast_hash": "2e862cc8105ee8d8c0beda66fa172b92",
+    "semantic_hash": "2e862cc8105ee8d8c0beda66fa172b92"
+  },
+  "SharedLibrary/ComicCsvRecord.cs": {
+    "mtime": 1776973714.1476963,
+    "seen": 1787491210.7254183,
+    "ast_hash": "6cf33fc251e008ff8aec1279bf689893",
+    "semantic_hash": "6cf33fc251e008ff8aec1279bf689893"
+  },
+  "SharedLibrary/ComicCsvRecordDto.cs": {
+    "mtime": 1778590841.0986412,
+    "seen": 1787491210.7254183,
+    "ast_hash": "64c0340c468650669626d94b89e2503c",
+    "semantic_hash": "64c0340c468650669626d94b89e2503c"
+  },
+  "SharedLibrary/ComicRecordDto.cs": {
+    "mtime": 1757536070.5875306,
+    "seen": 1787491210.7254183,
+    "ast_hash": "e175dcfe4c1f718a967f67a749e3aaf8",
+    "semantic_hash": "e175dcfe4c1f718a967f67a749e3aaf8"
+  },
+  "SharedLibrary/DateFormats.cs": {
+    "mtime": 1776973714.1497726,
+    "seen": 1787491210.7254183,
+    "ast_hash": "287e9e1e5aae9d33b287bc9c29b3f329",
+    "semantic_hash": "287e9e1e5aae9d33b287bc9c29b3f329"
+  },
+  "SharedLibrary/DeadLetterEnvelope.cs": {
+    "mtime": 1759530961.7336264,
+    "seen": 1787491210.7254183,
+    "ast_hash": "1cadc42f3c912b805661e35b1a71736e",
+    "semantic_hash": "1cadc42f3c912b805661e35b1a71736e"
+  },
+  "SharedLibrary/IKafkaProducer.cs": {
+    "mtime": 1763249684.426741,
+    "seen": 1787491210.7254183,
+    "ast_hash": "98e22ffe17a901a15c72ed590870d113",
+    "semantic_hash": "98e22ffe17a901a15c72ed590870d113"
+  },
+  "SharedLibrary/KafkaEnvelope.cs": {
+    "mtime": 1757560162.445826,
+    "seen": 1787491210.7254183,
+    "ast_hash": "cb98b3ed829ee301d7f5f3274fac3139",
+    "semantic_hash": "cb98b3ed829ee301d7f5f3274fac3139"
+  },
+  "SharedLibrary/MeterNames.cs": {
+    "mtime": 1772064040.669767,
+    "seen": 1787491210.7254183,
+    "ast_hash": "1807888e32ed826672f85193bfd2807f",
+    "semantic_hash": "1807888e32ed826672f85193bfd2807f"
+  },
+  "SharedLibrary/SharedLibrary.csproj": {
+    "mtime": 1778591971.509544,
+    "seen": 1787491210.7254183,
+    "ast_hash": "eb52a555fd21850a81108486fae613a0",
+    "semantic_hash": "eb52a555fd21850a81108486fae613a0"
+  },
+  "SharedLibrary/SharedLibrary.sln": {
+    "mtime": 1776973714.15229,
+    "seen": 1787491210.7254183,
+    "ast_hash": "764dc496c2ea19afdb77ca8a7c854450",
+    "semantic_hash": "764dc496c2ea19afdb77ca8a7c854450"
+  },
+  "SharedLibrary/StringExtensions.cs": {
+    "mtime": 1756502738.3560414,
+    "seen": 1787491210.7254183,
+    "ast_hash": "2a24f42d75c94b5814f2db1285f24222",
+    "semantic_hash": "2a24f42d75c94b5814f2db1285f24222"
+  },
+  "SharedLibrary/TelemetryExtensions.cs": {
+    "mtime": 1756502738.3570411,
+    "seen": 1787491210.7254183,
+    "ast_hash": "f8cb2e445bc34dabf0eaba653af694ef",
+    "semantic_hash": "f8cb2e445bc34dabf0eaba653af694ef"
+  },
+  "ValuationService/Properties/launchSettings.json": {
+    "mtime": 1756502738.3570411,
+    "seen": 1787491210.7254183,
+    "ast_hash": "d9d033134e2f788bd01e3b41e1d82360",
+    "semantic_hash": "d9d033134e2f788bd01e3b41e1d82360"
+  },
+  "ValuationService/ValuationService.sln": {
+    "mtime": 1756508119.8076887,
+    "seen": 1787491210.7254183,
+    "ast_hash": "38b40e16acf60c47f00a2a964c13d796",
+    "semantic_hash": "38b40e16acf60c47f00a2a964c13d796"
+  },
+  "ValuationService/mcp_settings.json": {
+    "mtime": 1775352527.9017446,
+    "seen": 1787491210.7254183,
+    "ast_hash": "754750c7d5aea7dad52f151ba3992f42",
+    "semantic_hash": "754750c7d5aea7dad52f151ba3992f42"
+  },
+  "ValuationService/src/ValuationService/Controllers/ValuationController.cs": {
+    "mtime": 1775390814.3908224,
+    "seen": 1787491210.7254183,
+    "ast_hash": "af3ca0c44e2e697328eeee8727d5d27d",
+    "semantic_hash": "af3ca0c44e2e697328eeee8727d5d27d"
+  },
+  "ValuationService/src/ValuationService/Infrastructure/ComicDbContext.cs": {
+    "mtime": 1775352554.596142,
+    "seen": 1787491210.7254183,
+    "ast_hash": "e5579d5308f409450f120ef0de04cfa0",
+    "semantic_hash": "e5579d5308f409450f120ef0de04cfa0"
+  },
+  "ValuationService/src/ValuationService/Infrastructure/McpClientWrapper.cs": {
+    "mtime": 1778345165.5210707,
+    "seen": 1787491210.7254183,
+    "ast_hash": "a7f64ba3e1adde02f2888c34680ae5cc",
+    "semantic_hash": "a7f64ba3e1adde02f2888c34680ae5cc"
+  },
+  "ValuationService/src/ValuationService/Infrastructure/McpOptions.cs": {
+    "mtime": 1778345138.450679,
+    "seen": 1787491210.7254183,
+    "ast_hash": "e5c756b75f0b2246de9a85a5e29d0992",
+    "semantic_hash": "e5c756b75f0b2246de9a85a5e29d0992"
+  },
+  "ValuationService/src/ValuationService/Infrastructure/OpenTelemetryOptions.cs": {
+    "mtime": 1778345141.1793413,
+    "seen": 1787491210.7254183,
+    "ast_hash": "3b22e006f4ab350d3a7b00239e5dde91",
+    "semantic_hash": "3b22e006f4ab350d3a7b00239e5dde91"
+  },
+  "ValuationService/src/ValuationService/Infrastructure/ParserOptions.cs": {
+    "mtime": 1778345182.100685,
+    "seen": 1787491210.7254183,
+    "ast_hash": "629bdec19f08d1c8421f96a5c24d6062",
+    "semantic_hash": "629bdec19f08d1c8421f96a5c24d6062"
+  },
+  "ValuationService/src/ValuationService/Infrastructure/ScalarOptions.cs": {
+    "mtime": 1778345144.4404368,
+    "seen": 1787491210.7254183,
+    "ast_hash": "704f8d296b0b413c7b396fd6856c52dc",
+    "semantic_hash": "704f8d296b0b413c7b396fd6856c52dc"
+  },
+  "ValuationService/src/ValuationService/Infrastructure/ValuationOptions.cs": {
+    "mtime": 1778345168.3369248,
+    "seen": 1787491210.7254183,
+    "ast_hash": "71b14e3213841c7cce1f6cb1b1cfa051",
+    "semantic_hash": "71b14e3213841c7cce1f6cb1b1cfa051"
+  },
+  "ValuationService/src/ValuationService/Program.cs": {
+    "mtime": 1778345201.2911808,
+    "seen": 1787491210.7254183,
+    "ast_hash": "2d57a253009a5696ca701d54e35770ca",
+    "semantic_hash": "2d57a253009a5696ca701d54e35770ca"
+  },
+  "ValuationService/src/ValuationService/Properties/launchSettings.json": {
+    "mtime": 1756508112.5768757,
+    "seen": 1787491210.7254183,
+    "ast_hash": "5244ee951dc1b2b255646ad2a580d730",
+    "semantic_hash": "5244ee951dc1b2b255646ad2a580d730"
+  },
+  "ValuationService/src/ValuationService/Service/ValuationBackgroundWorker.cs": {
+    "mtime": 1778345205.9496713,
+    "seen": 1787491210.7254183,
+    "ast_hash": "6a06ac174f0797475c9d52c158cda576",
+    "semantic_hash": "6a06ac174f0797475c9d52c158cda576"
+  },
+  "ValuationService/src/ValuationService/Service/ValuationControlService.cs": {
+    "mtime": 1775423377.5783322,
+    "seen": 1787491210.7254183,
+    "ast_hash": "67feb9765217d332d8ef2a04423a2feb",
+    "semantic_hash": "67feb9765217d332d8ef2a04423a2feb"
+  },
+  "ValuationService/src/ValuationService/Tests/ValuationBackgroundWorkerTests.cs": {
+    "mtime": 1778345271.3024836,
+    "seen": 1787491210.7254183,
+    "ast_hash": "2dd5242a5c0e5b477d3e728db1da5abc",
+    "semantic_hash": "2dd5242a5c0e5b477d3e728db1da5abc"
+  },
+  "ValuationService/src/ValuationService/Tests/ValuationControlServiceTests.cs": {
+    "mtime": 1775390961.4018989,
+    "seen": 1787491210.7254183,
+    "ast_hash": "cf14e60b1b46044647bbb12c2194e870",
+    "semantic_hash": "cf14e60b1b46044647bbb12c2194e870"
+  },
+  "ValuationService/src/ValuationService/Tests/ValuationControllerTests.cs": {
+    "mtime": 1775390966.6976223,
+    "seen": 1787491210.7254183,
+    "ast_hash": "be0e66d876ce736c5c7ec7c304830461",
+    "semantic_hash": "be0e66d876ce736c5c7ec7c304830461"
+  },
+  "ValuationService/src/ValuationService/Tests/ValuationResponseParserTests.cs": {
+    "mtime": 1778345217.890619,
+    "seen": 1787491210.7254183,
+    "ast_hash": "391da640cde0b2edad3fb51a23de24fb",
+    "semantic_hash": "391da640cde0b2edad3fb51a23de24fb"
+  },
+  "ValuationService/src/ValuationService/ValuationResponseParser.cs": {
+    "mtime": 1778345195.0650194,
+    "seen": 1787491210.7254183,
+    "ast_hash": "6906856306aac1790074b738ee08c8cd",
+    "semantic_hash": "6906856306aac1790074b738ee08c8cd"
+  },
+  "ValuationService/src/ValuationService/ValuationService.csproj": {
+    "mtime": 1775396087.1552494,
+    "seen": 1787491210.7254183,
+    "ast_hash": "a539534cb22cae75513edf36129e6830",
+    "semantic_hash": "a539534cb22cae75513edf36129e6830"
+  },
+  "ValuationService/src/ValuationService/appsettings.json": {
+    "mtime": 1778345701.2649374,
+    "seen": 1787491210.7254183,
+    "ast_hash": "8a6ad62d7d453428b4c3c7c8c9c6b520",
+    "semantic_hash": "8a6ad62d7d453428b4c3c7c8c9c6b520"
+  },
+  "ValuationService/src/ValuationService/research_comicbookrealm.js": {
+    "mtime": 1775430330.0128202,
+    "seen": 1787491210.7254183,
+    "ast_hash": "9729f20bd2f38f45ddb51d1645103842",
+    "semantic_hash": "9729f20bd2f38f45ddb51d1645103842"
+  },
+  "ValuationService/src/ValuationService/research_ebay.js": {
+    "mtime": 1775424704.271234,
+    "seen": 1787491210.7254183,
+    "ast_hash": "c83e2a4ec2687d5ae07a34ce3825f1d9",
+    "semantic_hash": "c83e2a4ec2687d5ae07a34ce3825f1d9"
+  },
+  "grafana/provisioning/dashboards/coinflip-dashboard.json": {
+    "mtime": 1772135917.8044682,
+    "seen": 1787491210.7254183,
+    "ast_hash": "eb32285f57df9566c67121c8f7a2eed7",
+    "semantic_hash": "eb32285f57df9566c67121c8f7a2eed7"
+  },
+  "grafana/provisioning/dashboards/health-dashboard.json": {
+    "mtime": 1772064040.669767,
+    "seen": 1787491210.7254183,
+    "ast_hash": "3d49b4790f1783a22dd85b18358758b8",
+    "semantic_hash": "3d49b4790f1783a22dd85b18358758b8"
+  },
+  "grafana/provisioning/dashboards/kafka-dashboard.json": {
+    "mtime": 1771123015.0900302,
+    "seen": 1787491210.7254183,
+    "ast_hash": "ebfbd55c7a80bd15d9c81f22cb4f34ee",
+    "semantic_hash": "ebfbd55c7a80bd15d9c81f22cb4f34ee"
+  },
+  "grafana/provisioning/dashboards/system-overview.json": {
+    "mtime": 1772139586.045313,
+    "seen": 1787491210.7254183,
+    "ast_hash": "60f86b941327fd3ec094bd26a2aa417c",
+    "semantic_hash": "60f86b941327fd3ec094bd26a2aa417c"
+  },
+  ".github/workflows/native-aot-microservices.yml": {
+    "mtime": 1772064040.669767,
+    "seen": 1791662497.3877504,
+    "ast_hash": "a90be0938ab086ab90ff5e949cd455fe",
+    "semantic_hash": ""
+  },
+  ".junie/AGENTS.md": {
+    "mtime": 1787578143.2176511,
+    "seen": 1791662497.3877504,
+    "ast_hash": "23d69f29fc011837f241f38e6647c312",
+    "semantic_hash": ""
+  },
+  ".junie/commands/graph.md": {
+    "mtime": 1787578317.6046274,
+    "seen": 1791662497.3877504,
+    "ast_hash": "ef5269d23886ce03432bfa8d99471412",
+    "semantic_hash": ""
+  },
+  ".junie/rules/graphify.md": {
+    "mtime": 1787578101.2672336,
+    "seen": 1791662497.3877504,
+    "ast_hash": "5ad1ecd12921ebe359958634c1432d7b",
+    "semantic_hash": ""
+  },
+  "ComicAppArchitecture.md": {
+    "mtime": 1791655597.8583055,
+    "seen": 1791662497.3877504,
+    "ast_hash": "5b85a667712bbad43a7778c20b26d002",
+    "semantic_hash": ""
+  },
+  "IngestionService/ARCHITECTURE.md": {
+    "mtime": 1774911146.2589364,
+    "seen": 1791662497.3877504,
+    "ast_hash": "526385cf6ea12d476b3a9b059ab4af4e",
+    "semantic_hash": ""
+  },
+  "IngestionService/README.md": {
+    "mtime": 1774911146.2589364,
+    "seen": 1791662497.3877504,
+    "ast_hash": "edee6f40677bb15e30741871bf168628",
+    "semantic_hash": ""
+  },
+  "PersistenceService/Architecture.md": {
+    "mtime": 1774911146.2589364,
+    "seen": 1791662497.3877504,
+    "ast_hash": "3a7eb8a63bd3b7e9334ad2e265c2ab94",
+    "semantic_hash": ""
+  },
+  "PersistenceService/README.md": {
+    "mtime": 1774911146.2599375,
+    "seen": 1791662497.3877504,
+    "ast_hash": "5f4fa60daa33043662b6ca1aca02f9dc",
+    "semantic_hash": ""
+  },
+  "ReadingListService/README.md": {
+    "mtime": 1777204823.035887,
+    "seen": 1791662497.3877504,
+    "ast_hash": "4f77ba5ec69501dd01a2f27abe8f66af",
+    "semantic_hash": ""
+  },
+  "ValuationService/src/ValuationService/ValuationServiceBackgroundWorker.md": {
+    "mtime": 1775356651.4115055,
+    "seen": 1791662497.3877504,
+    "ast_hash": "78eaf56e51443bf2376daf86a4e5e200",
+    "semantic_hash": ""
+  },
+  "ValuationService/src/ValuationService/ValuationServiceWorker.md": {
+    "mtime": 1775356710.0526333,
+    "seen": 1791662497.3877504,
+    "ast_hash": "ae7472f35e61ddfb0a4f54849d334a9d",
+    "semantic_hash": ""
+  },
+  "grafana/provisioning/dashboards/dashboards.yml": {
+    "mtime": 1766780320.1167827,
+    "seen": 1791662497.3877504,
+    "ast_hash": "7d5ace5fa6cade69d0a4dee6d5a19008",
+    "semantic_hash": ""
+  },
+  "grafana/provisioning/datasources/datasource.yml": {
+    "mtime": 1771279792.7859993,
+    "seen": 1791662497.3877504,
+    "ast_hash": "f083cd2fe3fdce0fddb128bcbbe5d7ce",
+    "semantic_hash": ""
+  },
+  "loki-config.yml": {
+    "mtime": 1772412718.7743924,
+    "seen": 1791662497.3877504,
+    "ast_hash": "e38f8d8d9640c97d6b6de635d0b16c3a",
+    "semantic_hash": ""
+  },
+  "otel-collector-config.yml": {
+    "mtime": 1775398542.749166,
+    "seen": 1791662497.3877504,
+    "ast_hash": "f2f7aab816d82b5c1154187927426b8d",
+    "semantic_hash": ""
+  },
+  "prometheus-alerts.yml": {
+    "mtime": 1775390848.4341457,
+    "seen": 1791662497.3877504,
+    "ast_hash": "cec746635c0c5359ba979b8a11781ed3",
+    "semantic_hash": ""
+  },
+  "prometheus.yml": {
+    "mtime": 1772077857.2988238,
+    "seen": 1791662497.3877504,
+    "ast_hash": "e2e534e20fda60e142e25a76325486b2",
+    "semantic_hash": ""
+  }
+}

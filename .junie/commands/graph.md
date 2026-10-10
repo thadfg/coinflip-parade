@@ -1,0 +1,1 @@
+Inspect `graphify-out/GRAPH_REPORT.md` and `graphify-out/graph.json` to answer the user's architectural question regarding service dependencies, hub nodes, or message flows.

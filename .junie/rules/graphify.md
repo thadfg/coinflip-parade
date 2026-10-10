@@ -1,0 +1,3 @@
+# Graphify Architectural Context Rules
+- Before scanning source code or executing multi-file searches to trace service architecture, consult `C:\ComicApp\coinflip-parade\graphify-out\GRAPH_REPORT.md` or inspect `graphify-out\graph.json`.
+- Use the pre-computed graph to trace dependencies across IngestionService, PersistenceService, ReadingListService, ValuationService, and SharedLibrary without loading raw source files into context.
